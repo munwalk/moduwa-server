@@ -1,7 +1,7 @@
 ---
 name: "📄 Documentation"
 about: 문서 수정 이슈 템플릿
-title: "📄Docs: "
+title: "[Docs] "
 labels: "📄 Docs"
 assignees: ''
 
