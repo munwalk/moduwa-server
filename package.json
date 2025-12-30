@@ -1,0 +1,38 @@
+{
+    "name": "moduwa-server",
+    "type": "module",
+    "version": "1.0.0",
+    "description": "[UMC 9th] moduwa-server",
+    "main": "app.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node src/app.js",
+        "dev": "nodemon -e js,json,prisma --exec \"prisma generate && node src/app.js\""
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@prisma/client": "^6.18.0",
+        "bcrypt": "^6.0.0",
+        "compression": "^1.8.1",
+        "cookie-parser": "^1.4.7",
+        "cors": "^2.8.5",
+        "dotenv": "^17.2.3",
+        "express": "^5.1.0",
+        "express-session": "^1.18.2",
+        "http-status-codes": "^2.3.0",
+        "jsonwebtoken": "^9.0.2",
+        "morgan": "^1.10.1",
+        "passport": "^0.7.0",
+        "passport-google-oauth20": "^2.0.0",
+        "passport-jwt": "^4.0.1",
+        "passport-kakao": "^1.0.1",
+        "passport-local": "^1.0.0",
+        "prisma": "^6.18.0",
+        "swagger-autogen": "^2.23.7",
+        "swagger-ui-express": "^5.0.1"
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.10"
+    }
+}
