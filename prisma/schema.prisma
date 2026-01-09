@@ -1,0 +1,349 @@
+// Prisma Schema for 모두와 AAC
+// MySQL 버전
+// 테이블 12개
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUM 정의
+// ============================================
+
+enum AccountType {
+  GUEST
+  SOCIAL
+}
+
+enum Provider {
+  KAKAO
+  GOOGLE
+  NAVER
+}
+
+enum SentenceSource {
+  AI_SUGGESTED
+  USER_TYPED
+  EDITED
+}
+
+enum InputType {
+  WORD_ONLY
+  TYPING_ONLY
+  MIXED
+}
+
+enum FeedbackType {
+  EDITED
+  STYLE_CHANGED
+}
+
+enum TtsVoiceType {
+  MALE
+  FEMALE
+}
+
+enum TtsAgeType {
+  YOUNG
+  OLD
+}
+
+enum TtsTone {
+  NEUTRAL
+  WARM
+  ENERGETIC
+}
+
+enum PlanType {
+  FREE
+  PREMIUM
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+// ============================================
+// 1. User (사용자)
+// ============================================
+
+model User {
+  id          String      @id @default(uuid()) @db.Char(36)
+  nickname    String      @db.VarChar(50)
+  email       String?     @unique @db.VarChar(255)
+  accountType AccountType @map("account_type")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  lastLoginAt DateTime?   @map("last_login_at")
+
+  // Relations
+  providers           UserProvider[]
+  userCategories      UserCategory[]
+  userWords           UserWord[]
+  favoriteSentences   FavoriteSentence[]
+  routineMessages     RoutineMessage[]
+  conversationHistory ConversationHistory[]
+  aiFeedbacks         AIFeedback[]
+  settings            UserSettings?
+  subscriptions       Subscription[]
+
+  @@index([email])
+  @@index([accountType])
+  @@map("User")
+}
+
+// ============================================
+// 2. UserProvider (소셜 계정 연동)
+// ============================================
+
+model UserProvider {
+  id             String   @id @default(uuid()) @db.Char(36)
+  userId         String   @map("user_id") @db.Char(36)
+  provider       Provider
+  providerUserId String   @map("provider_user_id") @db.VarChar(255)
+  linkedAt       DateTime @default(now()) @map("linked_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerUserId])
+  @@index([userId])
+  @@map("UserProvider")
+}
+
+// ============================================
+// 3. Category (기본 카테고리)
+// ============================================
+
+model Category {
+  id           String   @id @default(uuid()) @db.Char(36)
+  categoryName String   @unique @map("category_name") @db.VarChar(50)
+  displayOrder Int      @map("display_order")
+  isDefault    Boolean  @default(true) @map("is_default")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  // Relations
+  words Word[]
+
+  @@map("Category")
+}
+
+// ============================================
+// 4. Word (기본 낱말)
+// ============================================
+
+model Word {
+  id         String   @id @default(uuid()) @db.Char(36)
+  categoryId String   @map("category_id") @db.Char(36)
+  word       String   @db.VarChar(100)
+  imageUrl   String   @map("image_url") @db.VarChar(500)
+  isDefault  Boolean  @default(true) @map("is_default")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relations
+  category  Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  userWords UserWord[]
+
+  @@index([categoryId])
+  @@index([word])
+  @@map("Word")
+}
+
+// ============================================
+// 5. UserCategory (사용자 정의 카테고리)
+// ============================================
+
+model UserCategory {
+  id           String   @id @default(uuid()) @db.Char(36)
+  userId       String   @map("user_id") @db.Char(36)
+  categoryName String   @map("category_name") @db.VarChar(50)
+  displayOrder Int      @map("display_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userWords UserWord[]
+
+  @@unique([userId, categoryName])
+  @@index([userId, displayOrder])
+  @@map("UserCategory")
+}
+
+// ============================================
+// 6. UserWord (사용자 낱말)
+// ============================================
+
+model UserWord {
+  id             String   @id @default(uuid()) @db.Char(36)
+  userId         String   @map("user_id") @db.Char(36)
+  wordId         String?  @map("word_id") @db.Char(36)
+  userCategoryId String   @map("user_category_id") @db.Char(36)
+  customWord     String?  @map("custom_word") @db.VarChar(100)
+  customImageUrl String?  @map("custom_image_url") @db.VarChar(500)
+  displayOrder   Int      @map("display_order")
+  isFavorite     Boolean  @default(false) @map("is_favorite")
+  isDeleted      Boolean  @default(false) @map("is_deleted") // 추가!
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  word         Word?        @relation(fields: [wordId], references: [id], onDelete: SetNull)
+  userCategory UserCategory @relation(fields: [userCategoryId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, isFavorite])
+  @@index([userId, isDeleted]) // 삭제된 항목 필터링용
+  @@index([userCategoryId, displayOrder])
+  @@map("UserWord")
+}
+
+// ============================================
+// 7. FavoriteSentence (즐겨찾기 문장)
+// ============================================
+
+model FavoriteSentence {
+  id             String         @id @default(uuid()) @db.Char(36)
+  userId         String         @map("user_id") @db.Char(36)
+  sentence       String         @db.Text
+  sentenceSource SentenceSource @map("sentence_source")
+  createdAt      DateTime       @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("FavoriteSentence")
+}
+
+// ============================================
+// 8. RoutineMessage (루틴 문장)
+// MySQL 버전: JSON으로 요일 저장
+// ============================================
+
+model RoutineMessage {
+  id            String   @id @default(uuid()) @db.Char(36)
+  userId        String   @map("user_id") @db.Char(36)
+  message       String   @db.Text
+  daysOfWeek    Json     @map("days_of_week") // MySQL JSON: [1,3,5]
+  scheduledTime String   @map("scheduled_time") @db.VarChar(5) // "11:00"
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isActive, scheduledTime])
+  @@map("RoutineMessage")
+}
+
+// ============================================
+// 9. ConversationHistory (대화 이력)
+// MySQL JSON 사용
+// 사용 기록 기능 지원 (HIS-01~04)
+// ============================================
+
+model ConversationHistory {
+  id                 String    @id @default(uuid()) @db.Char(36)
+  userId             String    @map("user_id") @db.Char(36)
+  inputWords         Json?     @map("input_words") // [{wordId, word, order}]
+  typedText          String?   @map("typed_text") @db.Text
+  inputType          InputType @map("input_type")
+  suggestedSentences Json      @map("suggested_sentences") // ["문장1", "문장2", "문장3"]
+  selectedSentence   String?   @map("selected_sentence") @db.Text
+  selectionIndex     Int?      @map("selection_index")
+  
+  // 사용 기록 기능
+  isOutputted        Boolean   @default(false) @map("is_outputted") // TTS 실제 출력 여부
+  isDeleted          Boolean   @default(false) @map("is_deleted")   // Soft Delete
+  deletedAt          DateTime? @map("deleted_at")                   // 삭제 시간
+  
+  createdAt          DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aiFeedbacks AIFeedback[]
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, isOutputted, isDeleted])  // 출력된 항목만 조회
+  @@index([userId, isDeleted, createdAt])    // 삭제 안 된 항목 월별 조회
+  @@map("ConversationHistory")
+}
+
+// ============================================
+// 10. AIFeedback (AI 피드백)
+// MySQL JSON 사용
+// ============================================
+
+model AIFeedback {
+  id               String       @id @default(uuid()) @db.Char(36)
+  conversationId   String       @map("conversation_id") @db.Char(36)
+  userId           String       @map("user_id") @db.Char(36)
+  originalSentence String       @map("original_sentence") @db.Text
+  editedSentence   String       @map("edited_sentence") @db.Text
+  feedbackType     FeedbackType @map("feedback_type")
+  editDetails      Json?        @map("edit_details") // {changedWords, editType}
+  createdAt        DateTime     @default(now()) @map("created_at")
+
+  // Relations
+  conversation ConversationHistory @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([conversationId])
+  @@map("AIFeedback")
+}
+
+// ============================================
+// 11. UserSettings (사용자 설정)
+// ============================================
+
+model UserSettings {
+  id           String       @id @default(uuid()) @db.Char(36)
+  userId       String       @unique @map("user_id") @db.Char(36)
+  ttsVoiceType TtsVoiceType @default(FEMALE) @map("tts_voice_type")
+  ttsAgeType   TtsAgeType   @default(YOUNG) @map("tts_age_type")
+  ttsTone      TtsTone      @default(NEUTRAL) @map("tts_tone")
+  gridColumns  Int          @default(4) @map("grid_columns")
+  preferences  Json?        // 기타 설정
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("UserSettings")
+}
+
+// ============================================
+// 12. Subscription (구독 관리)
+// ============================================
+
+model Subscription {
+  id        String             @id @default(uuid()) @db.Char(36)
+  userId    String             @map("user_id") @db.Char(36)
+  planType  PlanType           @map("plan_type")
+  startDate DateTime           @map("start_date")
+  endDate   DateTime?          @map("end_date")
+  status    SubscriptionStatus
+  createdAt DateTime           @default(now()) @map("created_at")
+  updatedAt DateTime           @updatedAt @map("updated_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, status])
+  @@index([status])
+  @@index([endDate])
+  @@map("Subscription")
+}
