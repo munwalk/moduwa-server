@@ -166,6 +166,10 @@ model UserCategory {
   userId       String   @map("user_id") @db.Char(36)
   categoryName String   @map("category_name") @db.VarChar(50)
   displayOrder Int      @map("display_order")
+  // PM02 - 기본 아이콘 선택 값
+  iconKey      String?  @map("icon_key") @db.VarChar(50)
+  //PM02 - 사용자 업로드 아이콘 URL
+  iconUrl      String?  @map("icon_url") @db.VarChar(500)
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
