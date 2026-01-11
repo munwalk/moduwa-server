@@ -6,6 +6,9 @@ import {
     UnauthorizedError
 } from './errors/app.error.js';
 
+import ttsRouter from "./tts/tts.route.js";
+
+
 // 환경변수 설정
 dotenv.config();
 
@@ -41,6 +44,7 @@ app.use((req, res, next) => {
 });
 
 // 3. 테스트용 라우트
+app.use("/api/ai/tts", ttsRouter);
 
 // 성공 케이스 테스트
 app.get('/', (req, res) => {
