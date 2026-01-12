@@ -12,7 +12,9 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
+        "@google-cloud/text-to-speech": "^6.4.0",
         "@prisma/client": "^6.18.0",
+        "axios": "^1.13.2",
         "bcrypt": "^6.0.0",
         "compression": "^1.8.1",
         "cookie-parser": "^1.4.7",
