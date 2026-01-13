@@ -7,7 +7,7 @@
  */
 export class GetWordsQueryDto {
   constructor({ categoryId, onlyFavorite }) {
-    this.categoryId = categoryId || null;
+    this.categoryId = categoryId ? String(categoryId) : null; // String으로 변환
     this.onlyFavorite = onlyFavorite === 'true' || onlyFavorite === true;
   }
 }
@@ -17,7 +17,7 @@ export class GetWordsQueryDto {
  */
 export class CreateWordDto {
   constructor({ categoryId, word, imageUrl }) {
-    this.categoryId = categoryId;
+    this.categoryId = String(categoryId); // String으로 변환
     this.word = word;
     this.imageUrl = imageUrl;
   }

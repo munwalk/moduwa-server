@@ -1,5 +1,6 @@
 import wordsRepository from './words.repository.js';
 import { WordCardResponseDto } from './words.dto.js';
+import { analyzeWord } from '../utils/nlp.client.js';
 
 /**
  * Words Service
@@ -85,7 +86,13 @@ export class WordsService {
    * @returns {Promise<WordCardResponseDto>}
    */
   async createWord(userId, categoryId, word, imageUrl) {
-    // 현재 카테고리에서 최대 displayOrder 구하기
+    // 1. NLP 서비스로 품사 자동 분석
+    const nlpResult = await analyzeWord(word);
+    const partOfSpeech = nlpResult.category; // NOUN, VERB, ADJECTIVE 등
+
+    console.log(`[NLP] 단어: ${word}, 품사: ${partOfSpeech} (원본: ${nlpResult.pos})`);
+
+    // 2. 현재 카테고리에서 최대 displayOrder 구하기
     const existingWords = await wordsRepository.findUserWords(userId, categoryId);
     const maxOrder = existingWords.length > 0 
       ? Math.max(...existingWords.map(w => w.displayOrder))
@@ -93,13 +100,14 @@ export class WordsService {
     
     const newDisplayOrder = maxOrder + 1;
 
-    // UserWord 생성
+    // 3. UserWord 생성 (품사 포함)
     const createdUserWord = await wordsRepository.createUserWord(
       userId,
       categoryId,
       word,
       imageUrl,
-      newDisplayOrder
+      newDisplayOrder,
+      partOfSpeech
     );
 
     return new WordCardResponseDto({

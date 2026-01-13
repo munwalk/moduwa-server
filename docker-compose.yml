@@ -14,7 +14,7 @@ services:
       MYSQL_USER: modua_user
       MYSQL_PASSWORD: modua_password
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
@@ -61,6 +61,7 @@ services:
       JWT_REFRESH_EXPIRES_IN: 14d
       NODE_ENV: development
       PORT: 3000
+      NLP_SERVICE_URL: http://nlp-service:8000
     ports:
       - "3000:3000"
     volumes:
@@ -72,9 +73,29 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      nlp-service:
+        condition: service_started
     networks:
       - modua_network
     command: npm run dev
+
+  # ==========================================
+  # NLP Microservice (Python + FastAPI + KoNLPy)
+  # ==========================================
+  nlp-service:
+    build:
+      context: ./nlp-service
+      dockerfile: Dockerfile
+    container_name: modua_nlp
+    restart: always
+    ports:
+      - "8000:8000"
+    networks:
+      - modua_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      timeout: 5s
+      retries: 5
 
 
 volumes:

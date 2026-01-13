@@ -84,9 +84,10 @@ export class WordsRepository {
    * @param {string} word
    * @param {string} imageUrl
    * @param {number} displayOrder
+   * @param {string} partOfSpeech - 품사 (NLP 자동 분류)
    * @returns {Promise<Object>}
    */
-  async createUserWord(userId, categoryId, word, imageUrl, displayOrder) {
+  async createUserWord(userId, categoryId, word, imageUrl, displayOrder, partOfSpeech = 'NOUN') {
     // categoryId가 UserCategory 확인
     const userCategory = await prisma.userCategory.findUnique({
       where: { id: categoryId }
@@ -99,7 +100,7 @@ export class WordsRepository {
         userId,
         categoryId: isUserCategory ? null : categoryId,
         userCategoryId: isUserCategory ? categoryId : null,
-        partOfSpeech: 'NOUN', // 임시값: 나중에 파이썬으로 자동 분류
+        partOfSpeech: partOfSpeech, // NLP 서비스에서 받은 품사
         customWord: word,
         customImageUrl: imageUrl,
         displayOrder,
