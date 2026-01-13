@@ -9,4 +9,10 @@ const router = express.Router();
  */
 router.get('/', wordsController.getWords.bind(wordsController));
 
+/**
+ * POST /api/pm/words - 개인 낱말 카드 추가
+ * Body: categoryId, word, imageUrl
+ */
+router.post('/', wordsController.createWord.bind(wordsController));
+
 export default router;

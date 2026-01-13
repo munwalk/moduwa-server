@@ -13,6 +13,35 @@ export class GetWordsQueryDto {
 }
 
 /**
+ * POST /api/pm/words - Create Word Request DTO
+ */
+export class CreateWordDto {
+  constructor({ categoryId, word, imageUrl }) {
+    this.categoryId = categoryId;
+    this.word = word;
+    this.imageUrl = imageUrl;
+  }
+
+  validate() {
+    const errors = [];
+    
+    if (!this.categoryId) {
+      errors.push('categoryId는 필수입니다');
+    }
+    if (!this.word) {
+      errors.push('word는 필수입니다');
+    }
+    if (!this.imageUrl) {
+      errors.push('imageUrl은 필수입니다');
+    }
+
+    if (errors.length > 0) {
+      throw new Error(errors.join(', '));
+    }
+  }
+}
+
+/**
  * 낱말 카드 응답 DTO
  */
 export class WordCardResponseDto {

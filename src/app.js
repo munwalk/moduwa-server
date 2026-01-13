@@ -47,6 +47,7 @@ app.use((req, res, next) => {
 // 3. 테스트용 라우트
 app.use("/api/ai/tts", ttsRouter);
 app.use("/api/in/words", wordsRouter);
+app.use("/api/pm/words", wordsRouter);
 
 // 성공 케이스 테스트
 app.get('/', (req, res) => {

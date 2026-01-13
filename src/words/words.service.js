@@ -75,6 +75,44 @@ export class WordsService {
 
     return wordCards;
   }
+
+  /**
+   * 사용자 개인 낱말 추가
+   * @param {string} userId
+   * @param {string} categoryId - Category.id 또는 UserCategory.id
+   * @param {string} word - 낱말 텍스트
+   * @param {string} imageUrl - 이미지 URL
+   * @returns {Promise<WordCardResponseDto>}
+   */
+  async createWord(userId, categoryId, word, imageUrl) {
+    // 현재 카테고리에서 최대 displayOrder 구하기
+    const existingWords = await wordsRepository.findUserWords(userId, categoryId);
+    const maxOrder = existingWords.length > 0 
+      ? Math.max(...existingWords.map(w => w.displayOrder))
+      : 0;
+    
+    const newDisplayOrder = maxOrder + 1;
+
+    // UserWord 생성
+    const createdUserWord = await wordsRepository.createUserWord(
+      userId,
+      categoryId,
+      word,
+      imageUrl,
+      newDisplayOrder
+    );
+
+    return new WordCardResponseDto({
+      cardId: createdUserWord.id,
+      categoryId: createdUserWord.userCategoryId || createdUserWord.categoryId,
+      partOfSpeech: createdUserWord.partOfSpeech,
+      word: createdUserWord.customWord,
+      imageUrl: createdUserWord.customImageUrl,
+      isDefault: false,
+      isFavorite: createdUserWord.isFavorite,
+      displayOrder: createdUserWord.displayOrder
+    });
+  }
 }
 
 export default new WordsService();

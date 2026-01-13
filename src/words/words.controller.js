@@ -1,5 +1,5 @@
 import wordsService from './words.service.js';
-import { GetWordsQueryDto } from './words.dto.js';
+import { GetWordsQueryDto, CreateWordDto } from './words.dto.js';
 
 /**
  * Words Controller
@@ -27,6 +27,39 @@ export class WordsController {
         success: true,
         data: { words },
         message: '낱말 카드 목록 조회 성공'
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * POST /api/pm/words - 개인 낱말 카드 추가
+   */
+  async createWord(req, res, next) {
+    try {
+      const userId = req.user?.id || 'temp-user-id';
+
+      const createDto = new CreateWordDto({
+        categoryId: req.body.categoryId,
+        word: req.body.word,
+        imageUrl: req.body.imageUrl
+      });
+
+      // 유효성 검증
+      createDto.validate();
+
+      const createdWord = await wordsService.createWord(
+        userId,
+        createDto.categoryId,
+        createDto.word,
+        createDto.imageUrl
+      );
+
+      return res.status(201).json({
+        success: true,
+        data: { word: createdWord },
+        message: '개인 낱말 카드 추가 성공'
       });
     } catch (error) {
       next(error);

@@ -76,6 +76,38 @@ export class WordsRepository {
       }
     });
   }
+
+  /**
+   * 사용자 개인 낱말 생성
+   * @param {string} userId
+   * @param {string} categoryId - Category.id 또는 UserCategory.id
+   * @param {string} word
+   * @param {string} imageUrl
+   * @param {number} displayOrder
+   * @returns {Promise<Object>}
+   */
+  async createUserWord(userId, categoryId, word, imageUrl, displayOrder) {
+    // categoryId가 UserCategory 확인
+    const userCategory = await prisma.userCategory.findUnique({
+      where: { id: categoryId }
+    });
+
+    const isUserCategory = !!userCategory;
+
+    return await prisma.userWord.create({
+      data: {
+        userId,
+        categoryId: isUserCategory ? null : categoryId,
+        userCategoryId: isUserCategory ? categoryId : null,
+        partOfSpeech: 'NOUN', // 임시값: 나중에 파이썬으로 자동 분류
+        customWord: word,
+        customImageUrl: imageUrl,
+        displayOrder,
+        isFavorite: false,
+        isDeleted: false
+      }
+    });
+  }
 }
 
 export default new WordsRepository();
