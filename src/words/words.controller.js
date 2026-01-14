@@ -17,7 +17,7 @@ export class WordsController {
         onlyFavorite: req.query.onlyFavorite
       });
 
-      const words = await wordsService.getWords(
+      const result = await wordsService.getWords(
         userId,
         queryDto.categoryId,
         queryDto.onlyFavorite
@@ -25,7 +25,7 @@ export class WordsController {
 
       return res.status(200).json({
         success: true,
-        data: { words },
+        data: result,
         message: '낱말 카드 목록 조회 성공'
       });
     } catch (error) {

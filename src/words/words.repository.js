@@ -27,6 +27,29 @@ export class WordsRepository {
   }
 
   /**
+   * 카테고리 조회 (Category 또는 UserCategory)
+   * @param {string} categoryId - Category.id 또는 UserCategory.id
+   * @returns {Promise<Object|null>}
+   */
+  async findCategoryById(categoryId) {
+    // Category 테이블에서 조회
+    const category = await prisma.category.findUnique({
+      where: { id: categoryId }
+    });
+    
+    if (category) {
+      return category;
+    }
+
+    // UserCategory 테이블에서 조회
+    const userCategory = await prisma.userCategory.findUnique({
+      where: { id: categoryId }
+    });
+    
+    return userCategory;
+  }
+
+  /**
    * 사용자 개인 낱말(UserWord) 조회
    * @param {string} userId
    * @param {string|null} categoryId - Category.id 또는 UserCategory.id

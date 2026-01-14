@@ -13,10 +13,17 @@ export class WordsService {
    * @param {string} userId
    * @param {string|null} categoryId - Category.id 또는 UserCategory.id
    * @param {boolean} onlyFavorite
-   * @returns {Promise<Array<WordCardResponseDto>>}
+   * @returns {Promise<Object>} { category, words }
    */
   async getWords(userId, categoryId = null, onlyFavorite = false) {
     const wordCards = [];
+    let categoryName = null;
+
+    // 카테고리 이름 조회 (categoryId가 있을 때만)
+    if (categoryId) {
+      const category = await wordsRepository.findCategoryById(categoryId);
+      categoryName = category?.categoryName || null;
+    }
 
     // 1. UserWord 조회 (개인화된 낱말)
     const userWords = await wordsRepository.findUserWords(userId, categoryId, onlyFavorite);
@@ -74,7 +81,17 @@ export class WordsService {
     // 4. displayOrder 기준 정렬
     wordCards.sort((a, b) => a.displayOrder - b.displayOrder);
 
-    return wordCards;
+    // categoryId가 있으면 category 정보 포함, 없으면 words만 반환
+    if (categoryId) {
+      return {
+        category: categoryName,
+        words: wordCards
+      };
+    } else {
+      return {
+        words: wordCards
+      };
+    }
   }
 
   /**
