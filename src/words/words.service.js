@@ -147,11 +147,8 @@ export class WordsService {
    * @returns {Promise<Object>} { cardId, isFavorite }
    */
   async updateFavorite(userId, cardId, isFavorite) {
-    console.log(`[updateFavorite] userId: ${userId}, cardId: ${cardId}, isFavorite: ${isFavorite}`);
-    
     // 1. cardId가 UserWord인지 Word인지 확인
     let userWord = await wordsRepository.findUserWordById(cardId);
-    console.log(`[updateFavorite] userWord:`, userWord ? 'found' : 'not found');
     
     if (userWord) {
       // UserWord가 존재하는 경우
@@ -198,6 +195,73 @@ export class WordsService {
         // 즐겨찾기 해제: Word는 기본적으로 즐겨찾기가 아니므로 아무것도 안함
         return { cardId, isFavorite: false };
       }
+    }
+  }
+
+  /**
+   * 낱말 카드 수정
+   * @param {string} userId
+   * @param {string} cardId - Word.id 또는 UserWord.id
+   * @param {string|undefined} word - 수정할 낱말 텍스트
+   * @param {string|undefined} imageUrl - 수정할 이미지 URL
+   * @returns {Promise<WordCardResponseDto>}
+   */
+  async updateWord(userId, cardId, word, imageUrl) {
+    // 1. cardId가 UserWord인지 Word인지 확인
+    let userWord = await wordsRepository.findUserWordById(cardId);
+    
+    if (userWord) {
+      // UserWord가 존재하는 경우: customWord/customImageUrl 업데이트
+      const updatedUserWord = await wordsRepository.updateUserWord(cardId, word, imageUrl);
+      
+      const displayWord = updatedUserWord.customWord || (updatedUserWord.word?.word || '');
+      const displayImageUrl = updatedUserWord.customImageUrl || (updatedUserWord.word?.imageUrl || '');
+      
+      return new WordCardResponseDto({
+        cardId: updatedUserWord.id,
+        categoryId: updatedUserWord.userCategoryId || updatedUserWord.categoryId,
+        partOfSpeech: updatedUserWord.partOfSpeech,
+        word: displayWord,
+        imageUrl: displayImageUrl,
+        isDefault: updatedUserWord.wordId !== null,
+        isFavorite: updatedUserWord.isFavorite,
+        displayOrder: updatedUserWord.displayOrder
+      });
+    } else {
+      // Word인 경우: UserWord 생성
+      const baseWord = await wordsRepository.findWordById(cardId);
+      if (!baseWord) {
+        throw new Error('존재하지 않는 낱말입니다');
+      }
+
+      // displayOrder 계산
+      const existingWords = await wordsRepository.findUserWords(userId, baseWord.categoryId);
+      const maxOrder = existingWords.length > 0 
+        ? Math.max(...existingWords.map(w => w.displayOrder))
+        : 0;
+      const newDisplayOrder = maxOrder + 1;
+
+      const newUserWord = await wordsRepository.createUserWordForEdit(
+        userId,
+        cardId,
+        word || null,
+        imageUrl || null,
+        newDisplayOrder
+      );
+
+      const displayWord = newUserWord.customWord || newUserWord.word.word;
+      const displayImageUrl = newUserWord.customImageUrl || newUserWord.word.imageUrl;
+
+      return new WordCardResponseDto({
+        cardId: newUserWord.id,
+        categoryId: newUserWord.categoryId,
+        partOfSpeech: newUserWord.partOfSpeech,
+        word: displayWord,
+        imageUrl: displayImageUrl,
+        isDefault: true,
+        isFavorite: newUserWord.isFavorite,
+        displayOrder: newUserWord.displayOrder
+      });
     }
   }
 }

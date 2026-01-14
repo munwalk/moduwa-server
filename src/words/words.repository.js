@@ -207,6 +207,60 @@ export class WordsRepository {
       where: { id: userWordId }
     });
   }
+
+  /**
+   * 낱말 수정용 UserWord 생성 (기본 낱말 참조)
+   * @param {string} userId
+   * @param {string} wordId - Word.id
+   * @param {string|null} customWord
+   * @param {string|null} customImageUrl
+   * @param {number} displayOrder
+   * @returns {Promise<Object>}
+   */
+  async createUserWordForEdit(userId, wordId, customWord, customImageUrl, displayOrder) {
+    const word = await this.findWordById(wordId);
+    
+    return await prisma.userWord.create({
+      data: {
+        userId,
+        wordId,
+        categoryId: word.categoryId,
+        partOfSpeech: word.partOfSpeech,
+        customWord,
+        customImageUrl,
+        displayOrder,
+        isFavorite: false,
+        isDeleted: false
+      },
+      include: {
+        word: true,
+        category: true
+      }
+    });
+  }
+
+  /**
+   * UserWord 업데이트 (customWord, customImageUrl)
+   * @param {string} userWordId - UserWord.id
+   * @param {string|null} customWord
+   * @param {string|null} customImageUrl
+   * @returns {Promise<Object>}
+   */
+  async updateUserWord(userWordId, customWord, customImageUrl) {
+    const data = {};
+    if (customWord !== undefined) data.customWord = customWord;
+    if (customImageUrl !== undefined) data.customImageUrl = customImageUrl;
+
+    return await prisma.userWord.update({
+      where: { id: userWordId },
+      data,
+      include: {
+        word: true,
+        category: true,
+        userCategory: true
+      }
+    });
+  }
 }
 
 export default new WordsRepository();

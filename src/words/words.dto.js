@@ -57,6 +57,22 @@ export class UpdateFavoriteDto {
 }
 
 /**
+ * PATCH /api/pm/words/:cardId - Update Word Request DTO
+ */
+export class UpdateWordDto {
+  constructor({ word, imageUrl }) {
+    this.word = word;
+    this.imageUrl = imageUrl;
+  }
+
+  validate() {
+    if (!this.word && !this.imageUrl) {
+      throw new Error('word 또는 imageUrl 중 하나는 필수입니다');
+    }
+  }
+}
+
+/**
  * 낱말 카드 응답 DTO
  */
 export class WordCardResponseDto {

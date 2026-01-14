@@ -21,4 +21,10 @@ router.post('/', wordsController.createWord.bind(wordsController));
  */
 router.patch('/:cardId/favorite', wordsController.updateFavorite.bind(wordsController));
 
+/**
+ * PATCH /api/pm/words/:cardId - 낱말 카드 수정
+ * Body: word, imageUrl
+ */
+router.patch('/:cardId', wordsController.updateWord.bind(wordsController));
+
 export default router;
