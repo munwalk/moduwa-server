@@ -6,8 +6,9 @@ FROM node:18-alpine AS base
 # 작업 디렉토리 설정
 WORKDIR /app
 
-# 타임존 설정 (서울)
-RUN apk add --no-cache tzdata
+# 타임존 설정 및 Prisma 필수 라이브러리 설치
+# openssl1.1-compat와 libc6-compat를 추가합니다.
+RUN apk add --no-cache tzdata openssl openssl-dev libc6-compat
 ENV TZ=Asia/Seoul
 
 # ==========================================
