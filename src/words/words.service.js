@@ -25,8 +25,8 @@ export class WordsService {
       categoryName = category?.categoryName || null;
     }
 
-    // 1. UserWord 조회 (개인화된 낱말)
-    const userWords = await wordsRepository.findUserWords(userId, categoryId, onlyFavorite);
+    // 1. UserWord 조회 (개인화된 낱말) - includeDeleted=true로 삭제된 것도 포함
+    const userWords = await wordsRepository.findUserWords(userId, categoryId, onlyFavorite, true);
     
     // UserWord를 cardId 맵으로 저장 (wordId 기준)
     const userWordMap = new Map();
@@ -36,8 +36,21 @@ export class WordsService {
       }
     });
 
-    // 2. UserWord를 WordCardResponseDto로 변환
+    // isDeleted=true인 Word.id를 수집 (기본 낱말 필터링용)
+    const deletedWordIds = new Set();
     userWords.forEach(uw => {
+      if (uw.wordId && uw.isDeleted) {
+        deletedWordIds.add(uw.wordId);
+      }
+    });
+
+    // 2. UserWord를 WordCardResponseDto로 변환 (isDeleted=false인 것만)
+    userWords.forEach(uw => {
+      // isDeleted=true인 경우 제외
+      if (uw.isDeleted) {
+        return;
+      }
+
       // 개인 낱말: customWord가 있으면 사용, 없으면 기본 낱말 참조
       const displayWord = uw.customWord || (uw.word?.word || '');
       const displayImageUrl = uw.customImageUrl || (uw.word?.imageUrl || '');
@@ -63,7 +76,8 @@ export class WordsService {
 
       words.forEach(word => {
         // 이미 UserWord로 개인화된 낱말은 제외
-        if (!userWordMap.has(word.id)) {
+        // isDeleted=true로 표시된 낱말도 제외
+        if (!userWordMap.has(word.id) && !deletedWordIds.has(word.id)) {
           wordCards.push(new WordCardResponseDto({
             cardId: word.id, // Word.id
             categoryId: word.categoryId,
@@ -262,6 +276,39 @@ export class WordsService {
         isFavorite: newUserWord.isFavorite,
         displayOrder: newUserWord.displayOrder
       });
+    }
+  }
+
+  /**
+   * 낱말 카드 삭제(숨김) 처리
+   * @param {string} userId
+   * @param {string} cardId - Word.id 또는 UserWord.id
+   * @returns {Promise<void>}
+   */
+  async deleteWord(userId, cardId) {
+    // 1. cardId가 UserWord인지 확인
+    let userWord = await wordsRepository.findUserWordById(cardId);
+    
+    if (userWord) {
+      // UserWord인 경우: 실제 삭제 (DELETE)
+      await wordsRepository.deleteUserWord(cardId);
+    } else {
+      // Word인 경우: UserWord 레이어 생성 후 isDeleted=true 처리
+      const baseWord = await wordsRepository.findWordById(cardId);
+      
+      if (!baseWord) {
+        throw new Error('존재하지 않는 낱말입니다');
+      }
+
+      // displayOrder 계산
+      const existingWords = await wordsRepository.findUserWords(userId, baseWord.categoryId);
+      const maxOrder = existingWords.length > 0 
+        ? Math.max(...existingWords.map(w => w.displayOrder))
+        : 0;
+      const newDisplayOrder = maxOrder + 1;
+
+      // isDeleted=true로 UserWord 생성
+      await wordsRepository.createUserWordForDelete(userId, cardId, newDisplayOrder);
     }
   }
 }

@@ -27,4 +27,9 @@ router.patch('/:cardId/favorite', wordsController.updateFavorite.bind(wordsContr
  */
 router.patch('/:cardId', wordsController.updateWord.bind(wordsController));
 
+/**
+ * DELETE /api/pm/words/:cardId - 낱말 카드 삭제
+ */
+router.delete('/:cardId', wordsController.deleteWord.bind(wordsController));
+
 export default router;

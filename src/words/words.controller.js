@@ -129,6 +129,26 @@ export class WordsController {
       next(error);
     }
   }
+
+  /**
+   * DELETE /api/pm/words/:cardId - 낱말 카드 삭제
+   */
+  async deleteWord(req, res, next) {
+    try {
+      const userId = req.user?.id || 'temp-user-id';
+      const { cardId } = req.params;
+
+      await wordsService.deleteWord(userId, cardId);
+
+      return res.status(200).json({
+        success: true,
+        data: null,
+        message: '낱말 카드 삭제 성공'
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default new WordsController();

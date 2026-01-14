@@ -54,13 +54,18 @@ export class WordsRepository {
    * @param {string} userId
    * @param {string|null} categoryId - Category.id 또는 UserCategory.id
    * @param {boolean} onlyFavorite
+   * @param {boolean} includeDeleted - isDeleted=true인 것도 포함할지 여부
    * @returns {Promise<Array>}
    */
-  async findUserWords(userId, categoryId = null, onlyFavorite = false) {
+  async findUserWords(userId, categoryId = null, onlyFavorite = false, includeDeleted = false) {
     const where = {
-      userId,
-      isDeleted: false
+      userId
     };
+
+    // includeDeleted가 false면 isDeleted=false만 조회
+    if (!includeDeleted) {
+      where.isDeleted = false;
+    }
 
     if (categoryId) {
       where.OR = [
@@ -259,6 +264,41 @@ export class WordsRepository {
         category: true,
         userCategory: true
       }
+    });
+  }
+
+  /**
+   * 삭제용 UserWord 생성 (기본 낱말 참조, isDeleted=true)
+   * @param {string} userId
+   * @param {string} wordId - Word.id
+   * @param {number} displayOrder
+   * @returns {Promise<Object>}
+   */
+  async createUserWordForDelete(userId, wordId, displayOrder) {
+    const word = await this.findWordById(wordId);
+    
+    return await prisma.userWord.create({
+      data: {
+        userId,
+        wordId,
+        categoryId: word.categoryId,
+        partOfSpeech: word.partOfSpeech,
+        displayOrder,
+        isFavorite: false,
+        isDeleted: true
+      }
+    });
+  }
+
+  /**
+   * UserWord를 삭제 상태로 변경 (isDeleted=true)
+   * @param {string} userWordId - UserWord.id
+   * @returns {Promise<Object>}
+   */
+  async markUserWordAsDeleted(userWordId) {
+    return await prisma.userWord.update({
+      where: { id: userWordId },
+      data: { isDeleted: true }
     });
   }
 }
