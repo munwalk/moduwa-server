@@ -220,16 +220,17 @@ export class WordsRepository {
    * @param {string|null} customWord
    * @param {string|null} customImageUrl
    * @param {number} displayOrder
+   * @param {string|null} categoryId - 사용자가 지정한 카테고리 ID (없으면 word.categoryId 사용)
    * @returns {Promise<Object>}
    */
-  async createUserWordForEdit(userId, wordId, customWord, customImageUrl, displayOrder) {
+  async createUserWordForEdit(userId, wordId, customWord, customImageUrl, displayOrder, categoryId) {
     const word = await this.findWordById(wordId);
     
     return await prisma.userWord.create({
       data: {
         userId,
         wordId,
-        categoryId: word.categoryId,
+        categoryId: categoryId || word.categoryId,
         partOfSpeech: word.partOfSpeech,
         customWord,
         customImageUrl,
@@ -245,16 +246,18 @@ export class WordsRepository {
   }
 
   /**
-   * UserWord 업데이트 (customWord, customImageUrl)
+   * UserWord 업데이트 (customWord, customImageUrl, categoryId)
    * @param {string} userWordId - UserWord.id
    * @param {string|null} customWord
    * @param {string|null} customImageUrl
+   * @param {string|null} categoryId
    * @returns {Promise<Object>}
    */
-  async updateUserWord(userWordId, customWord, customImageUrl) {
+  async updateUserWord(userWordId, customWord, customImageUrl, categoryId) {
     const data = {};
     if (customWord !== undefined) data.customWord = customWord;
     if (customImageUrl !== undefined) data.customImageUrl = customImageUrl;
+    if (categoryId !== undefined) data.categoryId = categoryId;
 
     return await prisma.userWord.update({
       where: { id: userWordId },

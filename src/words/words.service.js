@@ -218,15 +218,16 @@ export class WordsService {
    * @param {string} cardId - Word.id 또는 UserWord.id
    * @param {string|undefined} word - 수정할 낱말 텍스트
    * @param {string|undefined} imageUrl - 수정할 이미지 URL
+   * @param {string|undefined} categoryId - 변경할 카테고리 ID
    * @returns {Promise<WordCardResponseDto>}
    */
-  async updateWord(userId, cardId, word, imageUrl) {
+  async updateWord(userId, cardId, word, imageUrl, categoryId) {
     // 1. cardId가 UserWord인지 Word인지 확인
     let userWord = await wordsRepository.findUserWordById(cardId);
     
     if (userWord) {
-      // UserWord가 존재하는 경우: customWord/customImageUrl 업데이트
-      const updatedUserWord = await wordsRepository.updateUserWord(cardId, word, imageUrl);
+      // UserWord가 존재하는 경우: customWord/customImageUrl/categoryId 업데이트
+      const updatedUserWord = await wordsRepository.updateUserWord(cardId, word, imageUrl, categoryId);
       
       const displayWord = updatedUserWord.customWord || (updatedUserWord.word?.word || '');
       const displayImageUrl = updatedUserWord.customImageUrl || (updatedUserWord.word?.imageUrl || '');
@@ -248,8 +249,11 @@ export class WordsService {
         throw new Error('존재하지 않는 낱말입니다');
       }
 
+      // 카테고리 결정: categoryId 파라미터가 있으면 사용, 아니면 baseWord.categoryId
+      const targetCategoryId = categoryId || baseWord.categoryId;
+
       // displayOrder 계산
-      const existingWords = await wordsRepository.findUserWords(userId, baseWord.categoryId);
+      const existingWords = await wordsRepository.findUserWords(userId, targetCategoryId);
       const maxOrder = existingWords.length > 0 
         ? Math.max(...existingWords.map(w => w.displayOrder))
         : 0;
@@ -260,7 +264,8 @@ export class WordsService {
         cardId,
         word || null,
         imageUrl || null,
-        newDisplayOrder
+        newDisplayOrder,
+        targetCategoryId
       );
 
       const displayWord = newUserWord.customWord || newUserWord.word.word;

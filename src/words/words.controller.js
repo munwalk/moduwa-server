@@ -107,7 +107,8 @@ export class WordsController {
 
       const updateDto = new UpdateWordDto({
         word: req.body.word,
-        imageUrl: req.body.imageUrl
+        imageUrl: req.body.imageUrl,
+        categoryId: req.body.categoryId
       });
 
       // 유효성 검증
@@ -117,7 +118,8 @@ export class WordsController {
         userId,
         cardId,
         updateDto.word,
-        updateDto.imageUrl
+        updateDto.imageUrl,
+        updateDto.categoryId
       );
 
       return res.status(200).json({

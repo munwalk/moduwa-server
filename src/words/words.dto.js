@@ -60,14 +60,15 @@ export class UpdateFavoriteDto {
  * PATCH /api/pm/words/:cardId - Update Word Request DTO
  */
 export class UpdateWordDto {
-  constructor({ word, imageUrl }) {
+  constructor({ word, imageUrl, categoryId }) {
     this.word = word;
     this.imageUrl = imageUrl;
+    this.categoryId = categoryId ? String(categoryId) : null;
   }
 
   validate() {
-    if (!this.word && !this.imageUrl) {
-      throw new Error('word 또는 imageUrl 중 하나는 필수입니다');
+    if (!this.word && !this.imageUrl && !this.categoryId) {
+      throw new Error('word, imageUrl, categoryId 중 하나는 필수입니다');
     }
   }
 }
