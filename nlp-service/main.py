@@ -7,12 +7,12 @@ from typing import List
 
 
 class PartOfSpeech(str, Enum):
-    SUBJECT = "SUBJECT"
     NOUN = "NOUN"
     VERB = "VERB"
     ADJECTIVE = "ADJECTIVE"
     MODIFIER = "MODIFIER"
     EMOTION = "EMOTION"
+    NONE = "NONE"
 
 
 app = FastAPI(title="Korean NLP Microservice")
@@ -60,13 +60,19 @@ async def root():
 
 @app.post("/analyze/word")
 async def analyze_word(request: WordRequest):
-    pos_result = okt.pos(request.word)
+    text = request.word.strip()
+    
+    # 문장 판단: 공백 포함 시 문장으로 간주 (형태소 분석 전에 체크)
+    if " " in text:
+        return WordCategoryResponse(word=text, pos="Sentence", category=PartOfSpeech.NONE)
+    
+    pos_result = okt.pos(text)
 
     if pos_result:
         word, pos = pos_result[0]
         category = map_pos_to_category(pos)
         return WordCategoryResponse(word=word, pos=pos, category=category)
-    return WordCategoryResponse(word=request.word, pos="Unknown", category=PartOfSpeech.MODIFIER)
+    return WordCategoryResponse(word=text, pos="Unknown", category=PartOfSpeech.NONE)
 
 
 @app.post("/analyze/nouns")

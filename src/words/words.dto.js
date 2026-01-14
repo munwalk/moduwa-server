@@ -1,6 +1,18 @@
-/**
+﻿/**
  * Words DTO
  */
+
+/**
+ * PartOfSpeech Enum
+ */
+export const PartOfSpeech = {
+  NOUN: 'NOUN',
+  VERB: 'VERB',
+  ADJECTIVE: 'ADJECTIVE',
+  MODIFIER: 'MODIFIER',
+  EMOTION: 'EMOTION',
+  NONE: 'NONE'
+};
 
 /**
  * GET /api/in/words - Query DTO

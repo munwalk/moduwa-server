@@ -60,12 +60,12 @@ enum TtsTone {
 }
 
 enum PartOfSpeech {
-  SUBJECT
   NOUN
   VERB
   ADJECTIVE
   MODIFIER
   EMOTION
+  NONE
 }
 
 enum PlanType {

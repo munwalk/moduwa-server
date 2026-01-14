@@ -26,7 +26,7 @@ export async function analyzeWord(word) {
 
     if (!response.ok) {
       console.error('NLP 서비스 호출 실패:', response.status);
-      return { word, pos: 'Unknown', category: 'NOUN' }; // 기본값
+      return { word, pos: 'Unknown', category: 'NONE' }; // 기본값
     }
 
     const result = await response.json();
@@ -36,7 +36,7 @@ export async function analyzeWord(word) {
     console.error('[NLP Client] NLP 서비스 연결 실패:', error.message);
     console.error('[NLP Client] Error stack:', error.stack);
     // NLP 서비스 실패시 기본값 반환 (서비스 중단 방지)
-    return { word, pos: 'Unknown', category: 'NOUN' };
+    return { word, pos: 'Unknown', category: 'NONE' };
   }
 }
 
