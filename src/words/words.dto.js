@@ -43,9 +43,7 @@ export class CreateWordDto {
     if (!this.word) {
       errors.push('word는 필수입니다');
     }
-    if (!this.imageUrl) {
-      errors.push('imageUrl은 필수입니다');
-    }
+    // imageUrl은 선택사항
 
     if (errors.length > 0) {
       throw new Error(errors.join(', '));
