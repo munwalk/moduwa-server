@@ -6,6 +6,8 @@ import {
   AiPredictionTimeoutError,
   UnauthorizedError,
 } from "./errors/app.error.js";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./swagger/swagger.js";
 
 // 환경변수 설정
 dotenv.config();
@@ -42,6 +44,7 @@ app.use((req, res, next) => {
 });
 
 // +) 라우터 등록
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 console.log("[ROUTE] mounting /api/pm");
 app.use("/api/pm", pmRouter);
 
