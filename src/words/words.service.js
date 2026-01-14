@@ -138,6 +138,68 @@ export class WordsService {
       displayOrder: createdUserWord.displayOrder
     });
   }
+
+  /**
+   * 낱말 카드 즐겨찾기 상태 변경
+   * @param {string} userId
+   * @param {string} cardId - Word.id 또는 UserWord.id
+   * @param {boolean} isFavorite
+   * @returns {Promise<Object>} { cardId, isFavorite }
+   */
+  async updateFavorite(userId, cardId, isFavorite) {
+    console.log(`[updateFavorite] userId: ${userId}, cardId: ${cardId}, isFavorite: ${isFavorite}`);
+    
+    // 1. cardId가 UserWord인지 Word인지 확인
+    let userWord = await wordsRepository.findUserWordById(cardId);
+    console.log(`[updateFavorite] userWord:`, userWord ? 'found' : 'not found');
+    
+    if (userWord) {
+      // UserWord가 존재하는 경우
+      if (isFavorite) {
+        // 즐겨찾기 설정: isFavorite 업데이트
+        await wordsRepository.updateUserWordFavorite(cardId, true);
+        return { cardId, isFavorite: true };
+      } else {
+        // 즐겨찾기 해제
+        if (userWord.customWord || userWord.customImageUrl) {
+          // customWord가 있으면: isFavorite만 false로 업데이트
+          await wordsRepository.updateUserWordFavorite(cardId, false);
+          return { cardId, isFavorite: false };
+        } else {
+          // customWord가 없으면(기본 낱말만 참조): UserWord 삭제, Word.id 반환
+          const wordId = userWord.wordId;
+          await wordsRepository.deleteUserWord(cardId);
+          return { cardId: wordId, isFavorite: false };
+        }
+      }
+    } else {
+      // Word인 경우
+      const word = await wordsRepository.findWordById(cardId);
+      if (!word) {
+        throw new Error('존재하지 않는 낱말입니다');
+      }
+
+      if (isFavorite) {
+        // 즐겨찾기 설정: UserWord 생성
+        // displayOrder 계산
+        const existingWords = await wordsRepository.findUserWords(userId, word.categoryId);
+        const maxOrder = existingWords.length > 0 
+          ? Math.max(...existingWords.map(w => w.displayOrder))
+          : 0;
+        const newDisplayOrder = maxOrder + 1;
+
+        const newUserWord = await wordsRepository.createUserWordForFavorite(
+          userId,
+          cardId,
+          newDisplayOrder
+        );
+        return { cardId: newUserWord.id, isFavorite: true };
+      } else {
+        // 즐겨찾기 해제: Word는 기본적으로 즐겨찾기가 아니므로 아무것도 안함
+        return { cardId, isFavorite: false };
+      }
+    }
+  }
 }
 
 export default new WordsService();

@@ -1,5 +1,5 @@
 import wordsService from './words.service.js';
-import { GetWordsQueryDto, CreateWordDto } from './words.dto.js';
+import { GetWordsQueryDto, CreateWordDto, UpdateFavoriteDto } from './words.dto.js';
 
 /**
  * Words Controller
@@ -60,6 +60,37 @@ export class WordsController {
         success: true,
         data: { word: createdWord },
         message: '개인 낱말 카드 추가 성공'
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * PATCH /api/pm/words/:cardId/favorite - 낱말 카드 즐겨찾기 변경
+   */
+  async updateFavorite(req, res, next) {
+    try {
+      const userId = req.user?.id || 'temp-user-id';
+      const { cardId } = req.params;
+
+      const updateDto = new UpdateFavoriteDto({
+        isFavorite: req.body.isFavorite
+      });
+
+      // 유효성 검증
+      updateDto.validate();
+
+      const result = await wordsService.updateFavorite(
+        userId,
+        cardId,
+        updateDto.isFavorite
+      );
+
+      return res.status(200).json({
+        success: true,
+        data: { word: result },
+        message: '낱말 카드 즐겨찾기 변경 성공'
       });
     } catch (error) {
       next(error);

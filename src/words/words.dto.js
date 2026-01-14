@@ -42,6 +42,21 @@ export class CreateWordDto {
 }
 
 /**
+ * PATCH /api/pm/words/:cardId/favorite - Update Favorite Request DTO
+ */
+export class UpdateFavoriteDto {
+  constructor({ isFavorite }) {
+    this.isFavorite = isFavorite;
+  }
+
+  validate() {
+    if (typeof this.isFavorite !== 'boolean') {
+      throw new Error('isFavorite는 boolean 타입이어야 합니다');
+    }
+  }
+}
+
+/**
  * 낱말 카드 응답 DTO
  */
 export class WordCardResponseDto {

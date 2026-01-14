@@ -15,4 +15,10 @@ router.get('/', wordsController.getWords.bind(wordsController));
  */
 router.post('/', wordsController.createWord.bind(wordsController));
 
+/**
+ * PATCH /api/pm/words/:cardId/favorite - 낱말 카드 즐겨찾기 변경
+ * Body: isFavorite
+ */
+router.patch('/:cardId/favorite', wordsController.updateFavorite.bind(wordsController));
+
 export default router;

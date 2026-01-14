@@ -132,6 +132,81 @@ export class WordsRepository {
       }
     });
   }
+
+  /**
+   * Word 조회 (단일)
+   * @param {string} wordId - Word.id
+   * @returns {Promise<Object|null>}
+   */
+  async findWordById(wordId) {
+    return await prisma.word.findUnique({
+      where: { id: wordId },
+      include: { category: true }
+    });
+  }
+
+  /**
+   * UserWord 조회 (단일)
+   * @param {string} userWordId - UserWord.id
+   * @returns {Promise<Object|null>}
+   */
+  async findUserWordById(userWordId) {
+    return await prisma.userWord.findUnique({
+      where: { id: userWordId },
+      include: {
+        word: true,
+        category: true,
+        userCategory: true
+      }
+    });
+  }
+
+  /**
+   * 즐겨찾기용 UserWord 생성 (기본 낱말 참조)
+   * @param {string} userId
+   * @param {string} wordId - Word.id
+   * @param {number} displayOrder
+   * @returns {Promise<Object>}
+   */
+  async createUserWordForFavorite(userId, wordId, displayOrder) {
+    const word = await this.findWordById(wordId);
+    
+    return await prisma.userWord.create({
+      data: {
+        userId,
+        wordId,
+        categoryId: word.categoryId,
+        partOfSpeech: word.partOfSpeech,
+        displayOrder,
+        isFavorite: true,
+        isDeleted: false
+      }
+    });
+  }
+
+  /**
+   * UserWord 즐겨찾기 상태 변경
+   * @param {string} userWordId - UserWord.id
+   * @param {boolean} isFavorite
+   * @returns {Promise<Object>}
+   */
+  async updateUserWordFavorite(userWordId, isFavorite) {
+    return await prisma.userWord.update({
+      where: { id: userWordId },
+      data: { isFavorite }
+    });
+  }
+
+  /**
+   * UserWord 삭제
+   * @param {string} userWordId - UserWord.id
+   * @returns {Promise<Object>}
+   */
+  async deleteUserWord(userWordId) {
+    return await prisma.userWord.delete({
+      where: { id: userWordId }
+    });
+  }
 }
 
 export default new WordsRepository();
