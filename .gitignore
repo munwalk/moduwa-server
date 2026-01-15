@@ -5,3 +5,6 @@ node_modules/
 .env
 /src/generated/prisma
 prisma.config.ts
+
+# tts service key
+google-tts-credentials.json
