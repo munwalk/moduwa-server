@@ -1,7 +1,7 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import pmRouter from "./pm/pm.route.js";
+import categoryRouter from "./category/category.route.js";
 import {
   AiPredictionTimeoutError,
   UnauthorizedError,
@@ -10,7 +10,6 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger/swagger.js";
 
 import ttsRouter from "./tts/tts.route.js";
-
 
 // 환경변수 설정
 dotenv.config();
@@ -48,8 +47,16 @@ app.use((req, res, next) => {
 
 // +) 라우터 등록
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-console.log("[ROUTE] mounting /api/pm");
-app.use("/api/pm", pmRouter);
+app.use("/api/categories", categoryRouter);
+// PM02 테스트용 : 인증 우회
+// app.use(
+//   "/api/categories",
+//   (req, res, next) => {
+//     req.user = { userId: "dev-test-user" };
+//     next();
+//   },
+//   categoryRouter,
+// );
 
 // 3. 테스트용 라우트
 app.use("/api/ai/tts", ttsRouter);
