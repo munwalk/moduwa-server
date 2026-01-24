@@ -10,6 +10,8 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger/swagger.js";
 
 import ttsRouter from "./tts/tts.route.js";
+import aiRouter from "./ai-prediction/ai.prediction.route.js";
+import historyRouter from "./history/history.route.js";
 
 // 환경변수 설정
 dotenv.config();
@@ -59,7 +61,14 @@ app.use("/api/categories", categoryRouter);
 // );
 
 // 3. 테스트용 라우트
+// AI 예측 API
+app.use("/api/ai", aiRouter);
+
+// TTS API
 app.use("/api/ai/tts", ttsRouter);
+
+// History API
+app.use("/api/histories", historyRouter);
 
 // 성공 케이스 테스트
 app.get("/", (req, res) => {
@@ -123,3 +132,4 @@ app.use((err, req, res, next) => {
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
+
