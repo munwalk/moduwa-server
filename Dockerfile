@@ -18,11 +18,8 @@ FROM base AS dependencies
 # 패키지 파일 복사
 COPY package*.json ./
 
-# 프로덕션 의존성 설치
-RUN npm ci --only=production
-
-# 개발 의존성 설치 (개발 모드용)
-RUN npm ci
+# 의존성 설치 (개발 환경에서는 npm install 사용)
+RUN npm install
 
 # ==========================================
 # Stage 3: Development
