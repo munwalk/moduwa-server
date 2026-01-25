@@ -10,6 +10,10 @@ import * as createGuestDto from '../dto/request/createGuest.dto.js';
 import * as convertToSocialDto from '../dto/request/convertToSocial.dto.js';
 import * as refreshTokenDto from '../dto/request/refreshToken.dto.js';
 
+import * as accountController from '../controllers/account.controller.js';
+import * as termsController from '../controllers/terms.controller.js';
+import * as termsAgreementDto from '../dto/request/termsAgreement.dto.js';
+import * as completeSocialSignupDto from '../dto/request/completeSocialSignup.dto.js';
 // ==========================================
 // 게스트 계정
 // ==========================================
@@ -91,4 +95,53 @@ router.get('/google/callback', socialController.googleCallback);
 router.get('/naver', socialController.naverLogin);
 router.get('/naver/callback', socialController.naverCallback);
 
+// ==========================================
+// 회원탈퇴
+// ==========================================
+
+/**
+ * 회원탈퇴
+ * DELETE /api/auth/account
+ */
+router.delete(
+  '/account',
+  authenticate,
+  accountController.deleteAccount
+);
+
+
+// ==========================================
+// 약관 관리
+// ==========================================
+
+/**
+ * 약관 목록 조회
+ * GET /api/auth/terms
+ */
+router.get(
+  '/terms',
+  termsController.getTermsList
+);
+
+/**
+ * 소셜 로그인 후 약관 동의 + 회원가입 완료 
+ * POST /api/auth/social/complete
+ */
+router.post(
+  '/social/complete',
+  validate(completeSocialSignupDto),
+  termsController.completeSocialSignup
+);
+
+/**
+ * 약관 동의 (게스트 전환용)
+ * POST /api/auth/terms/agree
+ */
+router.post(
+  '/terms/agree',
+  authenticate,
+  validate(termsAgreementDto),
+  termsController.agreeToTerms
+);
+ 
 export default router;

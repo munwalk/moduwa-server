@@ -47,3 +47,12 @@ export const deleteUserProvider = async (id) => {
     where: { id }
   });
 };
+
+/**
+ * 특정 유저의 모든 UserProvider 삭제 (UserId 기준)
+ */
+export const deleteByUserId = async (userId) => {
+  return await prisma.userProvider.deleteMany({
+    where: { userId: userId }
+  });
+};

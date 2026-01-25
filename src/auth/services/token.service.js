@@ -1,4 +1,5 @@
 import redis from 'redis';
+import jwt from 'jsonwebtoken';
 
 let redisClient;
 
@@ -92,4 +93,51 @@ export const isBlacklisted = async (token) => {
     console.error('Redis blacklist check error:', error);
     return false;
   }
+};
+
+/**
+ * 임시 가입 정보 저장
+ * 약관 동의 전에 소셜 로그인 정보를 임시로 저장
+ */
+export const savePendingSignup = async (provider, profile) => {
+  if (!redisClient) return null; // Redis 연결 확인 추가
+  
+  const pendingToken = jwt.sign(
+    { provider, profile },
+    process.env.JWT_SECRET,
+    { expiresIn: '5m' }
+  );
+
+  const TTL = 5 * 60;
+  await redisClient.setEx(  // redis → redisClient
+    `pending_signup:${pendingToken}`,
+    TTL,
+    JSON.stringify({ provider, profile })
+  );
+
+  return pendingToken;
+};
+/**
+ * 임시 가입 정보 조회
+ */
+export const getPendingSignup = async (pendingToken) => {
+  if (!redisClient) return null; // Redis 연결 확인 추가
+  
+  const data = await redisClient.get(`pending_signup:${pendingToken}`); //  redis → redisClient
+  
+  if (!data) {
+    return null;
+  }
+
+  return JSON.parse(data);
+};
+
+/**
+ * 임시 가입 정보 삭제
+ */
+export const deletePendingSignup = async (pendingToken) => {
+  if (!redisClient) return; // Redis 연결 확인 추가
+  
+  await redisClient.del(`pending_signup:${pendingToken}`); // redis → redisClient
+  return true;
 };

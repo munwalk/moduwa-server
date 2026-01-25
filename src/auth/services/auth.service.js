@@ -30,7 +30,7 @@ export const createGuestAccount = async (deviceId) => {
 export const socialLogin = async (provider, profile) => {
   const { id: providerUserId, email, nickname } = profile;
 
-  const userProvider = await userProviderRepository.findUserProvider(provider, providerUserId);
+  const userProvider = await userProviderRepository.findUserProvider(provider, String(providerUserId) );
 
   let user;
 
@@ -39,7 +39,7 @@ export const socialLogin = async (provider, profile) => {
     await userRepository.updateLastLogin(user.id);
   } else {
     user = await userRepository.createUserWithDefaults({
-      nickname: nickname || `${provider}_${providerUserId.slice(0, 8)}`,
+      nickname: nickname || `${provider}_${String(providerUserId).slice(0, 8)}`,
       email,
       accountType: 'SOCIAL',
       lastLoginAt: new Date()
@@ -48,7 +48,7 @@ export const socialLogin = async (provider, profile) => {
     await userProviderRepository.createUserProvider({
       userId: user.id,
       provider,
-      providerUserId
+      providerUserId: String(providerUserId)
     });
   }
 
@@ -73,8 +73,8 @@ export const convertGuestToSocial = async (userId, provider, profile) => {
     throw new Error('NOT_GUEST_ACCOUNT');
   }
 
-  const existingProvider = await userProviderRepository.findUserProvider(provider, providerUserId);
-
+  const existingProvider = await userProviderRepository.findUserProvider(provider, String(providerUserId));
+  
   if (existingProvider) {
     throw new Error('SOCIAL_ACCOUNT_ALREADY_LINKED');
   }
@@ -84,7 +84,7 @@ export const convertGuestToSocial = async (userId, provider, profile) => {
     {
       userId,
       provider,
-      providerUserId
+      providerUserId: String(providerUserId)
     },
     {
       accountType: 'SOCIAL',
@@ -130,4 +130,30 @@ export const getUserById = async (userId) => {
     settings: user.settings,
     subscription: user.subscriptions[0] || null
   };
+};
+
+/**
+ * 기존 사용자 확인
+ */
+export const checkExistingUser = async (provider, providerUserId) => {
+  const userProvider = await userProviderRepository.findUserProvider(provider, String(providerUserId));
+  
+  if (userProvider) {
+    return userProvider.user;
+  }
+  
+  return null;
+};
+
+/**
+ * 기존 회원 로그인 처리
+ */
+export const loginExistingUser = async (user) => {
+  // 마지막 로그인 시간 업데이트
+  await userRepository.updateLastLogin(user.id);
+
+  // 토큰 생성
+  const tokens = await generateTokens(user.id, user.accountType);
+
+  return { user, tokens };
 };

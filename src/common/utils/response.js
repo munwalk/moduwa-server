@@ -66,3 +66,6 @@ export const conflict = (res, message = 'Conflict') => {
 export const internalError = (res, message = 'Internal server error') => {
   return error(res, message, 500, 'INTERNAL_ERROR');
 };
+
+export const successResponse = success;
+export const errorResponse = error;
