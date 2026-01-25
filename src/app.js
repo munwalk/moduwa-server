@@ -7,6 +7,7 @@ import passport from './auth/middlewares/passport.config.js';
 import { PrismaClient } from '@prisma/client';
 import { initRedis } from './auth/services/token.service.js';
 import pmRouter from "./pm/pm.route.js";
+import categoryRouter from "./category/category.route.js";
 import {
     AiPredictionTimeoutError,
     UnauthorizedError,
@@ -22,7 +23,8 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger/swagger.js";
 
 import ttsRouter from "./tts/tts.route.js";
-
+import aiRouter from "./ai-prediction/ai.prediction.route.js";
+import historyRouter from "./history/history.route.js";
 
 // 환경변수 설정
 dotenv.config();
@@ -78,11 +80,26 @@ app.use((req, res, next) => {
 
 // +) 라우터 등록
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-console.log("[ROUTE] mounting /api/pm");
-app.use("/api/pm", pmRouter);
+app.use("/api/categories", categoryRouter);
+// PM02 테스트용 : 인증 우회
+// app.use(
+//   "/api/categories",
+//   (req, res, next) => {
+//     req.user = { userId: "dev-test-user" };
+//     next();
+//   },
+//   categoryRouter,
+// );
 
 // 3. 테스트용 라우트
+// AI 예측 API
+app.use("/api/ai", aiRouter);
+
+// TTS API
 app.use("/api/ai/tts", ttsRouter);
+
+// History API
+app.use("/api/histories", historyRouter);
 
 // 성공 케이스 테스트
 app.get("/", (req, res) => {

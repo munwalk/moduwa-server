@@ -83,6 +83,12 @@ class ValidationError extends BaseError {
 }
 
 // export에 추가
+class NotFoundError extends BaseError {
+    constructor(message = '요청한 리소스를 찾을 수 없습니다') {
+        super(message, 404, 'NOT_FOUND');
+    }
+}
+
 export {
     BaseError,
     AiPredictionTimeoutError,
@@ -95,5 +101,6 @@ export {
     NotGuestAccountError,
     SocialAccountAlreadyLinkedError,
     InvalidRefreshTokenError,
-    ValidationError
+    ValidationError,
+    NotFoundError
 };

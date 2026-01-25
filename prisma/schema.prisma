@@ -398,3 +398,4 @@ model TermsAgreement {
   @@index([termsId])
   @@map("TermsAgreement")
 }
+
