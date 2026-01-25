@@ -6,7 +6,7 @@ import session from 'express-session';
 import passport from './auth/middlewares/passport.config.js';
 import { PrismaClient } from '@prisma/client';
 import { initRedis } from './auth/services/token.service.js';
-import pmRouter from "./pm/pm.route.js";
+ // import pmRouter from "./pm/pm.route.js";
 import categoryRouter from "./category/category.route.js";
 import {
     AiPredictionTimeoutError,
