@@ -1,4 +1,4 @@
-import { AiPredictionTimeoutError } from '../errors/app.error.js';
+import { AiPredictionTimeoutError } from '../../errors/app.error.js';
 
 // FastAPI 서버 URL 설정
 // Docker 환경에서는 서비스 이름(fastapi)으로 접근

@@ -1,4 +1,4 @@
-import { AiPredictionTimeoutError } from '../errors/app.error.js';
+import { AiPredictionTimeoutError } from '../../errors/app.error.js';
 
 // FastAPI 서버 URL 설정
 const FASTAPI_URL = process.env.FASTAPI_URL || 'http://localhost:8000';

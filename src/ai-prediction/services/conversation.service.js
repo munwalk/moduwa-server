@@ -1,5 +1,8 @@
-import prisma from '../config/prisma.config.js';
-import { generateCacheKey, saveToCache } from '../utils/cache.util.js';
+import { generateCacheKey, saveToCache } from '../../utils/cache.util.js';
+import {
+  createConversation,
+  findRecentConversations
+} from '../repositories/conversation.repository.js';
 
 /**
  * 현재 시간을 한국 형식으로 생성 (요일 포함)
@@ -41,21 +44,19 @@ const saveConversation = async (
 ) => {
   try {
     // 1. DB에 대화 저장
-    const conversation = await prisma.conversationHistory.create({
-      data: {
-        userId,
-        inputWords: words.map((word, index) => ({
-          wordId: null,
-          word,
-          order: index + 1
-        })),
-        inputType: 'WORD_ONLY', // 낱말 카드만 사용
-        suggestedSentences,
-        selectedSentence,
-        selectionIndex,
-        isOutputted: false, // TTS 재생 전에는 false
-        isDeleted: false
-      }
+    const conversation = await createConversation({
+      userId,
+      inputWords: words.map((word, index) => ({
+        wordId: null,
+        word,
+        order: index + 1
+      })),
+      inputType: 'WORD_ONLY', // 낱말 카드만 사용
+      suggestedSentences,
+      selectedSentence,
+      selectionIndex,
+      isOutputted: false, // TTS 재생 전에는 false
+      isDeleted: false
     });
 
     console.log('✅ 대화 기록 저장 완료');
@@ -64,15 +65,7 @@ const saveConversation = async (
     try {
       // 최근 10분 내 대화 맥락 조회 (캐시 키 생성용)
       const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
-      const recentConversations = await prisma.conversationHistory.findMany({
-        where: {
-          userId,
-          createdAt: { gte: tenMinutesAgo },
-          isDeleted: false
-        },
-        orderBy: { createdAt: 'asc' },
-        select: { selectedSentence: true }
-      });
+      const recentConversations = await findRecentConversations(userId, tenMinutesAgo);
 
       // 맥락 데이터 구성
       const context = {
@@ -116,23 +109,7 @@ const saveConversation = async (
 const getRecentConversations = async (userId) => {
   try {
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
-
-    const recentConversations = await prisma.conversationHistory.findMany({
-      where: {
-        userId,
-        createdAt: {
-          gte: tenMinutesAgo
-        },
-        isDeleted: false
-      },
-      orderBy: {
-        createdAt: 'asc'
-      },
-      select: {
-        selectedSentence: true,
-        createdAt: true
-      }
-    });
+    const recentConversations = await findRecentConversations(userId, tenMinutesAgo);
 
     // null이 아닌 문장만 반환
     const previousMessages = recentConversations

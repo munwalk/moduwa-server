@@ -1,4 +1,5 @@
-import prisma from '../config/prisma.config.js';
+import { countBySelectedSentence } from '../repositories/conversation.repository.js';
+import { findFrequentPatterns } from '../repositories/learning.repository.js';
 
 /**
  * 사용자 선택 문장 저장 (학습 데이터)
@@ -7,13 +8,7 @@ import prisma from '../config/prisma.config.js';
 const saveUserSelection = async (userId, selectedSentence) => {
   try {
     // ConversationHistory에서 동일 패턴 사용 횟수 조회
-    const usageCount = await prisma.conversationHistory.count({
-      where: {
-        userId,
-        selectedSentence,
-        isDeleted: false
-      }
-    });
+    const usageCount = await countBySelectedSentence(userId, selectedSentence);
 
     console.log(`✅ 학습 데이터 확인: "${selectedSentence}" 사용 횟수 ${usageCount + 1}회`);
 
@@ -34,17 +29,7 @@ const saveUserSelection = async (userId, selectedSentence) => {
  */
 const getFrequentSelections = async (userId, limit = 100) => {
   try {
-    const frequentPatterns = await prisma.aILearningData.findMany({
-      where: { userId },
-      orderBy: { usageFrequency: 'desc' },
-      take: limit,
-      select: {
-        inputPattern: true,
-        outputSentence: true,
-        usageFrequency: true,
-        feedbackScore: true
-      }
-    });
+    const frequentPatterns = await findFrequentPatterns(userId, limit);
 
     return frequentPatterns.map(p => ({
       words: JSON.parse(p.inputPattern),
