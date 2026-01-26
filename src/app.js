@@ -98,8 +98,9 @@ app.use("/api/ai", aiRouter);
 
 // TTS API
 app.use("/api/ai/tts", ttsRouter);
-app.use("/api/in/words", wordsRouter);
-app.use("/api/pm/words", wordsRouter);
+
+// Words API
+app.use("/api/words", wordsRouter);
 
 // History API
 app.use("/api/histories", historyRouter);

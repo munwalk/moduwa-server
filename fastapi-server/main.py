@@ -1,5 +1,5 @@
 """
-FastAPI 서버 - 모두와 AAC AI 문장 추천
+FastAPI 서버 - 모두와 AAC AI 문장 추천 + 품사 분석
 """
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,6 +13,8 @@ import hashlib
 import logging
 from dotenv import load_dotenv
 import redis
+from konlpy.tag import Okt
+from enum import Enum
 
 # 환경 변수 로드
 load_dotenv()
@@ -23,6 +25,9 @@ logger = logging.getLogger(__name__)
 
 # OpenAI 클라이언트 초기화
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# KoNLPy 초기화
+okt = Okt()
 
 # Redis 클라이언트 초기화
 redis_client = None
@@ -55,6 +60,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ============================================
+# Enums & Models
+# ============================================
+
+class PartOfSpeech(str, Enum):
+    NOUN = "NOUN"
+    VERB = "VERB"
+    ADJECTIVE = "ADJECTIVE"
+    MODIFIER = "MODIFIER"
+    EMOTION = "EMOTION"
+    NONE = "NONE"
 
 # ============================================
 # Request/Response Models
@@ -1112,6 +1129,88 @@ async def transform_sentence_style(request: TransformStyleRequest):
         raise HTTPException(status_code=500, detail=f"AI 모델 처리 중 오류: {str(e)}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"서버 내부 오류가 발생했습니다")
+
+# ============================================
+# 품사 분석 (NLP)
+# ============================================
+
+def map_pos_to_category(pos_tag: str) -> PartOfSpeech:
+    """KoNLPy 품사 태그를 카테고리로 매핑"""
+    if pos_tag.startswith('N'):
+        return PartOfSpeech.NOUN
+    elif pos_tag.startswith('V'):
+        return PartOfSpeech.VERB
+    elif pos_tag.startswith('Adj'):
+        return PartOfSpeech.ADJECTIVE
+    elif pos_tag in ['Adv', 'Determiner', 'Eomi']:
+        return PartOfSpeech.MODIFIER
+    elif pos_tag == 'Josa':
+        return PartOfSpeech.MODIFIER
+    else:
+        return PartOfSpeech.MODIFIER
+
+
+class WordRequest(BaseModel):
+    word: str
+
+
+class WordCategoryResponse(BaseModel):
+    word: str
+    pos: str
+    category: PartOfSpeech
+
+
+@app.post("/analyze/word")
+async def analyze_word(request: WordRequest):
+    """
+    단어의 품사를 분석하여 카테고리 반환
+    문장(공백 포함)인 경우 NONE 반환
+    """
+    text = request.word.strip()
+    
+    # 문장 판단: 공백 포함 시 문장으로 간주
+    if " " in text:
+        return WordCategoryResponse(word=text, pos="Sentence", category=PartOfSpeech.NONE)
+    
+    pos_result = okt.pos(text)
+
+    if pos_result:
+        word, pos = pos_result[0]
+        category = map_pos_to_category(pos)
+        return WordCategoryResponse(word=word, pos=pos, category=category)
+    return WordCategoryResponse(word=text, pos="Unknown", category=PartOfSpeech.NONE)
+
+
+@app.post("/analyze/nouns")
+async def extract_nouns(request: WordRequest):
+    """명사 여부 판단"""
+    pos_result = okt.pos(request.word)
+
+    if pos_result:
+        word, pos = pos_result[0]
+        is_noun = pos.startswith('N')
+        return {
+            "word": word,
+            "is_noun": is_noun,
+            "category": "NOUN" if is_noun else "OTHER",
+        }
+    return {"word": request.word, "is_noun": False, "category": "OTHER"}
+
+
+@app.post("/analyze/morphs")
+async def extract_morphs(request: WordRequest):
+    """형태소 분석 및 품사 카테고리 반환"""
+    pos_result = okt.pos(request.word)
+
+    if pos_result:
+        word, pos = pos_result[0]
+        category = map_pos_to_category(pos)
+        return {
+            "word": word,
+            "pos": pos,
+            "category": category.value,
+        }
+    return {"word": request.word, "pos": "Unknown", "category": "MODIFIER"}
 
 # ============================================
 # Health Check

@@ -10,7 +10,7 @@ export class WordsController {
    */
   async getWords(req, res, next) {
     try {
-      const userId = req.user?.id || 'temp-user-id';
+      const userId = req.user?.userId;
 
       const queryDto = new GetWordsQueryDto({
         categoryId: req.query.categoryId,
@@ -38,7 +38,7 @@ export class WordsController {
    */
   async createWord(req, res, next) {
     try {
-      const userId = req.user?.id || 'temp-user-id';
+      const userId = req.user.userId;
 
       const createDto = new CreateWordDto({
         categoryId: req.body.categoryId,
@@ -71,7 +71,7 @@ export class WordsController {
    */
   async updateFavorite(req, res, next) {
     try {
-      const userId = req.user?.id || 'temp-user-id';
+      const userId = req.user.userId;
       const { cardId } = req.params;
 
       const updateDto = new UpdateFavoriteDto({
@@ -102,7 +102,7 @@ export class WordsController {
    */
   async updateWord(req, res, next) {
     try {
-      const userId = req.user?.id || 'temp-user-id';
+      const userId = req.user.userId;
       const { cardId } = req.params;
 
       const updateDto = new UpdateWordDto({
@@ -137,7 +137,7 @@ export class WordsController {
    */
   async deleteWord(req, res, next) {
     try {
-      const userId = req.user?.id || 'temp-user-id';
+      const userId = req.user.userId;
       const { cardId } = req.params;
 
       await wordsService.deleteWord(userId, cardId);

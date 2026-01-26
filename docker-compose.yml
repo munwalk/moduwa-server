@@ -101,31 +101,11 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      nlp-service:
-        condition: service_started
       fastapi:
         condition: service_started
     networks:
       - modua_network
     command: npm run dev
-
-  # ==========================================
-  # NLP Microservice (Python + FastAPI + KoNLPy)
-  # ==========================================
-  nlp-service:
-    build:
-      context: ./nlp-service
-      dockerfile: Dockerfile
-    container_name: modua_nlp
-    restart: always
-    ports:
-      - "8000:8000"
-    networks:
-      - modua_network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
-      timeout: 5s
-      retries: 5
 
 
 volumes:
