@@ -1,0 +1,409 @@
+{
+  "info": {
+    "name": "모두와 AAC - Words API",
+    "description": "낱말 카드 API 테스트 모음",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "categoryId",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": "temp-user-id"
+    }
+  ],
+  "item": [
+    {
+      "name": "낱말 카드",
+      "item": [
+        {
+          "name": "전체 낱말 조회",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data.words && response.data.words.length > 0) {",
+                  "        const firstWord = response.data.words[0];",
+                  "        pm.collectionVariables.set('categoryId', firstWord.categoryId);",
+                  "        console.log('categoryId 설정됨:', firstWord.categoryId);",
+                  "    }",
+                  "}",
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "pm.test('Response has success=true', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.equal(true);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer test-token"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/in/words",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "in",
+                "words"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "즐겨찾기 낱말 조회",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer test-token"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/in/words?onlyFavorite=true",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "in",
+                "words"
+              ],
+              "query": [
+                {
+                  "key": "onlyFavorite",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "카테고리별 낱말 조회",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer test-token"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/in/words?categoryId={{categoryId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "in",
+                "words"
+              ],
+              "query": [
+                {
+                  "key": "categoryId",
+                  "value": "{{categoryId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "개인 낱말 추가",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function () {",
+                  "    pm.expect(pm.response.code).to.equal(201);",
+                  "});",
+                  "pm.test('Response has success=true', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.equal(true);",
+                  "});",
+                  "pm.test('Word is created', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data.word).to.have.property('cardId');",
+                  "    pm.expect(response.data.word).to.have.property('word');",
+                  "    pm.expect(response.data.word.isDefault).to.equal(false);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer test-token"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"categoryId\": \"{{categoryId}}\",\n  \"word\": \"포스트맨 테스트 단어\",\n  \"imageUrl\": \"https://example.com/postman-test.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pm/words",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "pm",
+                "words"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "즐겨찾기 추가/해제",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "pm.test('Response has success=true', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.equal(true);",
+                  "});",
+                  "pm.test('Word has cardId and isFavorite', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data.word).to.have.property('cardId');",
+                  "    pm.expect(response.data.word).to.have.property('isFavorite');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer test-token"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isFavorite\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pm/words/:cardId/favorite",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "pm",
+                "words",
+                ":cardId",
+                "favorite"
+              ],
+              "variable": [
+                {
+                  "key": "cardId",
+                  "value": "d0c0e4e7-dd12-4bed-a869-1ee4b3871a4c",
+                  "description": "낱말 카드 ID (Word.id 또는 UserWord.id)"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "낱말 카드 수정",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "pm.test('Response has success=true', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.equal(true);",
+                  "});",
+                  "pm.test('Word is updated', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data.word).to.have.property('cardId');",
+                  "    pm.expect(response.data.word).to.have.property('word');",
+                  "    pm.expect(response.data.word).to.have.property('imageUrl');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer test-token"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"word\": \"수정된 단어\",\n  \"imageUrl\": \"https://example.com/updated.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/pm/words/:cardId",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "pm",
+                "words",
+                ":cardId"
+              ],
+              "variable": [
+                {
+                  "key": "cardId",
+                  "value": "d0c0e4e7-dd12-4bed-a869-1ee4b3871a4c",
+                  "description": "낱말 카드 ID (Word.id 또는 UserWord.id)"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "낱말 카드 삭제",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "pm.test('Response has success=true', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.equal(true);",
+                  "});",
+                  "pm.test('Message indicates deletion success', function () {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.message).to.include('삭제');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/pm/words/:cardId",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "api",
+                "pm",
+                "words",
+                ":cardId"
+              ],
+              "variable": [
+                {
+                  "key": "cardId",
+                  "value": "d0c0e4e7-dd12-4bed-a869-1ee4b3871a4c",
+                  "description": "낱말 카드 ID (Word.id 또는 UserWord.id)"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "헬스체크",
+      "item": [
+        {
+          "name": "서버 상태 확인",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                ""
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

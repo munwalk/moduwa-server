@@ -92,6 +92,7 @@ model User {
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @updatedAt @map("updated_at")
   lastLoginAt DateTime?   @map("last_login_at")
+  deletedAt   DateTime?   @map("deleted_at")
 
   // Relations
   providers           UserProvider[]
@@ -103,9 +104,11 @@ model User {
   aiFeedbacks         AIFeedback[]
   settings            UserSettings?
   subscriptions       Subscription[]
+  termsAgreements     TermsAgreement[]
 
   @@index([email])
   @@index([accountType])
+  @@index([deletedAt])
   @@map("User")
 }
 
@@ -177,6 +180,10 @@ model UserCategory {
   userId       String   @map("user_id") @db.Char(36)
   categoryName String   @map("category_name") @db.VarChar(50)
   displayOrder Int      @map("display_order")
+  // PM02 - 기본 아이콘 선택 값
+  iconKey      String?  @map("icon_key") @db.VarChar(50)
+  //PM02 - 사용자 업로드 아이콘 URL
+  iconUrl      String?  @map("icon_url") @db.VarChar(500)
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
 
@@ -361,3 +368,48 @@ model Subscription {
   @@index([endDate])
   @@map("Subscription")
 }
+// ============================================
+// 13. Terms (약관)
+// ============================================
+
+model Terms {
+  id          String   @id @default(uuid()) @db.Char(36)
+  title       String   @db.VarChar(100)
+  content     String   @db.LongText
+  version     String   @db.VarChar(20)
+  isRequired  Boolean  @default(false) @map("is_required")
+  isActive    Boolean  @default(true) @map("is_active")
+  order       Int      @default(0) @map("display_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  agreements TermsAgreement[]
+
+  @@index([isActive, order])
+  @@map("Terms")
+}
+
+// ============================================
+// 14. TermsAgreement (약관 동의)
+// ============================================
+
+model TermsAgreement {
+  id        String    @id @default(uuid()) @db.Char(36)
+  userId    String    @map("user_id") @db.Char(36)
+  termsId   String    @map("terms_id") @db.Char(36)
+  isAgreed  Boolean   @default(false) @map("is_agreed")
+  agreedAt  DateTime? @map("agreed_at")
+  revokedAt DateTime? @map("revoked_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  // Relations
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  terms Terms @relation(fields: [termsId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, termsId])
+  @@index([userId])
+  @@index([termsId])
+  @@map("TermsAgreement")
+}
+

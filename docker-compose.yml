@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   # ==========================================
@@ -8,6 +7,7 @@ services:
     image: mysql:8.0
     container_name: modua_mysql
     restart: always
+    init: true
     environment:
       MYSQL_ROOT_PASSWORD: root_password
       MYSQL_DATABASE: modua_aac
@@ -45,6 +45,29 @@ services:
       retries: 5
 
   # ==========================================
+  # FastAPI AI Server (Python)
+  # ==========================================
+  fastapi:
+    build:
+      context: ./fastapi-server
+      dockerfile: Dockerfile
+    container_name: modua_fastapi
+    restart: always
+    environment:
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      CORS_ORIGINS: http://localhost:3000
+      REDIS_HOST: redis       
+      REDIS_PORT: 6379        
+      REDIS_DB: 0             
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./fastapi-server:/app
+    networks:
+      - modua_network
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  # ==========================================
   # Backend API (Node.js + Express + Prisma)
   # ==========================================
   backend:
@@ -53,9 +76,14 @@ services:
       dockerfile: Dockerfile
     container_name: modua_backend
     restart: always
+    env_file:
+      - .env
     environment:
       DATABASE_URL: mysql://modua_user:modua_password@mysql:3306/modua_aac
       REDIS_URL: redis://redis:6379
+      KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
+      KAKAO_REDIRECT_URI: ${KAKAO_REDIRECT_URI}
+      FASTAPI_URL: http://fastapi:8000
       JWT_SECRET: your-super-secret-jwt-key-change-this-in-production
       JWT_ACCESS_EXPIRES_IN: 1h
       JWT_REFRESH_EXPIRES_IN: 14d
@@ -74,6 +102,8 @@ services:
       redis:
         condition: service_healthy
       nlp-service:
+        condition: service_started
+      fastapi:
         condition: service_started
     networks:
       - modua_network
