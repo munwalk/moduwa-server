@@ -1,13 +1,14 @@
 # ==========================================
 # Stage 1: Base
 # ==========================================
-FROM node:18-alpine AS base
+FROM node:20-alpine AS base
 
 # 작업 디렉토리 설정
 WORKDIR /app
 
-# 타임존 설정 (서울)
-RUN apk add --no-cache tzdata
+# 타임존 설정 및 Prisma 필수 라이브러리 설치
+# openssl1.1-compat와 libc6-compat를 추가합니다.
+RUN apk add --no-cache tzdata openssl openssl-dev libc6-compat python3 make g++
 ENV TZ=Asia/Seoul
 
 # ==========================================
@@ -17,6 +18,12 @@ FROM base AS dependencies
 
 # 패키지 파일 복사
 COPY package*.json ./
+
+# npm 타임아웃 설정 (네트워크 에러 방지)
+RUN npm config set fetch-retry-maxtimeout 600000 && \
+    npm config set fetch-retry-mintimeout 100000 && \
+    npm config set fetch-retries 5
+
 
 # 의존성 설치 (개발 환경에서는 npm install 사용)
 RUN npm install
