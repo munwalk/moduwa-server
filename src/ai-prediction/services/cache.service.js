@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import redisClient from '../config/redis.config.js';
+import redisClient from '../../config/redis.config.js';
 
 /**
  * 낱말 조합으로 캐시 키 생성

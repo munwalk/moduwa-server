@@ -1,5 +1,5 @@
-import { saveUserSelection } from './ai.learning.service.js';
-import { saveConversation } from './conversation.service.js';
+import { saveUserSelection } from '../services/ai.learning.service.js';
+import { saveConversation } from '../services/conversation.service.js';
 
 /**
  * AI-01-1: 사용자 선택 문장 저장
@@ -9,33 +9,8 @@ const selectionController = async (req, res) => {
   try {
     console.log('🔵 AI Selection 요청 받음:', req.body);
 
-    const {
-      words,
-      recommendedSentences,
-      selectedSentence
-    } = req.body;
-
-    // 필수 값 검증 - 개별적으로 검사
-    if (!words || !Array.isArray(words) || words.length === 0) {
-      return res.status(400).error({
-        code: 'INVALID_INPUT',
-        message: '낱말 배열이 필요합니다'
-      });
-    }
-
-    if (!recommendedSentences || !Array.isArray(recommendedSentences)) {
-      return res.status(400).error({
-        code: 'INVALID_INPUT',
-        message: '추천 문장 배열이 필요합니다'
-      });
-    }
-
-    if (!selectedSentence || typeof selectedSentence !== 'string') {
-      return res.status(400).error({
-        code: 'INVALID_INPUT',
-        message: '선택한 문장이 필요합니다'
-      });
-    }
+    // 검증된 데이터 추출 (미들웨어에서 이미 검증 완료)
+    const { words, recommendedSentences, selectedSentence } = req.body;
 
     // userId는 인증 미들웨어에서 추출 (현재는 임시로 'guest' 사용)
     const userId = req.user?.userId || 'guest';

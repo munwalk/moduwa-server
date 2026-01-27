@@ -1,4 +1,4 @@
-import { getRecentConversations } from './conversation.service.js';
+import { getRecentConversations } from '../services/conversation.service.js';
 
 /**
  * AI-01-3: 10분 이내 대화 기록 조회

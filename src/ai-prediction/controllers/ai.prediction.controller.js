@@ -1,10 +1,9 @@
-import { predictSentences } from './ai.prediction.service.js';
-import { predictRequestSchema } from './ai.prediction.dto.js';
+import { predictSentences } from '../services/ai.prediction.service.js';
 import {
   AiPredictionTimeoutError,
   AiModelError
-} from '../errors/app.error.js';
-import { getCache, setCache } from './cache.service.js';
+} from '../../errors/app.error.js';
+import { getCache, setCache } from '../services/cache.service.js';
 
 /**
  * AI 문장 추천 컨트롤러
@@ -13,41 +12,8 @@ const predictController = async (req, res, next) => {
   try {
     console.log('🔵 AI Predict 요청 받음:', req.body);
 
-    // DTO 검증
-    const { error, value } = predictRequestSchema.validate(req.body);
-
-    const { words = [] } = error ? req.body : value;
-
-    // context와 refresh는 프론트엔드에서 전달받음
-    const { context, refresh = false } = req.body;
-
-    // 입력 검증 규칙:
-    // - 키보드 기능 삭제 (typedText 제거)
-    // - 낱말 카드만 사용: MIN 1, MAX 15
-
-    // 1. 낱말 카드 없으면 에러
-    if (!words || words.length === 0) {
-      return res.status(400).error({
-        code: 'INVALID_INPUT',
-        message: '낱말 카드를 최소 1개 이상 선택해주세요'
-      });
-    }
-
-    // 2. 낱말 카드 범위 검증 (1~15개)
-    if (words.length < 1 || words.length > 15) {
-      return res.status(400).error({
-        code: 'INVALID_INPUT',
-        message: '낱말 카드는 최소 1개, 최대 15개까지 선택 가능합니다'
-      });
-    }
-
-    // 기본 Joi 검증 에러 처리
-    if (error) {
-      return res.status(400).error({
-        code: 'INVALID_INPUT',
-        message: error.details[0].message
-      });
-    }
+    // 검증된 데이터 추출 (미들웨어에서 이미 검증 완료)
+    const { words, context, refresh = false } = req.body;
 
     // 캐시 조회 (refresh가 false이고 맥락 없을 때만)
     if (!refresh && !context?.previousMessages?.length && words.length > 0) {
