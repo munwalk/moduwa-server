@@ -1,9 +1,16 @@
 import { BaseError, UnauthorizedError } from "../errors/app.error.js";
-import { getRoutineList, createRoutine } from "./routine.service.js";
+import {
+  getRoutineList,
+  createRoutine,
+  updateRoutine,
+  deleteRoutines,
+  deleteAllRoutines,
+} from "./routine.service.js";
 import {
   validateCreateRoutineBody,
   validateUpdateRoutineBody,
 } from "./routine.validator.js";
+import { validateDeleteRoutineBody } from "./routine.delete.validator.js";
 
 // MOCK 설정
 const isMockMode = () =>
@@ -185,6 +192,52 @@ export const patchRoutine = async (req, res, next) => {
     });
 
     return res.success({ routine }, "루틴 문장 수정 성공");
+  } catch (err) {
+    next(err);
+  }
+};
+
+// DELETE - 선택 삭제
+export const deleteSelectedRoutines = async (req, res, next) => {
+  try {
+    const userId = req.user?.userId ?? req.userId ?? req.user?.id;
+    if (!userId) throw new UnauthorizedError("인증 정보가 없습니다.");
+
+    const { ids } = validateDeleteRoutineBody(req.body);
+
+    // MOCK
+    // if (isMockMode()) {
+    //   return res.success(
+    //     { deletedCount: ids.length, deletedIds: ids },
+    //     "루틴 문장 선택 삭제 성공 (mock)",
+    //   );
+    // }
+
+    // 실구현
+    const result = await deleteRoutines({ userId, ids });
+    return res.success(result, "루틴 문장 선택 삭제 성공");
+  } catch (err) {
+    next(err);
+  }
+};
+
+// DELETE - 전체 삭제
+export const deleteAllRoutinesController = async (req, res, next) => {
+  try {
+    const userId = req.user?.userId ?? req.userId ?? req.user?.id;
+    if (!userId) throw new UnauthorizedError("인증 정보가 없습니다.");
+
+    // MOCK
+    // if (isMockMode()) {
+    //   return res.success(
+    //     { deletedCount: 999 },
+    //     "루틴 문장 전체 삭제 성공 (mock)",
+    //   );
+    // }
+
+    // 실구현
+    const result = await deleteAllRoutines({ userId });
+    return res.success(result, "루틴 문장 전체 삭제 성공");
   } catch (err) {
     next(err);
   }

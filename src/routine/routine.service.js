@@ -49,3 +49,22 @@ export const updateRoutine = async ({ routineId, userId, patchData }) => {
 
   return toRoutineDto(updated);
 };
+
+// DELETE - 선택 삭제
+export const deleteRoutines = async ({ userId, ids }) => {
+  const result = await deleteRoutineMessagesByIds({ userId, ids });
+
+  return {
+    deletedCount: result.count,
+    deletedIds: ids,
+  };
+};
+
+// DELETE - 전체 삭제
+export const deleteAllRoutines = async ({ userId }) => {
+  const result = await deleteAllRoutineMessagesByUser({ userId });
+
+  return {
+    deletedCount: result.count,
+  };
+};

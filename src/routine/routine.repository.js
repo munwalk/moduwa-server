@@ -37,3 +37,19 @@ export const updateRoutineMessage = async ({ id, data }) => {
     data,
   });
 };
+
+// DELETE
+export const deleteRoutineMessagesByIds = async ({ userId, ids }) => {
+  return prisma.routineMessage.deleteMany({
+    where: {
+      userId,
+      id: { in: ids },
+    },
+  });
+};
+
+export const deleteAllRoutineMessagesByUser = async ({ userId }) => {
+  return prisma.routineMessage.deleteMany({
+    where: { userId },
+  });
+};
