@@ -47,6 +47,7 @@ CREATE TABLE `Word` (
     `category_id` CHAR(36) NOT NULL,
     `word` VARCHAR(100) NOT NULL,
     `image_url` VARCHAR(500) NOT NULL,
+    `part_of_speech` ENUM('NOUN', 'VERB', 'ADJECTIVE', 'MODIFIER', 'EMOTION', 'NONE') NOT NULL DEFAULT 'NONE',
     `is_default` BOOLEAN NOT NULL DEFAULT true,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
@@ -76,7 +77,9 @@ CREATE TABLE `UserWord` (
     `id` CHAR(36) NOT NULL,
     `user_id` CHAR(36) NOT NULL,
     `word_id` CHAR(36) NULL,
-    `user_category_id` CHAR(36) NOT NULL,
+    `category_id` CHAR(36) NULL,
+    `user_category_id` CHAR(36) NULL,
+    `part_of_speech` ENUM('NOUN', 'VERB', 'ADJECTIVE', 'MODIFIER', 'EMOTION', 'NONE') NOT NULL DEFAULT 'NONE',
     `custom_word` VARCHAR(100) NULL,
     `custom_image_url` VARCHAR(500) NULL,
     `display_order` INTEGER NOT NULL,
@@ -88,6 +91,7 @@ CREATE TABLE `UserWord` (
     INDEX `UserWord_user_id_idx`(`user_id`),
     INDEX `UserWord_user_id_is_favorite_idx`(`user_id`, `is_favorite`),
     INDEX `UserWord_user_id_is_deleted_idx`(`user_id`, `is_deleted`),
+    INDEX `UserWord_category_id_display_order_idx`(`category_id`, `display_order`),
     INDEX `UserWord_user_category_id_display_order_idx`(`user_category_id`, `display_order`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

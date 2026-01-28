@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Words DTO
  */
 
@@ -15,7 +15,7 @@ export const PartOfSpeech = {
 };
 
 /**
- * GET /api/in/words - Query DTO
+ * GET /api/words - Query DTO
  */
 export class GetWordsQueryDto {
   constructor({ categoryId, onlyFavorite }) {
@@ -25,7 +25,7 @@ export class GetWordsQueryDto {
 }
 
 /**
- * POST /api/pm/words - Create Word Request DTO
+ * POST /api/words - Create Word Request DTO
  */
 export class CreateWordDto {
   constructor({ categoryId, word, imageUrl }) {
@@ -52,7 +52,7 @@ export class CreateWordDto {
 }
 
 /**
- * PATCH /api/pm/words/:cardId/favorite - Update Favorite Request DTO
+ * PATCH /api/words/:cardId/favorite - Update Favorite Request DTO
  */
 export class UpdateFavoriteDto {
   constructor({ isFavorite }) {
@@ -67,7 +67,7 @@ export class UpdateFavoriteDto {
 }
 
 /**
- * PATCH /api/pm/words/:cardId - Update Word Request DTO
+ * PATCH /api/words/:cardId - Update Word Request DTO
  */
 export class UpdateWordDto {
   constructor({ word, imageUrl, categoryId }) {

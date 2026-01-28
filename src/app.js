@@ -12,7 +12,7 @@ import { swaggerSpec } from "./swagger/swagger.js";
 // 라우터
 import categoryRouter from "./category/category.route.js";
 import ttsRouter from "./tts/tts.route.js";
-import wordsRouter from "./words/words.route.js";
+import wordsRouter from "./words/routes/words.route.js";
 import aiRouter from "./ai-prediction/routes/ai.prediction.route.js";
 import historyRouter from "./history/history.route.js";
 import authRoutes from './auth/routes/auth.routes.js';

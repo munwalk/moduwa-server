@@ -1,12 +1,12 @@
-import wordsService from './words.service.js';
-import { GetWordsQueryDto, CreateWordDto, UpdateFavoriteDto, UpdateWordDto } from './words.dto.js';
+import wordsService from '../services/words.service.js';
+import { GetWordsQueryDto, CreateWordDto, UpdateFavoriteDto, UpdateWordDto } from '../dto/words.dto.js';
 
 /**
  * Words Controller
  */
 export class WordsController {
   /**
-   * GET /api/in/words - 낱말 카드 조회
+   * GET /api/words - 낱말 카드 조회
    */
   async getWords(req, res, next) {
     try {
@@ -23,18 +23,14 @@ export class WordsController {
         queryDto.onlyFavorite
       );
 
-      return res.status(200).json({
-        success: true,
-        data: result,
-        message: '낱말 카드 목록 조회 성공'
-      });
+      return res.success(result, '낱말 카드 목록 조회 성공');
     } catch (error) {
       next(error);
     }
   }
 
   /**
-   * POST /api/pm/words - 개인 낱말 카드 추가
+   * POST /api/words - 개인 낱말 카드 추가
    */
   async createWord(req, res, next) {
     try {
@@ -56,18 +52,14 @@ export class WordsController {
         createDto.imageUrl
       );
 
-      return res.status(201).json({
-        success: true,
-        data: { word: createdWord },
-        message: '개인 낱말 카드 추가 성공'
-      });
+      return res.success({ word: createdWord }, '개인 낱말 카드 추가 성공', 201);
     } catch (error) {
       next(error);
     }
   }
 
   /**
-   * PATCH /api/pm/words/:cardId/favorite - 낱말 카드 즐겨찾기 변경
+   * PATCH /api/words/:cardId/favorite - 낱말 카드 즐겨찾기 변경
    */
   async updateFavorite(req, res, next) {
     try {
@@ -87,18 +79,14 @@ export class WordsController {
         updateDto.isFavorite
       );
 
-      return res.status(200).json({
-        success: true,
-        data: { word: result },
-        message: '낱말 카드 즐겨찾기 변경 성공'
-      });
+      return res.success({ word: result }, '낱말 카드 즐겨찾기 변경 성공');
     } catch (error) {
       next(error);
     }
   }
 
   /**
-   * PATCH /api/pm/words/:cardId - 낱말 카드 수정
+   * PATCH /api/words/:cardId - 낱말 카드 수정
    */
   async updateWord(req, res, next) {
     try {
@@ -122,18 +110,14 @@ export class WordsController {
         updateDto.categoryId
       );
 
-      return res.status(200).json({
-        success: true,
-        data: { word: updatedWord },
-        message: '낱말 카드 수정 성공'
-      });
+      return res.success({ word: updatedWord }, '낱말 카드 수정 성공');
     } catch (error) {
       next(error);
     }
   }
 
   /**
-   * DELETE /api/pm/words/:cardId - 낱말 카드 삭제
+   * DELETE /api/words/:cardId - 낱말 카드 삭제
    */
   async deleteWord(req, res, next) {
     try {
@@ -142,11 +126,7 @@ export class WordsController {
 
       await wordsService.deleteWord(userId, cardId);
 
-      return res.status(200).json({
-        success: true,
-        data: null,
-        message: '낱말 카드 삭제 성공'
-      });
+      return res.success(null, '낱말 카드 삭제 성공');
     } catch (error) {
       next(error);
     }

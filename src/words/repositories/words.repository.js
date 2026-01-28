@@ -304,6 +304,68 @@ export class WordsRepository {
       data: { isDeleted: true }
     });
   }
+
+  /**
+   * 카테고리의 모든 Word를 UserWord로 스냅샷 생성
+   * 순서 변경을 위해 기본 낱말들을 UserWord로 래핑
+   * @param {string} userId
+   * @param {string} categoryId
+   * @returns {Promise<Array>} 생성된 UserWord 목록
+   */
+  async createSnapshotFromWords(userId, categoryId) {
+    // 1. 해당 카테고리의 모든 Word 조회
+    const words = await this.findWords(categoryId);
+    
+    // 2. 각 Word를 참조하는 UserWord 생성
+    const createPromises = words.map((word, index) => 
+      prisma.userWord.create({
+        data: {
+          userId,
+          wordId: word.id,
+          categoryId: word.categoryId,
+          partOfSpeech: word.partOfSpeech,
+          displayOrder: index, // 생성 순서대로 0, 1, 2...
+          isFavorite: false,
+          isDeleted: false
+        }
+      })
+    );
+
+    return await Promise.all(createPromises);
+  }
+
+  /**
+   * 여러 UserWord의 displayOrder 일괄 업데이트
+   * @param {Array<{userWordId: string, displayOrder: number}>} updates
+   * @returns {Promise<void>}
+   */
+  async bulkUpdateDisplayOrders(updates) {
+    const updatePromises = updates.map(({ userWordId, displayOrder }) =>
+      prisma.userWord.update({
+        where: { id: userWordId },
+        data: { displayOrder }
+      })
+    );
+
+    await Promise.all(updatePromises);
+  }
+
+  /**
+   * 카테고리의 UserWord(wordId 참조하는 것) 개수 확인
+   * @param {string} userId
+   * @param {string} categoryId
+   * @returns {Promise<number>}
+   */
+  async countUserWordReferences(userId, categoryId) {
+    return await prisma.userWord.count({
+      where: {
+        userId,
+        categoryId,
+        wordId: { not: null }, // wordId가 있는 것만 (Word 참조)
+        isDeleted: false
+      }
+    });
+  }
 }
 
 export default new WordsRepository();

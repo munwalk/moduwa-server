@@ -1,11 +1,32 @@
-import wordsRepository from './words.repository.js';
-import { WordCardResponseDto } from './words.dto.js';
-import { analyzeWord } from '../utils/nlp.client.js';
+import wordsRepository from '../repositories/words.repository.js';
+import { WordCardResponseDto } from '../dto/words.dto.js';
+import { analyzeWord } from '../../utils/nlp.client.js';
 
 /**
  * Words Service
  */
 export class WordsService {
+  /**
+   * 다음 displayOrder 계산 (기본 Word + UserWord 모두 고려)
+   * @param {string} userId
+   * @param {string} categoryId
+   * @returns {Promise<number>}
+   */
+  async getNextDisplayOrder(userId, categoryId) {
+    // 1. UserWord 조회 (삭제된 것 제외)
+    const userWords = await wordsRepository.findUserWords(userId, categoryId, false, false);
+    
+    // 2. UserWord가 있으면 최대값 + 1 반환
+    if (userWords.length > 0) {
+      const maxOrder = Math.max(...userWords.map(w => w.displayOrder));
+      return maxOrder + 1;
+    }
+    
+    // 3. UserWord가 없으면 기본 Word 개수 반환
+    const words = await wordsRepository.findWords(categoryId);
+    return words.length;
+  }
+
   /**
    * 낱말 카드 목록 조회
    * 기본 낱말(Word) + 개인 낱말(UserWord) 통합 반환
@@ -44,7 +65,29 @@ export class WordsService {
       }
     });
 
-    // 2. UserWord를 WordCardResponseDto로 변환 (isDeleted=false인 것만)
+    // 2. 기본 낱말(Word) 먼저 조회 (UserWord가 없는 것만)
+    if (!onlyFavorite) {
+      const words = await wordsRepository.findWords(categoryId);
+
+      words.forEach((word, index) => {
+        // 이미 UserWord로 개인화된 낱말은 제외
+        // isDeleted=true로 표시된 낱말도 제외
+        if (!userWordMap.has(word.id) && !deletedWordIds.has(word.id)) {
+          wordCards.push(new WordCardResponseDto({
+            cardId: word.id, // Word.id
+            categoryId: word.categoryId,
+            partOfSpeech: word.partOfSpeech,
+            word: word.word,
+            imageUrl: word.imageUrl,
+            isDefault: true,
+            isFavorite: false,
+            displayOrder: index // 기본 낱말은 0, 1, 2...
+          }));
+        }
+      });
+    }
+
+    // 3. UserWord를 WordCardResponseDto로 변환 (isDeleted=false인 것만)
     userWords.forEach(uw => {
       // isDeleted=true인 경우 제외
       if (uw.isDeleted) {
@@ -66,31 +109,9 @@ export class WordsService {
         imageUrl: displayImageUrl,
         isDefault: uw.wordId !== null, // wordId가 있으면 기본 낱말 참조
         isFavorite: uw.isFavorite,
-        displayOrder: uw.displayOrder
+        displayOrder: uw.displayOrder // UserWord는 그대로 사용
       }));
     });
-
-    // 3. 기본 낱말(Word) 조회 (UserWord가 없는 것만)
-    if (!onlyFavorite) {
-      const words = await wordsRepository.findWords(categoryId);
-
-      words.forEach(word => {
-        // 이미 UserWord로 개인화된 낱말은 제외
-        // isDeleted=true로 표시된 낱말도 제외
-        if (!userWordMap.has(word.id) && !deletedWordIds.has(word.id)) {
-          wordCards.push(new WordCardResponseDto({
-            cardId: word.id, // Word.id
-            categoryId: word.categoryId,
-            partOfSpeech: word.partOfSpeech,
-            word: word.word,
-            imageUrl: word.imageUrl,
-            isDefault: true,
-            isFavorite: false,
-            displayOrder: 999 // 기본 낱말은 뒤로
-          }));
-        }
-      });
-    }
 
     // 4. displayOrder 기준 정렬
     wordCards.sort((a, b) => a.displayOrder - b.displayOrder);
@@ -123,13 +144,8 @@ export class WordsService {
 
     console.log(`[NLP] 단어: ${word}, 품사: ${partOfSpeech} (원본: ${nlpResult.pos})`);
 
-    // 2. 현재 카테고리에서 최대 displayOrder 구하기
-    const existingWords = await wordsRepository.findUserWords(userId, categoryId);
-    const maxOrder = existingWords.length > 0 
-      ? Math.max(...existingWords.map(w => w.displayOrder))
-      : 0;
-    
-    const newDisplayOrder = maxOrder + 1;
+    // 2. 다음 displayOrder 계산
+    const newDisplayOrder = await this.getNextDisplayOrder(userId, categoryId);
 
     // 3. UserWord 생성 (품사 포함)
     const createdUserWord = await wordsRepository.createUserWord(
@@ -192,12 +208,7 @@ export class WordsService {
 
       if (isFavorite) {
         // 즐겨찾기 설정: UserWord 생성
-        // displayOrder 계산
-        const existingWords = await wordsRepository.findUserWords(userId, word.categoryId);
-        const maxOrder = existingWords.length > 0 
-          ? Math.max(...existingWords.map(w => w.displayOrder))
-          : 0;
-        const newDisplayOrder = maxOrder + 1;
+        const newDisplayOrder = await this.getNextDisplayOrder(userId, word.categoryId);
 
         const newUserWord = await wordsRepository.createUserWordForFavorite(
           userId,
@@ -253,11 +264,7 @@ export class WordsService {
       const targetCategoryId = categoryId || baseWord.categoryId;
 
       // displayOrder 계산
-      const existingWords = await wordsRepository.findUserWords(userId, targetCategoryId);
-      const maxOrder = existingWords.length > 0 
-        ? Math.max(...existingWords.map(w => w.displayOrder))
-        : 0;
-      const newDisplayOrder = maxOrder + 1;
+      const newDisplayOrder = await this.getNextDisplayOrder(userId, targetCategoryId);
 
       const newUserWord = await wordsRepository.createUserWordForEdit(
         userId,
@@ -306,11 +313,7 @@ export class WordsService {
       }
 
       // displayOrder 계산
-      const existingWords = await wordsRepository.findUserWords(userId, baseWord.categoryId);
-      const maxOrder = existingWords.length > 0 
-        ? Math.max(...existingWords.map(w => w.displayOrder))
-        : 0;
-      const newDisplayOrder = maxOrder + 1;
+      const newDisplayOrder = await this.getNextDisplayOrder(userId, baseWord.categoryId);
 
       // isDeleted=true로 UserWord 생성
       await wordsRepository.createUserWordForDelete(userId, cardId, newDisplayOrder);
