@@ -1,5 +1,5 @@
 import wordsService from '../services/words.service.js';
-import { GetWordsQueryDto, CreateWordDto, UpdateFavoriteDto, UpdateWordDto } from '../dto/words.dto.js';
+import { GetWordsQueryDto, CreateWordDto, UpdateFavoriteDto, UpdateWordDto, ReorderWordsDto } from '../dto/words.dto.js';
 
 /**
  * Words Controller
@@ -127,6 +127,26 @@ export class WordsController {
       await wordsService.deleteWord(userId, cardId);
 
       return res.success(null, '낱말 카드 삭제 성공');
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * PATCH /api/words/reorder - 낱말 카드 순서 변경
+   */
+  async reorderWords(req, res, next) {
+    try {
+      const userId = req.user.userId;
+      const { categoryId, orderedCardIds } = req.body;
+
+      const reorderedWords = await wordsService.reorderWords(
+        userId,
+        categoryId,
+        orderedCardIds
+      );
+
+      return res.success({ words: reorderedWords }, '낱말 카드 순서 변경 성공');
     } catch (error) {
       next(error);
     }

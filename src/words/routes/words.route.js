@@ -1,5 +1,6 @@
 import express from 'express';
 import wordsController from '../controllers/words.controller.js';
+import wordsValidator from '../middlewares/words.validator.js';
 import { authenticate, optionalAuthenticate } from '../../auth/middlewares/auth.middleware.js';
 
 const router = express.Router();
@@ -17,6 +18,14 @@ router.get('/', optionalAuthenticate, wordsController.getWords.bind(wordsControl
  * 인증: 필수
  */
 router.post('/', authenticate, wordsController.createWord.bind(wordsController));
+
+/**
+ * PATCH /api/words/reorder - 낱말 카드 순서 변경
+ * Body: categoryId, orderedCardIds
+ * 인증: 필수
+ * Note: 이 라우트는 /:cardId/favorite, /:cardId 보다 위에 있어야 함
+ */
+router.patch('/reorder', authenticate, wordsValidator.validateReorderWordsBody, wordsController.reorderWords.bind(wordsController));
 
 /**
  * PATCH /api/words/:cardId/favorite - 낱말 카드 즐겨찾기 변경

@@ -84,6 +84,31 @@ export class UpdateWordDto {
 }
 
 /**
+ * PATCH /api/words/reorder - Reorder Words Request DTO
+ */
+export class ReorderWordsDto {
+  constructor({ categoryId, orderedCardIds }) {
+    this.categoryId = String(categoryId);
+    this.orderedCardIds = orderedCardIds || [];
+  }
+
+  validate() {
+    const errors = [];
+    
+    if (!this.categoryId) {
+      errors.push('categoryId는 필수입니다');
+    }
+    if (!Array.isArray(this.orderedCardIds) || this.orderedCardIds.length === 0) {
+      errors.push('orderedCardIds는 필수 배열입니다');
+    }
+
+    if (errors.length > 0) {
+      throw new Error(errors.join(', '));
+    }
+  }
+}
+
+/**
  * 낱말 카드 응답 DTO
  */
 export class WordCardResponseDto {

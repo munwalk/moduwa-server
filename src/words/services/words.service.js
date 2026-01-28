@@ -319,6 +319,50 @@ export class WordsService {
       await wordsRepository.createUserWordForDelete(userId, cardId, newDisplayOrder);
     }
   }
+
+  /**
+   * 낱말 카드 순서 변경 (스냅샷 전략)
+   * @param {string} userId
+   * @param {string} categoryId
+   * @param {Array<string>} orderedCardIds - 새로운 순서의 cardId 배열
+   * @returns {Promise<Array>} 변경된 낱말 목록
+   */
+  async reorderWords(userId, categoryId, orderedCardIds) {
+    // 1. orderedCardIds 중 UserWord인 것과 Word인 것을 구분
+    const userWordIds = [];
+    const baseWordIds = [];
+
+    for (const cardId of orderedCardIds) {
+      const userWord = await wordsRepository.findUserWordById(cardId);
+      if (userWord) {
+        userWordIds.push(cardId);
+      } else {
+        baseWordIds.push(cardId);
+      }
+    }
+
+    // 2. 기본 Word 참조가 있으면 스냅샷 생성 (아직 생성되지 않은 것만)
+    if (baseWordIds.length > 0) {
+      const snapshotCount = await wordsRepository.countUserWordReferences(userId, categoryId);
+      if (snapshotCount === 0) {
+        // 스냅샷이 없으면 생성
+        await wordsRepository.createSnapshotFromWords(userId, categoryId);
+      }
+    }
+
+    // 3. 업데이트할 displayOrder 목록 작성
+    const updates = orderedCardIds.map((cardId, index) => {
+      // 최종적으로 모든 cardId는 UserWord여야 함
+      return { userWordId: cardId, displayOrder: index };
+    });
+
+    // 4. 대량 업데이트
+    await wordsRepository.bulkUpdateDisplayOrders(updates);
+
+    // 5. 변경된 낱말 목록 반환
+    const reorderedWords = await this.getWords(userId, categoryId, false);
+    return reorderedWords.words;
+  }
 }
 
 export default new WordsService();

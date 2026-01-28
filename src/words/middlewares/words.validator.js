@@ -1,4 +1,4 @@
-import { GetWordsQueryDto, CreateWordDto, UpdateFavoriteDto, UpdateWordDto } from '../dto/words.dto.js';
+import { GetWordsQueryDto, CreateWordDto, UpdateFavoriteDto, UpdateWordDto, ReorderWordsDto } from '../dto/words.dto.js';
 
 /**
  * Words Validator Middleware
@@ -74,4 +74,30 @@ export const validateUpdateWordBody = (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+/**
+ * PATCH /api/words/reorder - Request Body 검증
+ */
+export const validateReorderWordsBody = (req, res, next) => {
+  try {
+    const reorderDto = new ReorderWordsDto({
+      categoryId: req.body.categoryId,
+      orderedCardIds: req.body.orderedCardIds
+    });
+
+    reorderDto.validate();
+    req.validatedBody = reorderDto;
+    next();
+  } catch (error) {
+    next(error);
+  }
+};
+
+export default {
+  validateGetWordsQuery,
+  validateCreateWordBody,
+  validateUpdateFavoriteBody,
+  validateUpdateWordBody,
+  validateReorderWordsBody
 };
