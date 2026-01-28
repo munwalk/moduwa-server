@@ -1,31 +1,25 @@
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
-import helmet from 'helmet'; 
-import session from 'express-session'; 
+import helmet from 'helmet';
+import session from 'express-session';
 import passport from './auth/middlewares/passport.config.js';
 import { PrismaClient } from '@prisma/client';
 import { initRedis } from './auth/services/token.service.js';
- // import pmRouter from "./pm/pm.route.js";
-import categoryRouter from "./category/category.route.js";
-import {
-    AiPredictionTimeoutError,
-    UnauthorizedError,
-    TokenExpiredError,              
-    InvalidTokenError,              
-    UserNotFoundError,             
-    NotGuestAccountError,           
-    SocialAccountAlreadyLinkedError, 
-    InvalidRefreshTokenError,     
-    ValidationError
-} from './errors/app.error.js';
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger/swagger.js";
 
+// 라우터
+import categoryRouter from "./category/category.route.js";
 import ttsRouter from "./tts/tts.route.js";
 import wordsRouter from "./words/words.route.js";
-import aiRouter from "./ai-prediction/ai.prediction.route.js";
+import aiRouter from "./ai-prediction/routes/ai.prediction.route.js";
 import historyRouter from "./history/history.route.js";
+import authRoutes from './auth/routes/auth.routes.js';
+
+// 유틸리티
+import responseHelper from './utils/response.util.js';
+import errorHandler from './utils/errorHandler.js';
 
 // 환경변수 설정
 dotenv.config();
@@ -58,26 +52,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // 2. 응답 헬퍼 함수 등록
-app.use((req, res, next) => {
-  // 성공 응답
-  res.success = (data, message = "요청 성공") => {
-    return res.json({
-      success: true,
-      data,
-      message,
-    });
-  };
-
-  // 실패 응답
-  res.error = ({ code = "UNKNOWN", message = "오류 발생", detail = null }) => {
-    return res.json({
-      success: false,
-      error: { code, message, detail },
-    });
-  };
-
-  next();
-});
+app.use(responseHelper);
 
 // +) 라우터 등록
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -122,7 +97,6 @@ app.get('/health/db', async (req, res, next) => {
 });
 
 // Auth Routes 추가
-import authRoutes from './auth/routes/auth.routes.js';
 app.use('/api/auth', authRoutes);
 
 // 에러 케이스 테스트 (직접 throw)
@@ -152,104 +126,8 @@ app.use((req, res, next) => {
   });
 });
 
-// 5. 전역 에러 핸들러 (기존 코드 수정)
-app.use((err, req, res, next) => {
-  // 이미 응답 전송된 경우
-  if (res.headersSent) {
-    return next(err);
-  }
-
-    // Auth 에러 처리 추가
-    if (err.message === 'USER_NOT_FOUND') {
-        const error = new UserNotFoundError();
-        return res.status(error.statusCode).error({
-            code: error.code,
-            message: error.message
-        });
-    }
-
-    if (err.message === 'TOKEN_EXPIRED') {
-        const error = new TokenExpiredError();
-        return res.status(error.statusCode).error({
-            code: error.code,
-            message: error.message
-        });
-    }
-
-    if (err.message === 'INVALID_TOKEN') {
-        const error = new InvalidTokenError();
-        return res.status(error.statusCode).error({
-            code: error.code,
-            message: error.message
-        });
-    }
-
-    if (err.message === 'NOT_GUEST_ACCOUNT') {
-        const error = new NotGuestAccountError();
-        return res.status(error.statusCode).error({
-            code: error.code,
-            message: error.message
-        });
-    }
-
-    if (err.message === 'SOCIAL_ACCOUNT_ALREADY_LINKED') {
-        const error = new SocialAccountAlreadyLinkedError();
-        return res.status(error.statusCode).error({
-            code: error.code,
-            message: error.message
-        });
-    }
-
-    if (err.message === 'INVALID_REFRESH_TOKEN') {
-        const error = new InvalidRefreshTokenError();
-        return res.status(error.statusCode).error({
-            code: error.code,
-            message: error.message
-        });
-    }
-
-    // Validation 에러
-    if (err.message && err.message.includes('Validation error:')) {
-        const error = new ValidationError(err.message);
-        return res.status(error.statusCode).error({
-            code: error.code,
-            message: error.message
-        });
-    }
-
-    // Prisma 에러 처리
-    if (err.code === 'P2002') {
-        return res.status(409).error({
-            code: 'DUPLICATE_ENTRY',
-            message: '중복된 데이터입니다'
-        });
-    }
-
-    if (err.code === 'P2025') {
-        const error = new UserNotFoundError();
-        return res.status(error.statusCode).error({
-            code: error.code,
-            message: error.message
-        });
-    }
-
-    // 운영 에러 (예측 가능한 에러) 
-    if (err.isOperational) {
-        return res.status(err.statusCode).error({
-            code: err.code,
-            message: err.message,
-            detail: err.detail || null
-        });
-    }
-
-    // 프로그래밍 에러 
-    console.error('ERROR:', err);
-    return res.status(500).error({
-        code: 'SERVER_ERROR',
-        message: '서버 내부 오류가 발생했습니다',
-        detail: process.env.NODE_ENV === 'development' ? err.message : null
-      });
-});
+// 5. 전역 에러 핸들러
+app.use(errorHandler);
 
 // 서버 실행 (기존 코드 대체)
 async function startServer() {
