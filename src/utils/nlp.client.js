@@ -3,7 +3,7 @@
  * 파이썬 NLP 서버와 통신
  */
 
-const NLP_SERVICE_URL = process.env.NLP_SERVICE_URL || 'http://localhost:8000';
+const FASTAPI_URL = process.env.FASTAPI_URL || 'http://localhost:8000';
 
 /**
  * 단어의 품사를 분석
@@ -12,9 +12,9 @@ const NLP_SERVICE_URL = process.env.NLP_SERVICE_URL || 'http://localhost:8000';
  */
 export async function analyzeWord(word) {
   try {
-    console.log(`[NLP Client] Sending request to ${NLP_SERVICE_URL}/analyze/word with word: ${word}`);
+    console.log(`[NLP Client] Sending request to ${FASTAPI_URL}/analyze/word with word: ${word}`);
     
-    const response = await fetch(`${NLP_SERVICE_URL}/analyze/word`, {
+    const response = await fetch(`${FASTAPI_URL}/analyze/word`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json; charset=utf-8'
@@ -46,7 +46,7 @@ export async function analyzeWord(word) {
  */
 export async function checkNlpServiceHealth() {
   try {
-    const response = await fetch(`${NLP_SERVICE_URL}/`);
+    const response = await fetch(`${FASTAPI_URL}/`);
     return response.ok;
   } catch (error) {
     return false;
