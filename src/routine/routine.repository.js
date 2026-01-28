@@ -1,5 +1,6 @@
 import prisma from "../config/prisma.config.js";
 
+// GET
 export const findRoutineMessagesByUser = async ({ userId }) => {
   return prisma.routineMessage.findMany({
     where: { userId },
@@ -7,6 +8,7 @@ export const findRoutineMessagesByUser = async ({ userId }) => {
   });
 };
 
+// POST
 export const createRoutineMessage = async ({
   userId,
   message,
@@ -21,5 +23,17 @@ export const createRoutineMessage = async ({
       scheduledTime,
       isActive: true,
     },
+  });
+};
+
+// PATCH
+export const findRoutineById = async ({ id }) => {
+  return prisma.routineMessage.findUnique({ where: { id } });
+};
+
+export const updateRoutineMessage = async ({ id, data }) => {
+  return prisma.routineMessage.update({
+    where: { id },
+    data,
   });
 };

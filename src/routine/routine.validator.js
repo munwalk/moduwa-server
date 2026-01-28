@@ -1,41 +1,83 @@
 import { BaseError } from "../errors/app.error.js";
 
-export const validateCreateRoutineBody = (body) => {
-  const { message, daysOfWeek, scheduledTime } = body ?? {};
+const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
-  // 1) message
-  if (typeof message !== "string" || message.trim().length === 0) {
-    throw new BaseError("message는 필수입니다.");
-  }
-
-  // 2) daysOfWeek
+const normalizeDaysOfWeek = (daysOfWeek) => {
   if (!Array.isArray(daysOfWeek) || daysOfWeek.length === 0) {
-    throw new BaseError("daysOfWeek는 최소 1개 이상 선택해야 합니다.");
+    throw new BaseError("daysOfWeek는 최소 1개 이상 선택해야 합니다.", 400);
   }
 
   const uniqueDays = Array.from(new Set(daysOfWeek));
   for (const d of uniqueDays) {
     if (!Number.isInteger(d) || d < 1 || d > 7) {
-      throw new BaseError("daysOfWeek는 1~7 범위의 정수 배열이어야 합니다.");
+      throw new BaseError(
+        "daysOfWeek는 1~7 범위의 정수 배열이어야 합니다.",
+        400,
+      );
     }
   }
 
-  // 3) scheduledTime
-  if (typeof scheduledTime !== "string") {
-    throw new BaseError("scheduledTime은 필수입니다.");
-  }
+  return uniqueDays.sort((a, b) => a - b);
+};
 
-  // "HH:MM" (00~23):(00~59)
-  const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+const normalizeScheduledTime = (scheduledTime) => {
+  if (typeof scheduledTime !== "string") {
+    throw new BaseError("scheduledTime은 필수입니다.", 400);
+  }
   if (!timeRegex.test(scheduledTime)) {
+    throw new BaseError("scheduledTime 형식은 HH:MM 입니다.", 400);
+  }
+  return scheduledTime;
+};
+
+const normalizeMessage = (message) => {
+  if (typeof message !== "string" || message.trim().length === 0) {
+    throw new BaseError("message는 필수입니다.", 400);
+  }
+  return message.trim();
+};
+
+// 생성(POST)용: message/daysOfWeek/scheduledTime 모두 필수
+
+export const validateCreateRoutineBody = (body) => {
+  const { message, daysOfWeek, scheduledTime } = body ?? {};
+
+  return {
+    message: normalizeMessage(message),
+    daysOfWeek: normalizeDaysOfWeek(daysOfWeek),
+    scheduledTime: normalizeScheduledTime(scheduledTime),
+  };
+};
+
+// 수정(PATCH)용: message / daysOfWeek / scheduledTime 중 하나 이상
+export const validateUpdateRoutineBody = (body) => {
+  const { message, daysOfWeek, scheduledTime } = body ?? {};
+
+  const hasAny =
+    message !== undefined ||
+    daysOfWeek !== undefined ||
+    scheduledTime !== undefined;
+
+  if (!hasAny) {
     throw new BaseError(
-      "scheduledTime 형식은 HH:MM(24시간)이어야 합니다. 예: 09:00",
+      "message, daysOfWeek, scheduledTime 중 하나 이상은 필요합니다.",
+      400,
     );
   }
 
-  return {
-    message: message.trim(),
-    daysOfWeek: uniqueDays.sort((a, b) => a - b),
-    scheduledTime,
-  };
+  const result = {};
+
+  if (message !== undefined) {
+    result.message = normalizeMessage(message);
+  }
+
+  if (daysOfWeek !== undefined) {
+    result.daysOfWeek = normalizeDaysOfWeek(daysOfWeek);
+  }
+
+  if (scheduledTime !== undefined) {
+    result.scheduledTime = normalizeScheduledTime(scheduledTime);
+  }
+
+  return result;
 };
