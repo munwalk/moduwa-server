@@ -8,8 +8,8 @@ import { saveConversation } from '../services/conversation.service.js';
  */
 const saveConversationController = async (req, res, next) => {
   try {
-    // userId는 인증 미들웨어에서 추출 (현재는 임시로 'guest' 사용)
-    const userId = req.user?.id || 'guest';
+    // userId는 인증 미들웨어에서 추출
+    const userId = req.user.userId;
 
     // 검증된 데이터 추출 (미들웨어에서 이미 검증 완료)
     const { words, suggestedSentences, selectedSentence, selectionIndex } = req.body;

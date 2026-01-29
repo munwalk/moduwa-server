@@ -8,8 +8,8 @@ const contextController = async (req, res, next) => {
   try {
     console.log('🔵 AI Context 요청 받음');
 
-    // userId는 인증 미들웨어에서 추출 (현재는 임시로 'guest' 사용)
-    const userId = req.user?.userId || 'guest';
+    // userId는 인증 미들웨어에서 추출
+    const userId = req.user.userId;
 
     // 10분 이내 대화 기록 조회
     const context = await getRecentConversations(userId);
@@ -27,11 +27,7 @@ const contextController = async (req, res, next) => {
     );
   } catch (error) {
     console.error('[AI Context Error]', error);
-    return res.status(500).error({
-      code: 'CONTEXT_QUERY_FAILED',
-      message: '맥락 조회 중 오류가 발생했습니다',
-      detail: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+    return next(error);
   }
 };
 

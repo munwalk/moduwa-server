@@ -22,7 +22,10 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # OpenAI 클라이언트 초기화
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(
+    api_key=os.getenv("OPENAI_API_KEY"),
+    max_retries=0  # 자동 재시도 금지
+)
 
 # Redis 클라이언트 초기화
 redis_client = None
@@ -106,7 +109,8 @@ def generate_cache_key(words: List[str], context: Optional[ContextModel], endpoi
         },
         "endpoint": endpoint
     }
-    cache_str = json.dumps(cache_data, ensure_ascii=False, sort_keys=True)
+    # separators=(',', ':')를 추가하여 불필요한 공백을 제거
+    cache_str = json.dumps(cache_data, ensure_ascii=False, sort_keys=True, separators=(',', ':'))
     return f"aac:{endpoint}:{hashlib.md5(cache_str.encode()).hexdigest()}"
 
 def get_from_cache(cache_key: str) -> Optional[dict]:
@@ -501,7 +505,7 @@ async def predict_sentences(request: PredictRequest):
             ],
             temperature=temperature,
             max_tokens=max_tokens,
-            timeout=5.0,
+            timeout=8.0,
             response_format={"type": "json_object"}
         )
 
@@ -525,11 +529,12 @@ async def predict_sentences(request: PredictRequest):
                 confidence=min(max(pred.get("confidence", 0.5), 0.0), 1.0)
             ))
 
-        # 캐시에 저장 (1시간 TTL)
+        # 캐시에 저장
         cache_data = {
             "predictions": [{"sentence": p.sentence, "confidence": p.confidence} for p in predictions]
         }
-        save_to_cache(cache_key, cache_data, ttl=3600)
+        # 스타일 변환은 비교적 결과가 고정적이므로 24시간(86400초) 캐싱
+        save_to_cache(cache_key, cache_data, ttl=86400)
 
         return PredictResponse(predictions=predictions, fromCache=False)
 
@@ -1091,13 +1096,14 @@ async def transform_sentence_style(request: TransformStyleRequest):
                 confidence=min(max(sent.get("confidence", 0.5), 0.0), 1.0)
             ))
 
-        # 캐시에 저장 (1시간 TTL)
+        # 캐시에 저장
         cache_data = {
             "words": words,
             "endingCards": endingCards,
             "sentences": [{"sentence": s.sentence, "confidence": s.confidence} for s in sentences]
         }
-        save_to_cache(cache_key, cache_data, ttl=3600)
+        # 스타일 변환은 비교적 결과가 고정적이므로 24시간(86400초) 캐싱
+        save_to_cache(cache_key, cache_data, ttl=86400)
 
         return TransformStyleResponse(
             words=words,
