@@ -17,6 +17,7 @@ import historyRouter from "./history/history.route.js";
 import authRoutes from "./auth/routes/auth.routes.js";
 import routineRouter from "./routine/routine.route.js";
 import settingsRouter from "./settings/settings.route.js";
+import orderRouter from "./order/order.route.js";
 
 // 유틸리티
 import responseHelper from "./utils/response.util.js";
@@ -59,16 +60,6 @@ app.use(responseHelper);
 
 // +) 라우터 등록
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use("/api/categories", categoryRouter);
-// PM02 테스트용 : 인증 우회
-// app.use(
-//   "/api/categories",
-//   (req, res, next) => {
-//     req.user = { userId: "dev-test-user" };
-//     next();
-//   },
-//   categoryRouter,
-// );
 
 // 3. 테스트용 라우트
 
@@ -86,6 +77,21 @@ app.use("/api/ai/tts", ttsRouter);
 
 // History API
 app.use("/api/histories", historyRouter);
+
+// Category API
+app.use("/api/categories", categoryRouter);
+// 테스트용 : 인증 우회
+// app.use(
+//   "/api/categories",
+//   (req, res, next) => {
+//     req.user = { userId: "dev-test-user" };
+//     next();
+//   },
+//   categoryRouter,
+// );
+
+// Category - order API
+app.use("/api/order", orderRouter);
 
 // 성공 케이스 테스트
 app.get("/", (req, res) => {
