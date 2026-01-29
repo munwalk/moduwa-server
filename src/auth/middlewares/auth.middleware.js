@@ -24,11 +24,20 @@ export const authenticate = async (req, res, next) => {
         message: 'Token has been revoked'
       });
     }
-
+    
     const decoded = verifyToken(token);
 
+    // id와 userId 둘 다 지원 (호환성)
+    const actualId = decoded.userId || decoded.id;
+    if (!actualId) {
+      return res.status(401).error({
+        code: 'INVALID_TOKEN',
+        message: 'User ID not found in token'
+      });
+    }
+
     req.user = {
-      userId: decoded.userId,
+      userId: actualId,
       accountType: decoded.accountType
     };
 
@@ -67,8 +76,11 @@ export const optionalAuthenticate = async (req, res, next) => {
     const token = authHeader.substring(7);
     const decoded = verifyToken(token);
 
+    // id와 userId 둘 다 지원 (호환성)
+    const actualId = decoded.userId || decoded.id;
+
     req.user = {
-      userId: decoded.userId,
+      userId: actualId,
       accountType: decoded.accountType
     };
 

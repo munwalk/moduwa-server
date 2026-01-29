@@ -1,4 +1,5 @@
 import { predictRequestSchema } from '../dto/ai.prediction.dto.js';
+import { ValidationError } from '../../errors/app.error.js';
 
 /**
  * AI 예측 요청 데이터 유효성 검사 미들웨어
@@ -11,26 +12,17 @@ export const validatePredictRequest = (req, res, next) => {
 
   // 1. 낱말 카드 없으면 에러
   if (!words || words.length === 0) {
-    return res.status(400).error({
-      code: 'INVALID_INPUT',
-      message: '낱말 카드를 최소 1개 이상 선택해주세요'
-    });
+    return next(new ValidationError('낱말 카드를 최소 1개 이상 선택해주세요'));
   }
 
   // 2. 낱말 카드 범위 검증 (1~15개)
   if (words.length < 1 || words.length > 15) {
-    return res.status(400).error({
-      code: 'INVALID_INPUT',
-      message: '낱말 카드는 최소 1개, 최대 15개까지 선택 가능합니다'
-    });
+    return next(new ValidationError('낱말 카드는 최소 1개, 최대 15개까지 선택 가능합니다'));
   }
 
   // 3. Joi 검증 에러 처리
   if (error) {
-    return res.status(400).error({
-      code: 'INVALID_INPUT',
-      message: error.details[0].message
-    });
+    return next(new ValidationError(error.details[0].message));
   }
 
   // 검증된 데이터를 req.body에 갱신
@@ -47,40 +39,25 @@ export const validateStyleRequest = (req, res, next) => {
 
   // 낱말 카드 검증
   if (!words || !Array.isArray(words) || words.length === 0) {
-    return res.status(400).error({
-      code: 'INVALID_INPUT',
-      message: '낱말 카드를 최소 1개 이상 선택해주세요'
-    });
+    return next(new ValidationError('낱말 카드를 최소 1개 이상 선택해주세요'));
   }
 
   // 낱말 카드 개수 검증 (최대 15개)
   if (words.length > 15) {
-    return res.status(400).error({
-      code: 'INVALID_INPUT',
-      message: '낱말 카드는 최대 15개까지 선택 가능합니다'
-    });
+    return next(new ValidationError('낱말 카드는 최대 15개까지 선택 가능합니다'));
   }
 
   // 어미 선택 카드 검증 (배열, 1~5개)
   if (!endingCards || !Array.isArray(endingCards)) {
-    return res.status(400).error({
-      code: 'INVALID_INPUT',
-      message: '어미 선택 카드를 최소 1개 이상 선택해주세요'
-    });
+    return next(new ValidationError('어미 선택 카드를 최소 1개 이상 선택해주세요'));
   }
 
   if (endingCards.length === 0) {
-    return res.status(400).error({
-      code: 'INVALID_INPUT',
-      message: '어미 선택 카드를 최소 1개 이상 선택해주세요'
-    });
+    return next(new ValidationError('어미 선택 카드를 최소 1개 이상 선택해주세요'));
   }
 
   if (endingCards.length > 5) {
-    return res.status(400).error({
-      code: 'INVALID_INPUT',
-      message: '어미 선택 카드는 최대 5개까지 선택 가능합니다'
-    });
+    return next(new ValidationError('어미 선택 카드는 최대 5개까지 선택 가능합니다'));
   }
 
   next();
@@ -95,24 +72,15 @@ export const validateSelectionRequest = (req, res, next) => {
 
   // 필수 값 검증 - 개별적으로 검사
   if (!words || !Array.isArray(words) || words.length === 0) {
-    return res.status(400).error({
-      code: 'INVALID_INPUT',
-      message: '낱말 배열이 필요합니다'
-    });
+    return next(new ValidationError('낱말 배열이 필요합니다'));
   }
 
   if (!recommendedSentences || !Array.isArray(recommendedSentences)) {
-    return res.status(400).error({
-      code: 'INVALID_INPUT',
-      message: '추천 문장 배열이 필요합니다'
-    });
+    return next(new ValidationError('추천 문장 배열이 필요합니다'));
   }
 
   if (!selectedSentence || typeof selectedSentence !== 'string') {
-    return res.status(400).error({
-      code: 'INVALID_INPUT',
-      message: '선택한 문장이 필요합니다'
-    });
+    return next(new ValidationError('선택한 문장이 필요합니다'));
   }
 
   next();
@@ -127,24 +95,15 @@ export const validateConversationRequest = (req, res, next) => {
 
   // 입력 검증
   if (!words || !Array.isArray(words) || words.length === 0) {
-    return res.status(400).error({
-      code: 'INVALID_INPUT',
-      message: '낱말 배열이 필요합니다'
-    });
+    return next(new ValidationError('낱말 배열이 필요합니다'));
   }
 
   if (!suggestedSentences || !Array.isArray(suggestedSentences)) {
-    return res.status(400).error({
-      code: 'INVALID_INPUT',
-      message: '추천 문장 배열이 필요합니다'
-    });
+    return next(new ValidationError('추천 문장 배열이 필요합니다'));
   }
 
   if (!selectedSentence || typeof selectedSentence !== 'string') {
-    return res.status(400).error({
-      code: 'INVALID_INPUT',
-      message: '선택한 문장이 필요합니다'
-    });
+    return next(new ValidationError('선택한 문장이 필요합니다'));
   }
 
   next();

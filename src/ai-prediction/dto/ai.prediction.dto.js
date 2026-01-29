@@ -9,14 +9,17 @@ import Joi from 'joi';
  */
 const predictRequestSchema = Joi.object({
   words: Joi.array()
-    .items(Joi.string().min(1).max(50))
+    // trim()을 추가하여 " " 같은 공백 입력을 원천 차단
+    .items(Joi.string().trim().min(1).max(50))
     .min(1) // 최소 1개 필수
     .max(15) // 최대 15개
     .required(),
   context: Joi.object({
     currentTime: Joi.string().optional(),
     previousMessages: Joi.array().items(Joi.string()).optional()
-  }).optional()
+  }).optional(),
+  // refresh 필드를 허용하고 기본값을 false로 설정
+  refresh: Joi.boolean().default(false) 
 }).options({ stripUnknown: true });
 
 export { predictRequestSchema };

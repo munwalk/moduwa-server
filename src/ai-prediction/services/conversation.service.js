@@ -85,8 +85,8 @@ const saveConversation = async (
         }))
       };
 
-      // Redis에 캐시 저장 (1시간 TTL)
-      await saveToCache(cacheKey, cacheData, 3600);
+      // Redis에 캐시 저장 (24시간 TTL)
+      await saveToCache(cacheKey, cacheData, 86400);
       console.log('✅ Redis 캐시 업데이트 완료');
     } catch (cacheError) {
       // 캐시 실패는 심각한 오류가 아니므로 로그만 기록
