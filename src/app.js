@@ -16,6 +16,7 @@ import aiRouter from "./ai-prediction/routes/ai.prediction.route.js";
 import historyRouter from "./history/history.route.js";
 import authRoutes from "./auth/routes/auth.routes.js";
 import routineRouter from "./routine/routine.route.js";
+import settingsRouter from "./settings/settings.route.js";
 
 // 유틸리티
 import responseHelper from "./utils/response.util.js";
@@ -73,6 +74,9 @@ app.use("/api/categories", categoryRouter);
 
 // 루틴 문장 API
 app.use("/api/routines", routineRouter);
+
+// 그리드 커스터마이징 API
+app.use("/api/settings", settingsRouter);
 
 // AI 예측 API
 app.use("/api/ai", aiRouter);
