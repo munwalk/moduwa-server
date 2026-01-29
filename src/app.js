@@ -60,16 +60,6 @@ app.use(responseHelper);
 
 // +) 라우터 등록
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use("/api/categories", categoryRouter);
-// PM02 테스트용 : 인증 우회
-// app.use(
-//   "/api/categories",
-//   (req, res, next) => {
-//     req.user = { userId: "dev-test-user" };
-//     next();
-//   },
-//   categoryRouter,
-// );
 
 // 3. 테스트용 라우트
 
@@ -87,6 +77,18 @@ app.use("/api/ai/tts", ttsRouter);
 
 // History API
 app.use("/api/histories", historyRouter);
+
+// Category API
+app.use("/api/categories", categoryRouter);
+// 테스트용 : 인증 우회
+// app.use(
+//   "/api/categories",
+//   (req, res, next) => {
+//     req.user = { userId: "dev-test-user" };
+//     next();
+//   },
+//   categoryRouter,
+// );
 
 // Category - order API
 app.use("/api/order", orderRouter);
