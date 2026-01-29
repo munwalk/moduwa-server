@@ -3,6 +3,7 @@ import * as authService from '../services/auth.service.js';
 import { AuthResponseDto } from '../dto/response/auth.response.js';
 import passport from '../middlewares/passport.config.js';
 import { savePendingSignup } from '../services/token.service.js';
+import { setRefreshTokenCookie } from '../../utils/cookie.helper.js';
 
 /**
  * 카카오 로그인 콜백
@@ -24,9 +25,12 @@ export const kakaoCallback = asyncHandler(async (req, res) => {
         const result = await authService.loginExistingUser(existingUser);
         const responseDto = new AuthResponseDto(result.user, result.tokens);
 
+        // refreshToken은 httpOnly 쿠키로 설정
+        setRefreshTokenCookie(res, responseDto.tokens.refreshToken);
+
+        // accessToken과 userId만 URL로 전달
         const redirectUrl = `${process.env.CORS_ORIGIN}/auth/callback?` +
           `accessToken=${responseDto.tokens.accessToken}&` +
-          `refreshToken=${responseDto.tokens.refreshToken}&` +
           `userId=${responseDto.user.id}`;
 
         return res.redirect(redirectUrl);
@@ -65,9 +69,12 @@ export const googleCallback = asyncHandler(async (req, res) => {
         const result = await authService.loginExistingUser(existingUser);
         const responseDto = new AuthResponseDto(result.user, result.tokens);
 
+        // refreshToken은 httpOnly 쿠키로 설정
+        setRefreshTokenCookie(res, responseDto.tokens.refreshToken);
+
+        // accessToken과 userId만 URL로 전달
         const redirectUrl = `${process.env.CORS_ORIGIN}/auth/callback?` +
           `accessToken=${responseDto.tokens.accessToken}&` +
-          `refreshToken=${responseDto.tokens.refreshToken}&` +
           `userId=${responseDto.user.id}`;
 
         return res.redirect(redirectUrl);
@@ -104,9 +111,12 @@ export const naverCallback = asyncHandler(async (req, res) => {
         const result = await authService.loginExistingUser(existingUser);
         const responseDto = new AuthResponseDto(result.user, result.tokens);
 
+        // refreshToken은 httpOnly 쿠키로 설정
+        setRefreshTokenCookie(res, responseDto.tokens.refreshToken);
+
+        // accessToken과 userId만 URL로 전달
         const redirectUrl = `${process.env.CORS_ORIGIN}/auth/callback?` +
           `accessToken=${responseDto.tokens.accessToken}&` +
-          `refreshToken=${responseDto.tokens.refreshToken}&` +
           `userId=${responseDto.user.id}`;
 
         return res.redirect(redirectUrl);

@@ -108,3 +108,52 @@ export const validateConversationRequest = (req, res, next) => {
 
   next();
 };
+
+/**
+ * 문장 편집 요청 검증 미들웨어 (AI-02)
+ * PATCH /api/ai/conversations/:conversationId
+ */
+export const validateEditRequest = (req, res, next) => {
+  const { editedSentence } = req.body;
+
+  if (!editedSentence || typeof editedSentence !== 'string' || editedSentence.trim() === '') {
+    return res.status(400).error({
+      code: 'INVALID_INPUT',
+      message: '편집된 문장이 필요합니다'
+    });
+  }
+
+  next();
+};
+
+/**
+ * 즐겨찾기 추가 요청 검증 미들웨어 (AI-03)
+ * POST /api/ai/favorites
+ */
+export const validateAddFavoriteRequest = (req, res, next) => {
+  const { sentence, sentenceSource } = req.body;
+
+  if (!sentence || typeof sentence !== 'string' || sentence.trim() === '') {
+    return res.status(400).error({
+      code: 'INVALID_INPUT',
+      message: '문장이 필요합니다'
+    });
+  }
+
+  if (!sentenceSource || typeof sentenceSource !== 'string') {
+    return res.status(400).error({
+      code: 'INVALID_INPUT',
+      message: '문장 출처가 필요합니다'
+    });
+  }
+
+  const validSources = ['AI_SUGGESTED', 'USER_TYPED', 'EDITED'];
+  if (!validSources.includes(sentenceSource)) {
+    return res.status(400).error({
+      code: 'INVALID_INPUT',
+      message: '문장 출처는 AI_SUGGESTED, USER_TYPED, EDITED 중 하나여야 합니다'
+    });
+  }
+
+  next();
+};
