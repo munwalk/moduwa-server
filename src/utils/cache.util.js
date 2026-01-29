@@ -7,24 +7,38 @@ import redisClient from '../config/redis.config.js';
  * @param {string[]} words - 선택된 낱말 배열
  * @param {object} context - 대화 맥락
  * @param {string[]} context.previousMessages - 이전 대화 메시지 배열
- * @param {string} endpoint - 엔드포인트 타입 ('predict' 또는 'transform-style:어미')
+ * @param {string} endpoint - 엔드포인트 타입 ('predict' 또는 'transform-style')
+ * @param {string[]} endingCards - 어미 선택 카드 배열 (transform-style 전용, optional)
  * @returns {string} 캐시 키
  *
  * @example
  * generateCacheKey(['물', '주세요'], { previousMessages: [] }, 'predict')
  * // Returns: 'aac:predict:a1b2c3d4...'
+ *
+ * @example
+ * generateCacheKey(['밥', '먹다'], { previousMessages: [] }, 'transform-style', ['질문', '부드럽게'])
+ * // Returns: 'aac:transform-style:e5f6g7h8...'
  */
-export function generateCacheKey(words, context, endpoint = 'predict') {
+export function generateCacheKey(words, context, endpoint = 'predict', endingCards = null) {
   const cacheData = {
     words: [...words].sort(), // 순서 무관하게 정렬 (FastAPI와 동일)
     context: {
-      previous_messages: context?.previousMessages || []
+      previousMessages: context?.previousMessages || []
     },
     endpoint: endpoint
   };
 
-  // FastAPI와 동일한 JSON 직렬화 (ensure_ascii=False, sort_keys=True)
-  const cacheStr = JSON.stringify(cacheData, Object.keys(cacheData).sort());
+  // transform-style 엔드포인트인 경우 endingCards 추가
+  if (endpoint === 'transform-style' && endingCards && endingCards.length > 0) {
+    cacheData.endingCards = [...endingCards].sort(); // 순서 무관하게 정렬
+  }
+
+  // 키를 정렬하여 JSON 문자열로 변환 (Python의 sort_keys=True 효과)
+  const sortedData = Object.keys(cacheData).sort().reduce((obj, key) => {
+    obj[key] = cacheData[key];
+    return obj;
+  }, {});
+  const cacheStr = JSON.stringify(sortedData);
   const hash = crypto.createHash('md5').update(cacheStr, 'utf8').digest('hex');
 
   return `aac:${endpoint}:${hash}`;

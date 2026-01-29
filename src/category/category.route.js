@@ -158,6 +158,13 @@ const router = express.Router();
  *         description: 카테고리를 찾을 수 없음
  */
 
+// POST /api/categories
+router.post("/", createCategory);
+
+// PATCH /api/categories/:id
+router.patch("/:id", patchCategory);
+
+// DELETE /api/categories/:id
 router.delete("/:id", removeCategory);
 
 export default router;

@@ -19,39 +19,39 @@ import { authenticate } from '../../auth/middlewares/auth.middleware.js';
 const router = express.Router();
 
 /**
- * @route POST /api/ai/predict
+ * @route POST /api/ai/predictions
  * @desc AI-01: 문장 추천 (기본 3가지)
- * @access Public
+ * @access Private (인증 필요)
  */
-router.post('/predict', validatePredictRequest, predictController);
+router.post('/predictions', authenticate, validatePredictRequest, predictController);
 
 /**
- * @route POST /api/ai/selection
+ * @route POST /api/ai/selections
  * @desc AI-01: 사용자 선택 문장 저장 (학습 데이터)
- * @access Public
+ * @access Private (인증 필요)
  */
-router.post('/selection', validateSelectionRequest, selectionController);
+router.post('/selections', authenticate, validateSelectionRequest, selectionController);
 
 /**
- * @route POST /api/ai/conversation
+ * @route POST /api/ai/conversations
  * @desc AI-01: 전체 대화 흐름 저장 (대화 기록)
- * @access Public
+ * @access Private (인증 필요)
  */
-router.post('/conversation', validateConversationRequest, saveConversationController);
+router.post('/conversations', authenticate, validateConversationRequest, saveConversationController);
 
 /**
- * @route GET /api/ai/context
+ * @route GET /api/ai/contexts
  * @desc AI-01: 10분 이내 대화 기록 조회 (맥락 생성)
- * @access Public
+ * @access Private (인증 필요)
  */
-router.get('/context', contextController);
+router.get('/contexts', authenticate, contextController);
 
 /**
- * @route POST /api/ai/transform-style
+ * @route POST /api/ai/styles
  * @desc AI-05: 문장 스타일 변환 (어미 카드 적용)
- * @access Public
+ * @access Private (인증 필요)
  */
-router.post('/transform-style', validateStyleRequest, transformStyleController);
+router.post('/styles', authenticate, validateStyleRequest, transformStyleController);
 
 // ==========================================
 // AI-02: 문장 편집

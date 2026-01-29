@@ -1,5 +1,5 @@
+import 'dotenv/config';
 import cors from "cors";
-import dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
 import session from "express-session";
@@ -9,6 +9,10 @@ import { PrismaClient } from "@prisma/client";
 import { initRedis } from "./auth/services/token.service.js";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger/swagger.js";
+import { 
+  AiPredictionTimeoutError, 
+  UnauthorizedError 
+} from './errors/app.error.js';
 
 // 라우터
 import categoryRouter from "./category/category.route.js";
@@ -17,13 +21,12 @@ import aiRouter from "./ai-prediction/routes/ai.prediction.route.js";
 import historyRouter from "./history/history.route.js";
 import authRoutes from "./auth/routes/auth.routes.js";
 import routineRouter from "./routine/routine.route.js";
+import settingsRouter from "./settings/settings.route.js";
+import orderRouter from "./order/order.route.js";
 
 // 유틸리티
 import responseHelper from "./utils/response.util.js";
 import errorHandler from "./utils/errorHandler.js";
-
-// 환경변수 설정
-dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -63,21 +66,14 @@ app.use(responseHelper);
 
 // +) 라우터 등록
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use("/api/categories", categoryRouter);
-// PM02 테스트용 : 인증 우회
-// app.use(
-//   "/api/categories",
-//   (req, res, next) => {
-//     req.user = { userId: "dev-test-user" };
-//     next();
-//   },
-//   categoryRouter,
-// );
 
 // 3. 테스트용 라우트
 
 // 루틴 문장 API
 app.use("/api/routines", routineRouter);
+
+// 그리드 커스터마이징 API
+app.use("/api/settings", settingsRouter);
 
 // AI 예측 API
 app.use("/api/ai", aiRouter);
@@ -87,6 +83,21 @@ app.use("/api/ai/tts", ttsRouter);
 
 // History API
 app.use("/api/histories", historyRouter);
+
+// Category API
+app.use("/api/categories", categoryRouter);
+// 테스트용 : 인증 우회
+// app.use(
+//   "/api/categories",
+//   (req, res, next) => {
+//     req.user = { userId: "dev-test-user" };
+//     next();
+//   },
+//   categoryRouter,
+// );
+
+// Category - order API
+app.use("/api/order", orderRouter);
 
 // 성공 케이스 테스트
 app.get("/", (req, res) => {
