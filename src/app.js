@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
 import session from "express-session";
+import cookieParser from "cookie-parser";
 import passport from "./auth/middlewares/passport.config.js";
 import { PrismaClient } from "@prisma/client";
 import { initRedis } from "./auth/services/token.service.js";
@@ -32,7 +33,11 @@ const prisma = new PrismaClient();
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cors());
+app.use(cookieParser());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  credentials: true  // 쿠키 전송을 허용
+}));
 app.use(express.static("public"));
 
 // Session 추가 (OAuth용)

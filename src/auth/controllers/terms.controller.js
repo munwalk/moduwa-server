@@ -2,6 +2,7 @@ import asyncHandler from '../../common/utils/asyncHandler.js';
 import * as termsService from '../services/terms.service.js';
 import { successResponse } from '../../common/utils/response.js';
 import { TermsResponseDto, TermsAgreementResponseDto } from '../dto/response/terms.response.js';
+import { setRefreshTokenCookie } from '../../utils/cookie.helper.js';
 
 /**
  * 약관 목록 조회 (필수/선택 구분)
@@ -30,7 +31,27 @@ export const completeSocialSignup = asyncHandler(async (req, res) => {
   }
 
   const result = await termsService.completeSocialSignupWithTerms(pendingToken, agreements);
-  const responseDto = new TermsAgreementResponseDto(result);
+
+  // refreshToken은 httpOnly 쿠키로 설정
+  if (result.tokens) {
+    setRefreshTokenCookie(res, result.tokens.refreshToken);
+  }
+
+  // 응답에는 accessToken만 포함
+  const responseDto = {
+    user: {
+      id: result.user.id,
+      nickname: result.user.nickname,
+      email: result.user.email,
+      accountType: result.user.accountType
+    },
+    tokens: {
+      accessToken: result.tokens.accessToken,
+      tokenType: 'Bearer',
+      expiresIn: result.tokens.expiresIn
+    },
+    agreementsCount: result.agreementsCount
+  };
 
   return successResponse(res, responseDto, '회원가입이 완료되었습니다', 201);
 });

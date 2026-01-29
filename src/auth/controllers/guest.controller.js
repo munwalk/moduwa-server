@@ -7,6 +7,7 @@ import { UserDetailResponseDto, ConvertAccountResponseDto } from '../dto/respons
 import * as createGuestDto from '../dto/request/createGuest.dto.js';
 import * as convertToSocialDto from '../dto/request/convertToSocial.dto.js';
 import * as refreshTokenDto from '../dto/request/refreshToken.dto.js';
+import { setRefreshTokenCookie, clearRefreshTokenCookie } from '../../utils/cookie.helper.js';
 
 /**
  * 게스트 계정 생성
@@ -15,7 +16,23 @@ import * as refreshTokenDto from '../dto/request/refreshToken.dto.js';
 export const createGuest = asyncHandler(async (req, res) => {
   const validatedData = createGuestDto.validate(req.body);
   const result = await authService.createGuestAccount(validatedData.deviceId);
-  const responseDto = new AuthResponseDto(result.user, result.tokens);
+
+  // refreshToken은 httpOnly 쿠키로 설정
+  setRefreshTokenCookie(res, result.tokens.refreshToken);
+
+  // 응답에는 accessToken만 포함
+  const responseDto = {
+    user: {
+      id: result.user.id,
+      nickname: result.user.nickname,
+      accountType: result.user.accountType
+    },
+    tokens: {
+      accessToken: result.tokens.accessToken,
+      tokenType: 'Bearer',
+      expiresIn: result.tokens.expiresIn
+    }
+  };
 
   return res.status(201).success(responseDto, 'Guest account created successfully');
 });
@@ -44,11 +61,21 @@ export const convertToSocial = asyncHandler(async (req, res) => {
  * POST /api/auth/refresh
  */
 export const refreshToken = asyncHandler(async (req, res) => {
-  const validatedData = refreshTokenDto.validate(req.body);
-  const decoded = verifyToken(validatedData.refreshToken);
+  // 쿠키에서 refreshToken 읽기
+  const refreshTokenFromCookie = req.cookies.refreshToken;
+
+  if (!refreshTokenFromCookie) {
+    return res.status(401).json({
+      success: false,
+      message: 'Refresh token not found',
+      error: { code: 'MISSING_REFRESH_TOKEN' }
+    });
+  }
+
+  const decoded = verifyToken(refreshTokenFromCookie);
   const storedToken = await getRefreshToken(decoded.userId);
 
-  if (!storedToken || storedToken !== validatedData.refreshToken) {
+  if (!storedToken || storedToken !== refreshTokenFromCookie) {
     return res.status(401).json({
       success: false,
       message: 'Invalid refresh token',
@@ -57,7 +84,16 @@ export const refreshToken = asyncHandler(async (req, res) => {
   }
 
   const tokens = await authService.generateTokens(decoded.userId, decoded.accountType);
-  const responseDto = new TokenRefreshResponseDto(tokens);
+
+  // 새로운 refreshToken을 쿠키로 설정
+  setRefreshTokenCookie(res, tokens.refreshToken);
+
+  // accessToken만 응답
+  const responseDto = {
+    accessToken: tokens.accessToken,
+    tokenType: 'Bearer',
+    expiresIn: tokens.expiresIn
+  };
 
   return res.success(responseDto, 'Token refreshed successfully');
 });
@@ -73,6 +109,9 @@ export const logout = asyncHandler(async (req, res) => {
 
   await deleteRefreshToken(userId);
   await addToBlacklist(token, 3600);
+
+  // refreshToken 쿠키 삭제
+  clearRefreshTokenCookie(res);
 
   return res.success(null, 'Logged out successfully');
 });

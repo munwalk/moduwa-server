@@ -8,7 +8,6 @@ import { validate } from '../middlewares/validate.middleware.js';
 
 import * as createGuestDto from '../dto/request/createGuest.dto.js';
 import * as convertToSocialDto from '../dto/request/convertToSocial.dto.js';
-import * as refreshTokenDto from '../dto/request/refreshToken.dto.js';
 
 import * as accountController from '../controllers/account.controller.js';
 import * as termsController from '../controllers/terms.controller.js';
@@ -47,10 +46,10 @@ router.post(
 /**
  * Token 갱신
  * POST /api/auth/refresh
+ * refreshToken은 쿠키로 전송되므로 body validation 불필요
  */
 router.post(
   '/refresh',
-  validate(refreshTokenDto),
   guestController.refreshToken
 );
 
