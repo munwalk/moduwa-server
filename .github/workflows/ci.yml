@@ -79,6 +79,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Create dummy .env file
+        run: |
+          cat > .env << EOF
+          OPENAI_API_KEY=test-key
+          KAKAO_CLIENT_ID=test-id
+          KAKAO_REDIRECT_URI=http://localhost:3000
+          KAKAO_CLIENT_SECRET=test-secret
+          DATABASE_URL=mysql://test:test@localhost:3306/test
+          REDIS_URL=redis://localhost:6379
+          JWT_SECRET=test-jwt-secret
+          NODE_ENV=test
+          EOF
+
       - name: Validate docker-compose.yml
         run: docker compose config
 
