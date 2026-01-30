@@ -47,7 +47,7 @@ CREATE TABLE `Word` (
     `category_id` CHAR(36) NOT NULL,
     `word` VARCHAR(100) NOT NULL,
     `image_url` VARCHAR(500) NOT NULL,
-    `part_of_speech` ENUM('NOUN', 'VERB', 'ADJECTIVE', 'MODIFIER', 'EMOTION', 'NONE') NOT NULL DEFAULT 'NONE',
+    `part_of_speech` ENUM('NOUN', 'VERB', 'ADJECTIVE', 'MODIFIER', 'NONE') NOT NULL DEFAULT 'NONE',
     `is_default` BOOLEAN NOT NULL DEFAULT true,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
@@ -79,7 +79,7 @@ CREATE TABLE `UserWord` (
     `word_id` CHAR(36) NULL,
     `category_id` CHAR(36) NULL,
     `user_category_id` CHAR(36) NULL,
-    `part_of_speech` ENUM('NOUN', 'VERB', 'ADJECTIVE', 'MODIFIER', 'EMOTION', 'NONE') NOT NULL DEFAULT 'NONE',
+    `part_of_speech` ENUM('NOUN', 'VERB', 'ADJECTIVE', 'MODIFIER', 'NONE') NOT NULL DEFAULT 'NONE',
     `custom_word` VARCHAR(100) NULL,
     `custom_image_url` VARCHAR(500) NULL,
     `display_order` INTEGER NOT NULL,
