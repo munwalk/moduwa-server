@@ -89,7 +89,6 @@ services:
       JWT_REFRESH_EXPIRES_IN: 14d
       NODE_ENV: development
       PORT: 3000
-      NLP_SERVICE_URL: http://nlp-service:8000
     ports:
       - "3000:3000"
     volumes:
