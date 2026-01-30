@@ -1,0 +1,90 @@
+name: CI - Build & Validate
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main, 'feature/**', 'fix/**', 'hotfix/**']
+
+jobs:
+  # ==========================================
+  # Backend Build Check
+  # ==========================================
+  backend-build:
+    name: Backend Build Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Check for syntax errors
+        run: node --check src/app.js
+
+      - name: Build Docker image (validation)
+        run: docker build -t moduwa-backend:test .
+
+  # ==========================================
+  # FastAPI Build Check
+  # ==========================================
+  fastapi-build:
+    name: FastAPI Build Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: 'fastapi-server/requirements.txt'
+
+      - name: Install dependencies
+        working-directory: ./fastapi-server
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Check Python syntax
+        working-directory: ./fastapi-server
+        run: python -m py_compile main.py
+
+      - name: Build Docker image (validation)
+        working-directory: ./fastapi-server
+        run: docker build -t moduwa-fastapi:test .
+
+  # ==========================================
+  # Docker Compose Validation
+  # ==========================================
+  docker-compose-check:
+    name: Docker Compose Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate docker-compose.yml
+        run: docker-compose config
+
+      - name: Check if services can start
+        run: |
+          docker-compose up -d mysql redis
+          sleep 10
+          docker-compose ps
+          docker-compose down -v
