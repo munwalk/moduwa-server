@@ -80,11 +80,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Validate docker-compose.yml
-        run: docker-compose config
+        run: docker compose config
 
       - name: Check if services can start
         run: |
-          docker-compose up -d mysql redis
+          docker compose up -d mysql redis
           sleep 10
-          docker-compose ps
-          docker-compose down -v
+          docker compose ps
+          docker compose down -v
