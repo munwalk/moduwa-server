@@ -1,13 +1,18 @@
-import cors from 'cors';
-import dotenv from 'dotenv';
-import express from 'express';
-import helmet from 'helmet';
-import session from 'express-session';
-import passport from './auth/middlewares/passport.config.js';
-import { PrismaClient } from '@prisma/client';
-import { initRedis } from './auth/services/token.service.js';
+import 'dotenv/config';
+import cors from "cors";
+import express from "express";
+import helmet from "helmet";
+import session from "express-session";
+import cookieParser from "cookie-parser";
+import passport from "./auth/middlewares/passport.config.js";
+import { PrismaClient } from "@prisma/client";
+import { initRedis } from "./auth/services/token.service.js";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger/swagger.js";
+import { 
+  AiPredictionTimeoutError, 
+  UnauthorizedError 
+} from './errors/app.error.js';
 
 // 라우터
 import categoryRouter from "./category/category.route.js";
@@ -15,14 +20,14 @@ import ttsRouter from "./tts/tts.route.js";
 import wordsRouter from "./words/routes/words.route.js";
 import aiRouter from "./ai-prediction/routes/ai.prediction.route.js";
 import historyRouter from "./history/history.route.js";
-import authRoutes from './auth/routes/auth.routes.js';
+import authRoutes from "./auth/routes/auth.routes.js";
+import routineRouter from "./routine/routine.route.js";
+import settingsRouter from "./settings/settings.route.js";
+import orderRouter from "./order/order.route.js";
 
 // 유틸리티
-import responseHelper from './utils/response.util.js';
-import errorHandler from './utils/errorHandler.js';
-
-// 환경변수 설정
-dotenv.config();
+import responseHelper from "./utils/response.util.js";
+import errorHandler from "./utils/errorHandler.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -32,20 +37,26 @@ const prisma = new PrismaClient();
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cors());
+app.use(cookieParser());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  credentials: true  // 쿠키 전송을 허용
+}));
 app.use(express.static("public"));
 
 // Session 추가 (OAuth용)
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'your-session-secret',
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || "your-session-secret",
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: process.env.NODE_ENV === 'production',
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000 // 24시간
-    }
-}));
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // 24시간
+    },
+  }),
+);
 
 // Passport 초기화
 app.use(passport.initialize());
@@ -56,18 +67,15 @@ app.use(responseHelper);
 
 // +) 라우터 등록
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use("/api/categories", categoryRouter);
-// PM02 테스트용 : 인증 우회
-// app.use(
-//   "/api/categories",
-//   (req, res, next) => {
-//     req.user = { userId: "dev-test-user" };
-//     next();
-//   },
-//   categoryRouter,
-// );
 
 // 3. 테스트용 라우트
+
+// 루틴 문장 API
+app.use("/api/routines", routineRouter);
+
+// 그리드 커스터마이징 API
+app.use("/api/settings", settingsRouter);
+
 // AI 예측 API
 app.use("/api/ai", aiRouter);
 
@@ -80,6 +88,21 @@ app.use("/api/words", wordsRouter);
 // History API
 app.use("/api/histories", historyRouter);
 
+// Category API
+app.use("/api/categories", categoryRouter);
+// 테스트용 : 인증 우회
+// app.use(
+//   "/api/categories",
+//   (req, res, next) => {
+//     req.user = { userId: "dev-test-user" };
+//     next();
+//   },
+//   categoryRouter,
+// );
+
+// Category - order API
+app.use("/api/order", orderRouter);
+
 // 성공 케이스 테스트
 app.get("/", (req, res) => {
   const sampleData = { project: "moduwa-server", status: "Running" };
@@ -87,17 +110,17 @@ app.get("/", (req, res) => {
 });
 
 // Health Check 추가
-app.get('/health/db', async (req, res, next) => {
-    try {
-        await prisma.$queryRaw`SELECT 1`;
-        res.success({ database: 'MySQL' }, 'Database connected!');
-    } catch (error) {
-        next(error);
-    }
+app.get("/health/db", async (req, res, next) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.success({ database: "MySQL" }, "Database connected!");
+  } catch (error) {
+    next(error);
+  }
 });
 
 // Auth Routes 추가
-app.use('/api/auth', authRoutes);
+app.use("/api/auth", authRoutes);
 
 // 에러 케이스 테스트 (직접 throw)
 app.get("/error-test", (req, res, next) => {
@@ -131,39 +154,38 @@ app.use(errorHandler);
 
 // 서버 실행 (기존 코드 대체)
 async function startServer() {
-    try {
-        await prisma.$connect();
-        console.log('[Database] Connected to MySQL');
+  try {
+    await prisma.$connect();
+    console.log("[Database] Connected to MySQL");
 
-        await initRedis();
-        console.log('[Redis] Connected');
+    await initRedis();
+    console.log("[Redis] Connected");
 
-        app.listen(port, () => {
-            console.log(`[Server] Running on port ${port}`);
-            console.log(`[Environment] ${process.env.NODE_ENV || 'development'}`);
-        });
-    } catch (error) {
-        console.error('[Error] Server startup failed:', error);
-        await prisma.$disconnect();
-        process.exit(1);
-    }
+    app.listen(port, () => {
+      console.log(`[Server] Running on port ${port}`);
+      console.log(`[Environment] ${process.env.NODE_ENV || "development"}`);
+    });
+  } catch (error) {
+    console.error("[Error] Server startup failed:", error);
+    await prisma.$disconnect();
+    process.exit(1);
+  }
 }
 
 // Graceful Shutdown
 const gracefulShutdown = async (signal) => {
-    console.log(`[Shutdown] ${signal} received, closing gracefully...`);
-    try {
-        await prisma.$disconnect();
-        console.log('[Database] Disconnected');
-        process.exit(0);
-    } catch (error) {
-        console.error('[Error] Shutdown error:', error);
-        process.exit(1);
-    }
+  console.log(`[Shutdown] ${signal} received, closing gracefully...`);
+  try {
+    await prisma.$disconnect();
+    console.log("[Database] Disconnected");
+    process.exit(0);
+  } catch (error) {
+    console.error("[Error] Shutdown error:", error);
+    process.exit(1);
+  }
 };
 
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
+process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 
 startServer();
-

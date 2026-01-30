@@ -1,4 +1,5 @@
 import { transformSentenceStyle } from '../services/ai.style.service.js';
+import { generateCacheKey, getFromCache, saveToCache } from '../../utils/cache.util.js';
 
 /**
  * AI-05: 어미 선택 카드 적용 문장 추천
@@ -15,13 +16,41 @@ import { transformSentenceStyle } from '../services/ai.style.service.js';
  */
 const transformStyleController = async (req, res, next) => {
   try {
+    console.log('🟣 AI Style 요청 받음:', req.body);
+
     // 검증된 데이터 추출 (미들웨어에서 이미 검증 완료)
     const { words, endingCards, refresh = false } = req.body;
 
+    // 캐시 조회 (refresh가 false일 때만)
+    if (!refresh && words.length > 0 && endingCards.length > 0) {
+      const cacheContext = { previousMessages: [] };
+      const cacheKey = generateCacheKey(words, cacheContext, 'transform-style', endingCards);
+      const cached = await getFromCache(cacheKey);
+
+      if (cached) {
+        console.log('💾 캐시에서 반환');
+        return res.status(200).success(
+          { ...cached, fromCache: true },
+          '문장 추천 성공 (캐시)'
+        );
+      }
+    }
+
     // AI 문장 추천 호출 (refresh 파라미터 전달)
+    console.log('🤖 FastAPI 호출:', { words, endingCards, refresh });
     const result = await transformSentenceStyle(words, endingCards, refresh);
 
-    return res.status(200).success(result, '문장 추천 성공');
+    // 캐시 저장
+    if (words.length > 0 && endingCards.length > 0) {
+      const cacheContext = { previousMessages: [] };
+      const cacheKey = generateCacheKey(words, cacheContext, 'transform-style', endingCards);
+      await saveToCache(cacheKey, result, 86400); // 24시간 TTL
+    }
+
+    return res.status(200).success(
+      { ...result, fromCache: false },
+      '문장 추천 성공'
+    );
   } catch (error) {
     return next(error);
   }

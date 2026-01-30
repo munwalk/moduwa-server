@@ -1,7 +1,7 @@
 import { AiPredictionTimeoutError } from '../../errors/app.error.js';
 
 // FastAPI 서버 URL 설정
-const FASTAPI_URL = process.env.FASTAPI_URL || 'http://localhost:8000';
+const FASTAPI_URL = process.env.FASTAPI_URL || 'http://fastapi:8000';
 
 /**
  * AI-05: 어미 선택 카드 적용 문장 추천

@@ -5,20 +5,20 @@ services:
   # ==========================================
   mysql:
     image: mysql:8.0
-    container_name: modua_mysql
+    container_name: moduwa_mysql
     restart: always
     init: true
     environment:
       MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: modua_aac
-      MYSQL_USER: modua_user
-      MYSQL_PASSWORD: modua_password
+      MYSQL_DATABASE: moduwa_aac
+      MYSQL_USER: moduwa_user
+      MYSQL_PASSWORD: moduwa_password
     ports:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
-      - modua_network
+      - moduwa_network
     command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
@@ -30,14 +30,14 @@ services:
   # ==========================================
   redis:
     image: redis:7-alpine
-    container_name: modua_redis
+    container_name: moduwa_redis
     restart: always
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
     networks:
-      - modua_network
+      - moduwa_network
     command: redis-server --appendonly yes
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -51,7 +51,7 @@ services:
     build:
       context: ./fastapi-server
       dockerfile: Dockerfile
-    container_name: modua_fastapi
+    container_name: moduwa_fastapi
     restart: always
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY}
@@ -64,7 +64,7 @@ services:
     volumes:
       - ./fastapi-server:/app
     networks:
-      - modua_network
+      - moduwa_network
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
   # ==========================================
@@ -74,12 +74,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: modua_backend
+    container_name: moduwa_backend
     restart: always
     env_file:
       - .env
     environment:
-      DATABASE_URL: mysql://modua_user:modua_password@mysql:3306/modua_aac
+      DATABASE_URL: mysql://moduwa_user:moduwa_password@mysql:3306/moduwa_aac
       REDIS_URL: redis://redis:6379
       KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
       KAKAO_REDIRECT_URI: ${KAKAO_REDIRECT_URI}
@@ -104,7 +104,7 @@ services:
       fastapi:
         condition: service_started
     networks:
-      - modua_network
+      - moduwa_network
     command: npm run dev
 
 
@@ -113,5 +113,5 @@ volumes:
   redis_data:
 
 networks:
-  modua_network:
+  moduwa_network:
     driver: bridge

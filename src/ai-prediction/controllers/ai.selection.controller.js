@@ -5,15 +5,15 @@ import { saveConversation } from '../services/conversation.service.js';
  * AI-01-1: 사용자 선택 문장 저장
  * POST /api/ai/selection
  */
-const selectionController = async (req, res) => {
+const selectionController = async (req, res, next) => {
   try {
     console.log('🔵 AI Selection 요청 받음:', req.body);
 
     // 검증된 데이터 추출 (미들웨어에서 이미 검증 완료)
     const { words, recommendedSentences, selectedSentence } = req.body;
 
-    // userId는 인증 미들웨어에서 추출 (현재는 임시로 'guest' 사용)
-    const userId = req.user?.userId || 'guest';
+    // userId는 인증 미들웨어에서 추출
+    const userId = req.user.userId;
 
     // 1. 학습 데이터 확인 (ConversationHistory 집계)
     const learningResult = await saveUserSelection(
@@ -41,11 +41,7 @@ const selectionController = async (req, res) => {
     );
   } catch (error) {
     console.error('[AI Selection Error]', error);
-    return res.status(500).error({
-      code: 'SELECTION_SAVE_FAILED',
-      message: '선택 기록 저장 중 오류가 발생했습니다',
-      detail: process.env.NODE_ENV === 'development' ? error.message : undefined
-    });
+    return next(error);
   }
 };
 

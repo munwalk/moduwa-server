@@ -85,7 +85,7 @@ enum SubscriptionStatus {
 // ============================================
 
 model User {
-  id          String      @id @default(uuid()) @db.Char(36)
+  id          String      @id @default(uuid()) @db.VarChar(255)
   nickname    String      @db.VarChar(50)
   email       String?     @unique @db.VarChar(255)
   accountType AccountType @map("account_type")
@@ -118,7 +118,7 @@ model User {
 
 model UserProvider {
   id             String   @id @default(uuid()) @db.Char(36)
-  userId         String   @map("user_id") @db.Char(36)
+  userId         String   @map("user_id") @db.VarChar(255)
   provider       Provider
   providerUserId String   @map("provider_user_id") @db.VarChar(255)
   linkedAt       DateTime @default(now()) @map("linked_at")
@@ -177,7 +177,7 @@ model Word {
 
 model UserCategory {
   id           String   @id @default(uuid()) @db.Char(36)
-  userId       String   @map("user_id") @db.Char(36)
+  userId       String   @map("user_id") @db.VarChar(255)
   categoryName String   @map("category_name") @db.VarChar(50)
   displayOrder Int      @map("display_order")
   // PM02 - 기본 아이콘 선택 값
@@ -234,7 +234,7 @@ model UserWord {
 
 model FavoriteSentence {
   id             String         @id @default(uuid()) @db.Char(36)
-  userId         String         @map("user_id") @db.Char(36)
+  userId         String         @map("user_id") @db.VarChar(255)
   sentence       String         @db.Text
   sentenceSource SentenceSource @map("sentence_source")
   createdAt      DateTime       @default(now()) @map("created_at")
@@ -253,7 +253,7 @@ model FavoriteSentence {
 
 model RoutineMessage {
   id            String   @id @default(uuid()) @db.Char(36)
-  userId        String   @map("user_id") @db.Char(36)
+  userId        String   @map("user_id") @db.VarChar(255)
   message       String   @db.Text
   daysOfWeek    Json     @map("days_of_week") // MySQL JSON: [1,3,5]
   scheduledTime String   @map("scheduled_time") @db.VarChar(5) // "11:00"
@@ -276,7 +276,7 @@ model RoutineMessage {
 
 model ConversationHistory {
   id                 String    @id @default(uuid()) @db.Char(36)
-  userId             String    @map("user_id") @db.Char(36)
+  userId             String    @map("user_id") @db.VarChar(255)
   inputWords         Json?     @map("input_words") // [{wordId, word, order}]
   typedText          String?   @map("typed_text") @db.Text
   inputType          InputType @map("input_type")
@@ -309,7 +309,7 @@ model ConversationHistory {
 model AIFeedback {
   id               String       @id @default(uuid()) @db.Char(36)
   conversationId   String       @map("conversation_id") @db.Char(36)
-  userId           String       @map("user_id") @db.Char(36)
+  userId           String       @map("user_id") @db.VarChar(255)
   originalSentence String       @map("original_sentence") @db.Text
   editedSentence   String       @map("edited_sentence") @db.Text
   feedbackType     FeedbackType @map("feedback_type")
@@ -331,7 +331,7 @@ model AIFeedback {
 
 model UserSettings {
   id           String       @id @default(uuid()) @db.Char(36)
-  userId       String       @unique @map("user_id") @db.Char(36)
+  userId       String       @unique @map("user_id") @db.VarChar(255)
   ttsVoiceType TtsVoiceType @default(FEMALE) @map("tts_voice_type")
   ttsAgeType   TtsAgeType   @default(YOUNG) @map("tts_age_type")
   ttsTone      TtsTone      @default(NEUTRAL) @map("tts_tone")
@@ -351,7 +351,7 @@ model UserSettings {
 
 model Subscription {
   id        String             @id @default(uuid()) @db.Char(36)
-  userId    String             @map("user_id") @db.Char(36)
+  userId    String             @map("user_id") @db.VarChar(255)
   planType  PlanType           @map("plan_type")
   startDate DateTime           @map("start_date")
   endDate   DateTime?          @map("end_date")
@@ -396,7 +396,7 @@ model Terms {
 
 model TermsAgreement {
   id        String    @id @default(uuid()) @db.Char(36)
-  userId    String    @map("user_id") @db.Char(36)
+  userId    String    @map("user_id") @db.VarChar(255)
   termsId   String    @map("terms_id") @db.Char(36)
   isAgreed  Boolean   @default(false) @map("is_agreed")
   agreedAt  DateTime? @map("agreed_at")
