@@ -59,6 +59,14 @@ enum TtsTone {
   ENERGETIC
 }
 
+enum PartOfSpeech {
+  NOUN
+  VERB
+  ADJECTIVE
+  MODIFIER
+  NONE
+}
+
 enum PlanType {
   FREE
   PREMIUM
@@ -134,7 +142,8 @@ model Category {
   createdAt    DateTime @default(now()) @map("created_at")
 
   // Relations
-  words Word[]
+  words     Word[]
+  userWords UserWord[]
 
   @@map("Category")
 }
@@ -144,12 +153,13 @@ model Category {
 // ============================================
 
 model Word {
-  id         String   @id @default(uuid()) @db.Char(36)
-  categoryId String   @map("category_id") @db.Char(36)
-  word       String   @db.VarChar(100)
-  imageUrl   String   @map("image_url") @db.VarChar(500)
-  isDefault  Boolean  @default(true) @map("is_default")
-  createdAt  DateTime @default(now()) @map("created_at")
+  id           String       @id @default(uuid()) @db.Char(36)
+  categoryId   String       @map("category_id") @db.Char(36)
+  partOfSpeech PartOfSpeech @map("part_of_speech")
+  word         String       @db.VarChar(100)
+  imageUrl     String       @map("image_url") @db.VarChar(500)
+  isDefault    Boolean      @default(true) @map("is_default")
+  createdAt    DateTime     @default(now()) @map("created_at")
 
   // Relations
   category  Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
@@ -190,22 +200,25 @@ model UserCategory {
 // ============================================
 
 model UserWord {
-  id             String   @id @default(uuid()) @db.Char(36)
-  userId         String   @map("user_id") @db.VarChar(255)
-  wordId         String?  @map("word_id") @db.Char(36)
-  userCategoryId String   @map("user_category_id") @db.Char(36)
-  customWord     String?  @map("custom_word") @db.VarChar(100)
-  customImageUrl String?  @map("custom_image_url") @db.VarChar(500)
-  displayOrder   Int      @map("display_order")
-  isFavorite     Boolean  @default(false) @map("is_favorite")
-  isDeleted      Boolean  @default(false) @map("is_deleted") // 추가!
-  createdAt      DateTime @default(now()) @map("created_at")
-  updatedAt      DateTime @updatedAt @map("updated_at")
+  id             String       @id @default(uuid()) @db.Char(36)
+  userId         String       @map("user_id") @db.Char(36)
+  wordId         String?      @map("word_id") @db.Char(36)
+  categoryId     String?      @map("category_id") @db.Char(36)
+  userCategoryId String?      @map("user_category_id") @db.Char(36)
+  partOfSpeech   PartOfSpeech @map("part_of_speech")
+  customWord     String?      @map("custom_word") @db.VarChar(100)
+  customImageUrl String?      @map("custom_image_url") @db.VarChar(500)
+  displayOrder   Int          @map("display_order")
+  isFavorite     Boolean      @default(false) @map("is_favorite")
+  isDeleted      Boolean      @default(false) @map("is_deleted") // 추가!
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
 
   // Relations
-  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  word         Word?        @relation(fields: [wordId], references: [id], onDelete: SetNull)
-  userCategory UserCategory @relation(fields: [userCategoryId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  word         Word?         @relation(fields: [wordId], references: [id], onDelete: SetNull)
+  category     Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  userCategory UserCategory? @relation(fields: [userCategoryId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([userId, isFavorite])
