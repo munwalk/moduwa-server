@@ -14,7 +14,7 @@ services:
       MYSQL_USER: moduwa_user
       MYSQL_PASSWORD: moduwa_password
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
