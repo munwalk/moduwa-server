@@ -64,7 +64,6 @@ enum PartOfSpeech {
   VERB
   ADJECTIVE
   MODIFIER
-  EMOTION
   NONE
 }
 
