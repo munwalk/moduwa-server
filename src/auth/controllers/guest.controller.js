@@ -8,6 +8,7 @@ import * as createGuestDto from '../dto/request/createGuest.dto.js';
 import * as convertToSocialDto from '../dto/request/convertToSocial.dto.js';
 import * as refreshTokenDto from '../dto/request/refreshToken.dto.js';
 import { setRefreshTokenCookie, clearRefreshTokenCookie } from '../../utils/cookie.helper.js';
+import { InvalidRefreshTokenError } from '../../errors/app.error.js';
 
 /**
  * 게스트 계정 생성
@@ -65,22 +66,14 @@ export const refreshToken = asyncHandler(async (req, res) => {
   const refreshTokenFromCookie = req.cookies.refreshToken;
 
   if (!refreshTokenFromCookie) {
-    return res.status(401).json({
-      success: false,
-      message: 'Refresh token not found',
-      error: { code: 'MISSING_REFRESH_TOKEN' }
-    });
+    throw new InvalidRefreshTokenError('Refresh token not found');
   }
 
   const decoded = verifyToken(refreshTokenFromCookie);
   const storedToken = await getRefreshToken(decoded.userId);
 
   if (!storedToken || storedToken !== refreshTokenFromCookie) {
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid refresh token',
-      error: { code: 'INVALID_REFRESH_TOKEN' }
-    });
+    throw new InvalidRefreshTokenError();
   }
 
   const tokens = await authService.generateTokens(decoded.userId, decoded.accountType);

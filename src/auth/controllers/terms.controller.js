@@ -3,6 +3,7 @@ import * as termsService from '../services/terms.service.js';
 import { successResponse } from '../../common/utils/response.js';
 import { TermsResponseDto, TermsAgreementResponseDto } from '../dto/response/terms.response.js';
 import { setRefreshTokenCookie } from '../../utils/cookie.helper.js';
+import { ValidationError } from '../../errors/app.error.js';
 
 /**
  * 약관 목록 조회 (필수/선택 구분)
@@ -23,11 +24,7 @@ export const completeSocialSignup = asyncHandler(async (req, res) => {
   const { pendingToken, agreements } = req.body;
 
   if (!pendingToken) {
-    return res.status(400).json({
-      success: false,
-      message: 'pendingToken이 필요합니다',
-      error: { code: 'MISSING_PENDING_TOKEN' }
-    });
+    throw new ValidationError('pendingToken이 필요합니다');
   }
 
   const result = await termsService.completeSocialSignupWithTerms(pendingToken, agreements);
