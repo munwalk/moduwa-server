@@ -3,7 +3,7 @@ import { ValidationError } from '../../errors/app.error.js';
 
 /**
  * AI 예측 요청 데이터 유효성 검사 미들웨어
- * POST /api/ai/predict
+ * POST /api/ai/predictions
  */
 export const validatePredictRequest = (req, res, next) => {
   const { error, value } = predictRequestSchema.validate(req.body);
@@ -32,7 +32,7 @@ export const validatePredictRequest = (req, res, next) => {
 
 /**
  * AI 스타일 변환 요청 데이터 유효성 검사 미들웨어
- * POST /api/ai/transform-style
+ * POST /api/ai/styles
  */
 export const validateStyleRequest = (req, res, next) => {
   const { words, endingCards } = req.body;
@@ -65,17 +65,17 @@ export const validateStyleRequest = (req, res, next) => {
 
 /**
  * 사용자 선택 문장 저장 요청 검증 미들웨어
- * POST /api/ai/selection
+ * POST /api/ai/selections
  */
 export const validateSelectionRequest = (req, res, next) => {
-  const { words, recommendedSentences, selectedSentence } = req.body;
+  const { words, suggestedSentences, selectedSentence } = req.body;
 
   // 필수 값 검증 - 개별적으로 검사
   if (!words || !Array.isArray(words) || words.length === 0) {
     return next(new ValidationError('낱말 배열이 필요합니다'));
   }
 
-  if (!recommendedSentences || !Array.isArray(recommendedSentences)) {
+  if (!suggestedSentences || !Array.isArray(suggestedSentences)) {
     return next(new ValidationError('추천 문장 배열이 필요합니다'));
   }
 
@@ -88,7 +88,7 @@ export const validateSelectionRequest = (req, res, next) => {
 
 /**
  * 대화 저장 요청 검증 미들웨어
- * POST /api/ai/conversation
+ * POST /api/ai/conversations
  */
 export const validateConversationRequest = (req, res, next) => {
   const { words, suggestedSentences, selectedSentence } = req.body;

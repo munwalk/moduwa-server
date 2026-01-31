@@ -3,33 +3,22 @@ import { saveConversation } from '../services/conversation.service.js';
 
 /**
  * AI-01-1: 사용자 선택 문장 저장
- * POST /api/ai/selection
+ * POST /api/ai/selections
  */
 const selectionController = async (req, res, next) => {
   try {
     console.log('🔵 AI Selection 요청 받음:', req.body);
 
     // 검증된 데이터 추출 (미들웨어에서 이미 검증 완료)
-    const { words, recommendedSentences, selectedSentence } = req.body;
+    const { words, suggestedSentences, selectedSentence } = req.body;
 
     // userId는 인증 미들웨어에서 추출
     const userId = req.user.userId;
 
-    // 1. 학습 데이터 확인 (ConversationHistory 집계)
-    const learningResult = await saveUserSelection(
-      userId,
-      selectedSentence
-    );
+    // 1. 학습 데이터(UserSelection)만 기록 (대화 저장은 하지 않음)
+    const learningResult = await saveUserSelection(userId, selectedSentence);
 
-    // 2. 대화 기록 저장
-    await saveConversation(
-      userId,
-      words,
-      recommendedSentences,
-      selectedSentence
-    );
-
-    console.log('✅ 선택 기록 저장 완료:', learningResult);
+    console.log('✅ AI 추천 학습 완료 (대화 저장은 나중에 진행)');
 
     return res.status(200).success(
       {
@@ -37,7 +26,7 @@ const selectionController = async (req, res, next) => {
         usageCount: learningResult.usageFrequency,
         isNewPattern: learningResult.isNew
       },
-      '선택 기록이 저장되었습니다'
+      '학습 피드백 데이터 업데이트 완료'
     );
   } catch (error) {
     console.error('[AI Selection Error]', error);

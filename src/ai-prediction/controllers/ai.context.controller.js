@@ -2,11 +2,11 @@ import { getRecentConversations } from '../services/conversation.service.js';
 
 /**
  * AI-01-3: 10분 이내 대화 기록 조회
- * GET /api/ai/context
+ * GET /api/ai/contexts
  */
 const contextController = async (req, res, next) => {
   try {
-    console.log('🔵 AI Context 요청 받음');
+    console.log('🔵 AI Contexts 요청 받음');
 
     // userId는 인증 미들웨어에서 추출
     const userId = req.user.userId;

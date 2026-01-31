@@ -116,7 +116,7 @@ class TransformStyleResponse(BaseModel):
 # Redis 캐싱 헬퍼 함수
 # ============================================
 
-def generate_cache_key(words: List[str], context: Optional[ContextModel], endpoint: str = "predict") -> str:
+def generate_cache_key(words: List[str], context: Optional[ContextModel], endpoint: str = "predictions") -> str:
     """캐시 키 생성 (words + context 기반)"""
     cache_data = {
         "words": sorted(words),  # 순서 무관하게 캐싱
@@ -142,8 +142,8 @@ def get_from_cache(cache_key: str) -> Optional[dict]:
         logger.warning(f"⚠️ 캐시 조회 실패: {e}")
     return None
 
-def save_to_cache(cache_key: str, data: dict, ttl: int = 3600):
-    """Redis에 캐시 저장 (기본 TTL: 1시간)"""
+def save_to_cache(cache_key: str, data: dict, ttl: int = 86400):
+    """Redis에 캐시 저장 (기본 TTL: 24시간)"""
     if not redis_client:
         return
     try:
@@ -156,7 +156,7 @@ def save_to_cache(cache_key: str, data: dict, ttl: int = 3600):
 # AI 문장 추천
 # ============================================
 
-@app.post("/api/ai/predict", response_model=PredictResponse)
+@app.post("/api/ai/predictions", response_model=PredictResponse)
 async def predict_sentences(request: PredictRequest):
     """
     낱말 배열로부터 자연스럽고 의미가 다른 문장 3개를 추천
@@ -184,7 +184,7 @@ async def predict_sentences(request: PredictRequest):
         refresh = request.refresh
 
         # 캐시 키 생성
-        cache_key = generate_cache_key(words, context, "predict")
+        cache_key = generate_cache_key(words, context, "predictions")
 
         # refresh가 false일 때만 캐시 확인
         if not refresh:
@@ -569,10 +569,10 @@ async def predict_sentences(request: PredictRequest):
 # 어미 선택 카드 적용 문장 추천 (AI-05)
 # ============================================
 
-@app.post("/api/ai/transform-style", response_model=TransformStyleResponse)
+@app.post("/api/ai/styles", response_model=TransformStyleResponse)
 async def transform_sentence_style(request: TransformStyleRequest):
     """
-    AI-05: 낱말 카드 + 어미 선택 카드(들)을 조합하여 사용자 맞춤형 문장 3개를 생성합니다.
+    AI-05: 낱말 카드 + 어미 선택 카드(들)을 조합하여 사용자 맞춤형 문장 3개를 생성
 
     **핵심 기능**:
     - 여러 어미 카드를 동시에 적용하여 **말투와 어투를 합성**
@@ -601,7 +601,7 @@ async def transform_sentence_style(request: TransformStyleRequest):
 
         # 캐시 키 생성 (endingCards 포함)
         endingCards_str = "+".join(sorted(endingCards))  # 순서 무관하게 정렬
-        cache_key = generate_cache_key(words, None, f"transform-style:{endingCards_str}")
+        cache_key = generate_cache_key(words, None, f"styles:{endingCards_str}")
 
         # refresh가 false일 때만 캐시 확인
         if not refresh:

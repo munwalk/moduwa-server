@@ -10,7 +10,7 @@ import { generateCacheKey, getFromCache, saveToCache } from '../../utils/cache.u
  */
 const predictController = async (req, res, next) => {
   try {
-    console.log('🔵 AI Predict 요청 받음:', req.body);
+    console.log('🔵 AI predictions 요청 받음:', req.body);
 
     // 검증된 데이터 추출 (미들웨어에서 이미 검증 완료)
     const { words, context, refresh = false } = req.body;
@@ -19,7 +19,7 @@ const predictController = async (req, res, next) => {
     // 캐시 조회 (refresh가 false이면 맥락 유무와 상관없이 조회)
     if (!refresh && words.length > 0) {
       const cacheContext = { previousMessages: context?.previousMessages || [] };
-      const cacheKey = generateCacheKey(words, cacheContext, 'predict');  
+      const cacheKey = generateCacheKey(words, cacheContext, 'predictions');  
       const cachedData = await getFromCache(cacheKey);
 
       if (cachedData?.predictions) {
@@ -46,7 +46,7 @@ const predictController = async (req, res, next) => {
     // 캐시 저장 (모든 상황에서 원본 predictions 저장, 24시간 유지)
     if (words.length > 0) {
       const cacheContext = { previousMessages: context?.previousMessages || [] };
-      const cacheKey = generateCacheKey(words, cacheContext, 'predict');
+      const cacheKey = generateCacheKey(words, cacheContext, 'predictions');
       await saveToCache(cacheKey, { predictions: result.rawPredictions }, 86400);
     }
 

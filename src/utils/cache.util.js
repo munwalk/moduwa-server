@@ -7,19 +7,19 @@ import redisClient from '../config/redis.config.js';
  * @param {string[]} words - 선택된 낱말 배열
  * @param {object} context - 대화 맥락
  * @param {string[]} context.previousMessages - 이전 대화 메시지 배열
- * @param {string} endpoint - 엔드포인트 타입 ('predict' 또는 'transform-style')
- * @param {string[]} endingCards - 어미 선택 카드 배열 (transform-style 전용, optional)
+ * @param {string} endpoint - 엔드포인트 타입 ('predictions' 또는 'styles')
+ * @param {string[]} endingCards - 어미 선택 카드 배열 (styles 전용, optional)
  * @returns {string} 캐시 키
  *
  * @example
- * generateCacheKey(['물', '주세요'], { previousMessages: [] }, 'predict')
- * // Returns: 'aac:predict:a1b2c3d4...'
+ * generateCacheKey(['물', '주세요'], { previousMessages: [] }, 'predictions')
+ * // Returns: 'aac:predictions:a1b2c3d4...'
  *
  * @example
- * generateCacheKey(['밥', '먹다'], { previousMessages: [] }, 'transform-style', ['질문', '부드럽게'])
- * // Returns: 'aac:transform-style:e5f6g7h8...'
+ * generateCacheKey(['밥', '먹다'], { previousMessages: [] }, 'styles', ['질문', '부드럽게'])
+ * // Returns: 'aac:styles:e5f6g7h8...'
  */
-export function generateCacheKey(words, context, endpoint = 'predict', endingCards = null) {
+export function generateCacheKey(words, context, endpoint = 'predictions', endingCards = null) {
   const cacheData = {
     words: [...words].sort(), // 순서 무관하게 정렬 (FastAPI와 동일)
     context: {
@@ -28,8 +28,8 @@ export function generateCacheKey(words, context, endpoint = 'predict', endingCar
     endpoint: endpoint
   };
 
-  // transform-style 엔드포인트인 경우 endingCards 추가
-  if (endpoint === 'transform-style' && endingCards && endingCards.length > 0) {
+  // styles 엔드포인트인 경우 endingCards 추가
+  if (endpoint === 'styles' && endingCards && endingCards.length > 0) {
     cacheData.endingCards = [...endingCards].sort(); // 순서 무관하게 정렬
   }
 
@@ -49,13 +49,13 @@ export function generateCacheKey(words, context, endpoint = 'predict', endingCar
  *
  * @param {string} cacheKey - 캐시 키
  * @param {object} data - 저장할 데이터
- * @param {number} ttl - TTL (초 단위, 기본 1시간 = 3600초)
+ * @param {number} ttl - TTL (초 단위, 기본 24시간 = 86400초)
  * @returns {Promise<boolean>} 저장 성공 여부
  *
  * @example
- * await saveToCache('aac:predict:abc123', { predictions: [...] }, 3600)
+ * await saveToCache('aac:predictions:abc123', { predictions: [...] }, 86400)
  */
-export async function saveToCache(cacheKey, data, ttl = 3600) {
+export async function saveToCache(cacheKey, data, ttl = 86400) {
   try {
     // Redis 연결 확인
     if (!redisClient.isReady) {
@@ -80,7 +80,7 @@ export async function saveToCache(cacheKey, data, ttl = 3600) {
  * @returns {Promise<object|null>} 캐시된 데이터 또는 null
  *
  * @example
- * const cachedData = await getFromCache('aac:predict:abc123')
+ * const cachedData = await getFromCache('aac:predictions:abc123')
  */
 export async function getFromCache(cacheKey) {
   try {
@@ -110,7 +110,7 @@ export async function getFromCache(cacheKey) {
  * @returns {Promise<boolean>} 삭제 성공 여부
  *
  * @example
- * await deleteFromCache('aac:predict:abc123')
+ * await deleteFromCache('aac:predictions:abc123')
  */
 export async function deleteFromCache(cacheKey) {
   try {
@@ -131,11 +131,11 @@ export async function deleteFromCache(cacheKey) {
 /**
  * 패턴에 맞는 모든 캐시 키 삭제
  *
- * @param {string} pattern - 삭제할 키 패턴 (예: 'aac:predict:*')
+ * @param {string} pattern - 삭제할 키 패턴 (예: 'aac:predictions:*')
  * @returns {Promise<number>} 삭제된 키 개수
  *
  * @example
- * const deletedCount = await deleteByPattern('aac:predict:*')
+ * const deletedCount = await deleteByPattern('aac:predictions:*')
  */
 export async function deleteByPattern(pattern) {
   try {

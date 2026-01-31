@@ -22,7 +22,7 @@ const transformSentenceStyle = async (words, endingCards, refresh = false) => {
   });
 
   // FastAPI 서버 호출
-  const fetchPromise = fetch(`${FASTAPI_URL}/api/ai/transform-style`, {
+  const fetchPromise = fetch(`${FASTAPI_URL}/api/ai/styles`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
