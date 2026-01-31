@@ -20,6 +20,36 @@ class AiModelError extends BaseError {
     }
 }
 
+class ConversationNotFoundError extends BaseError {
+    constructor(message = '대화를 찾을 수 없습니다') {
+        super(message, 404, 'AI003');
+    }
+}
+
+class ConversationDeletedError extends BaseError {
+    constructor(message = '삭제된 대화입니다') {
+        super(message, 410, 'AI004');
+    }
+}
+
+class NoChangeDetectedError extends BaseError {
+    constructor(message = '변경 사항이 없습니다') {
+        super(message, 400, 'AI005');
+    }
+}
+
+class AlreadyFavoritedError extends BaseError {
+    constructor(message = '이미 즐겨찾기에 추가된 문장입니다') {
+        super(message, 409, 'AI006');
+    }
+}
+
+class FavoriteNotFoundError extends BaseError {
+    constructor(message = '즐겨찾기를 찾을 수 없습니다') {
+        super(message, 404, 'AI007');
+    }
+}
+
 // 인증 관련 에러 (공통)
 class UnauthorizedError extends BaseError {
     constructor(message = '인증이 필요합니다') {
@@ -93,6 +123,11 @@ export {
     BaseError,
     AiPredictionTimeoutError,
     AiModelError,
+    ConversationNotFoundError,
+    ConversationDeletedError,
+    NoChangeDetectedError,
+    AlreadyFavoritedError,
+    FavoriteNotFoundError,
     UnauthorizedError,
     ForbiddenError,
     TokenExpiredError,
