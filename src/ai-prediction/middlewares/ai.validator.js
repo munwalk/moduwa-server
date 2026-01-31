@@ -117,10 +117,7 @@ export const validateEditRequest = (req, res, next) => {
   const { editedSentence } = req.body;
 
   if (!editedSentence || typeof editedSentence !== 'string' || editedSentence.trim() === '') {
-    return res.status(400).error({
-      code: 'INVALID_INPUT',
-      message: '편집된 문장이 필요합니다'
-    });
+    return next(new ValidationError('편집된 문장이 필요합니다'));
   }
 
   next();
@@ -134,25 +131,16 @@ export const validateAddFavoriteRequest = (req, res, next) => {
   const { sentence, sentenceSource } = req.body;
 
   if (!sentence || typeof sentence !== 'string' || sentence.trim() === '') {
-    return res.status(400).error({
-      code: 'INVALID_INPUT',
-      message: '문장이 필요합니다'
-    });
+    return next(new ValidationError('문장이 필요합니다'));
   }
 
   if (!sentenceSource || typeof sentenceSource !== 'string') {
-    return res.status(400).error({
-      code: 'INVALID_INPUT',
-      message: '문장 출처가 필요합니다'
-    });
+    return next(new ValidationError('문장 출처가 필요합니다'));
   }
 
   const validSources = ['AI_SUGGESTED', 'USER_TYPED', 'EDITED'];
   if (!validSources.includes(sentenceSource)) {
-    return res.status(400).error({
-      code: 'INVALID_INPUT',
-      message: '문장 출처는 AI_SUGGESTED, USER_TYPED, EDITED 중 하나여야 합니다'
-    });
+    return next(new ValidationError('문장 출처는 AI_SUGGESTED, USER_TYPED, EDITED 중 하나여야 합니다'));
   }
 
   next();

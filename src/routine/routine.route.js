@@ -6,14 +6,14 @@ import {
   deleteSelectedRoutines,
   deleteAllRoutinesController,
 } from "./routine.controller.js";
-import authMiddleware from "../middlewares/auth.middleware.js";
+import { authenticate } from "../auth/middlewares/auth.middleware.js";
 
 const router = express.Router();
 
-router.get("/", authMiddleware, getRoutines);
-router.post("/", authMiddleware, postRoutine);
-router.patch("/:id", authMiddleware, patchRoutine);
-router.delete("/", authMiddleware, deleteSelectedRoutines);
-router.delete("/all", authMiddleware, deleteAllRoutinesController);
+router.get("/", authenticate, getRoutines);
+router.post("/", authenticate, postRoutine);
+router.patch("/:id", authenticate, patchRoutine);
+router.delete("/", authenticate, deleteSelectedRoutines);
+router.delete("/all", authenticate, deleteAllRoutinesController);
 
 export default router;
