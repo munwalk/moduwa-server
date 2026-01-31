@@ -4,7 +4,7 @@ import { generateCacheKey, getFromCache, saveToCache } from '../../utils/cache.u
 /**
  * AI-05: 어미 선택 카드 적용 문장 추천
  *
- * POST /api/ai/transform-style
+ * POST /api/ai/styles
  *
  * 중요: 어미 카드 사용 시 3개 문장 모두 해당 스타일로 통일
  * 예: ["질문"] 카드 → 3개 문장 모두 의문문
@@ -24,7 +24,7 @@ const transformStyleController = async (req, res, next) => {
     // 캐시 조회 (refresh가 false일 때만)
     if (!refresh && words.length > 0 && endingCards.length > 0) {
       const cacheContext = { previousMessages: [] };
-      const cacheKey = generateCacheKey(words, cacheContext, 'transform-style', endingCards);
+      const cacheKey = generateCacheKey(words, cacheContext, 'styles', endingCards);
       const cached = await getFromCache(cacheKey);
 
       if (cached) {
@@ -43,7 +43,7 @@ const transformStyleController = async (req, res, next) => {
     // 캐시 저장
     if (words.length > 0 && endingCards.length > 0) {
       const cacheContext = { previousMessages: [] };
-      const cacheKey = generateCacheKey(words, cacheContext, 'transform-style', endingCards);
+      const cacheKey = generateCacheKey(words, cacheContext, 'styles', endingCards);
       await saveToCache(cacheKey, result, 86400); // 24시간 TTL
     }
 

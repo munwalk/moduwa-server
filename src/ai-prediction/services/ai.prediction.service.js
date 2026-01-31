@@ -6,8 +6,8 @@ import { countBySelectedSentence } from '../repositories/conversation.repository
 const FASTAPI_URL = process.env.FASTAPI_URL || 'http://fastapi:8000';
 
 /**
- * 학습 데이터를 활용한 추천 순위 재정렬
- * GPT confidence + 사용자별 빈도수 가중치 합산
+ * 학습 데이터를 활용한 추천 순위 재정렬 (콜드 스타트 방어형)
+ * GPT confidence (60%) + 사용자별 빈도수 (40%) 가중치 합산
  *
  * @param {Array} predictions - FastAPI에서 받은 추천 문장 배열
  * @param {string} userId - 사용자 ID (빈도수 조회용)
@@ -20,47 +20,56 @@ const rankByLearningData = async (predictions, userId) => {
   }
 
   try {
-    // 1. 각 문장의 사용 빈도 조회 (병렬 처리)
+    // 1. 각 문장의 사용 빈도 조회 (DB 호출)
     const frequencies = await Promise.all(
       predictions.map(pred =>
         countBySelectedSentence(userId, pred.sentence)
       )
     );
 
-    // 2. 최대 빈도수 계산 (정규화용)
-    const maxFrequency = Math.max(...frequencies, 1); // 0으로 나누기 방지
+    // 2. 최대 빈도수 계산
+    const maxFrequency = Math.max(...frequencies, 0);
 
-    // 3. 가중치 계산
+    // 3. 콜드 스타트 방어: 모든 빈도가 0인 경우 (처음 쓰는 단어 조합)
+    if (maxFrequency === 0) {
+      return predictions.map((pred, index) => ({
+        ...pred,
+        usageFrequency: 0,
+        normalizedFrequency: 0,
+        finalScore: parseFloat(pred.confidence).toFixed(2) // GPT 점수 그대로 유지
+      }));
+    }
+
+    // 4. 가중치 계산 (6:4 비중으로 업그레이드)
     const scoredPredictions = predictions.map((pred, index) => {
       const frequency = frequencies[index];
       const normalizedFreq = frequency / maxFrequency; // 0~1 범위
 
-      // 가중치 공식: confidence 40% + frequency 60%
-      const finalScore = (pred.confidence * 0.4) + (normalizedFreq * 0.6);
+      // 가중치 공식: confidence 60% + frequency 40%
+      const finalScore = (pred.confidence * 0.6) + (normalizedFreq * 0.4);
 
       return {
         ...pred,
         usageFrequency: frequency,
         normalizedFrequency: normalizedFreq,
-        finalScore
+        finalScore: finalScore.toFixed(2)
       };
     });
 
-    // 4. finalScore 기준 내림차순 정렬
+    // 5. 점수 기준 내림차순 정렬
     scoredPredictions.sort((a, b) => b.finalScore - a.finalScore);
 
-    console.log('📊 가중치 재정렬 완료:', scoredPredictions.map(p => ({
-      sentence: p.sentence.substring(0, 20) + '...',
+    console.log('📊 가중치 재정렬 완료 (콜드스타트 방어):', scoredPredictions.map(p => ({
+      sentence: p.sentence.substring(0, 15) + '...',
       confidence: p.confidence.toFixed(2),
       frequency: p.usageFrequency,
-      finalScore: p.finalScore.toFixed(2)
+      finalScore: p.finalScore
     })));
 
     return scoredPredictions;
 
   } catch (error) {
     console.error('⚠️ 빈도수 조회 실패, 원본 순서 유지:', error.message);
-    // 에러 발생 시 원본 predictions 그대로 반환 (서비스 중단 방지)
     return predictions;
   }
 };
@@ -69,7 +78,7 @@ const rankByLearningData = async (predictions, userId) => {
  * AI-01: FastAPI 서버를 통해 낱말 조합으로부터 문장 3개를 생성
  *
  * FastAPI 서버:
- * - Endpoint: POST /api/ai/predict
+ * - Endpoint: POST /api/ai/predictions
  * - OpenAI GPT-4o-mini 호출
  * - Redis 캐싱 (1시간 TTL)
  * - Temperature 0.3 (문법적 정확성 우선)
@@ -100,7 +109,7 @@ const predictSentences = async (words = [], typedText = '', context = {}, refres
 
   try {
     // FastAPI 서버 호출
-    const response = await fetch(`${FASTAPI_URL}/api/ai/predict`, {
+    const response = await fetch(`${FASTAPI_URL}/api/ai/predictions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

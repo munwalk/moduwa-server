@@ -3,7 +3,7 @@ import { saveConversation } from '../services/conversation.service.js';
 /**
  * AI-01: 전체 대화 흐름 저장
  *
- * POST /api/ai/conversation
+ * POST /api/ai/conversations
  * AI 추천 → 사용자 선택 전체 과정을 저장
  */
 const saveConversationController = async (req, res, next) => {
@@ -14,22 +14,19 @@ const saveConversationController = async (req, res, next) => {
     // 검증된 데이터 추출 (미들웨어에서 이미 검증 완료)
     const { words, suggestedSentences, selectedSentence, selectionIndex } = req.body;
 
-    // 대화 흐름 저장
-    const conversation = await saveConversation(
-      userId,
-      words,
-      suggestedSentences,
-      selectedSentence,
-      selectionIndex
-    );
+    console.log('🔵 대화 기록 저장 요청:', { userId, wordsCount: words.length, selectedSentence });
 
-    return res.status(201).success(
+    // 대화 기록 저장 (여기서 딱 한 번만 DB의 ConversationHistory 테이블에 저장됨)
+    const conversation = await saveConversation(userId, words, suggestedSentences, selectedSentence, selectionIndex);
+
+    console.log('✅ 최종 대화 기록 저장 완료 (ConversationHistory 1건 생성)');
+
+    return res.status(200).success(
       {
         conversationId: conversation.id,
-        saved: true,
-        isOutputted: conversation.isOutputted
+        saved: true
       },
-      '대화 기록 저장 성공'
+      '대화 이력 DB 저장 성공'
     );
   } catch (error) {
     return next(error);

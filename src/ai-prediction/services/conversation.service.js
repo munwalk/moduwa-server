@@ -75,7 +75,7 @@ const saveConversation = async (
       };
 
       // 캐시 키 생성 (FastAPI와 동일한 로직)
-      const cacheKey = generateCacheKey(words, context, 'predict');
+      const cacheKey = generateCacheKey(words, context, 'predictions');
 
       // 캐시에 저장할 데이터 (FastAPI 응답 형식과 동일)
       const cacheData = {
