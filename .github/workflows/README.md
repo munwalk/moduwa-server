@@ -1,73 +1,135 @@
-# GitHub Actions CI ÆÄÀÌÇÁ¶óÀÎ ¼³Á¤ °¡ÀÌµå
+# GitHub Actions CI/CD íŒŒì´í”„ë¼ì¸ ì„¤ì • ê°€ì´ë“œ
 
-## ? ÇöÀç ±¸¼º
+## ğŸ¯ í˜„ì¬ êµ¬ì„±
 
-ÀÌ ÇÁ·ÎÁ§Æ®´Â **CI (Continuous Integration)** ÆÄÀÌÇÁ¶óÀÎ¸¸ ±¸ÃàµÇ¾î ÀÖ½À´Ï´Ù.  
-ÄÚµå Çª½Ã/PR ½Ã ÀÚµ¿À¸·Î ºôµå °ËÁõÀÌ ½ÇÇàµË´Ï´Ù.
+- **CI (Continuous Integration)**: ì½”ë“œ í‘¸ì‹œ/PR ì‹œ ìë™ ë¹Œë“œ ê²€ì¦
+- **CD (Continuous Deployment)**: develop ë¸Œëœì¹˜ í‘¸ì‹œ ì‹œ EC2 ìë™ ë°°í¬
 
-## ? ¿öÅ©ÇÃ·Î¿ì ¼³¸í
+## ğŸš€ ì›Œí¬í”Œë¡œìš° ì„¤ëª…
 
-### `ci.yml` - Áö¼ÓÀû ÅëÇÕ (CI)
-**Æ®¸®°Å**: 
-- Pull Request »ı¼º/¾÷µ¥ÀÌÆ® (develop, main ºê·£Ä¡ ´ë»ó)
-- ÄÚµå Çª½Ã (develop, main, feature/*, fix/*, hotfix/* ºê·£Ä¡)
+### 1. `ci.yml` - ì§€ì†ì  í†µí•© (CI)
+**íŠ¸ë¦¬ê±°**: 
+- Pull Request ìƒì„±/ì—…ë°ì´íŠ¸ (develop, main ë¸Œëœì¹˜ ëŒ€ìƒ)
+- ì½”ë“œ í‘¸ì‹œ (develop, main, feature/*, fix/*, hotfix/* ë¸Œëœì¹˜)
 
-**µ¿ÀÛ**:
-1. **Backend ºôµå °ËÁõ**
-   - Node.js 20 È¯°æ ¼³Á¤
-   - npm ÀÇÁ¸¼º ¼³Ä¡
-   - Prisma Client »ı¼º
-   - JavaScript ¹®¹ı °ËÁõ
-   - Docker ÀÌ¹ÌÁö ºôµå Å×½ºÆ®
+**ë™ì‘**:
+1. **Backend ë¹Œë“œ ê²€ì¦**
+   - Node.js 20 í™˜ê²½ ì„¤ì •
+   - npm ì˜ì¡´ì„± ì„¤ì¹˜
+   - Prisma Client ìƒì„±
+   - JavaScript ë¬¸ë²• ê²€ì¦
+   - Docker ì´ë¯¸ì§€ ë¹Œë“œ í…ŒìŠ¤íŠ¸
 
-2. **FastAPI ºôµå °ËÁõ**
-   - Python 3.11 È¯°æ ¼³Á¤
-   - pip ÀÇÁ¸¼º ¼³Ä¡
-   - Python ¹®¹ı °ËÁõ
-   - Docker ÀÌ¹ÌÁö ºôµå Å×½ºÆ®
+2. **FastAPI ë¹Œë“œ ê²€ì¦**
+   - Python 3.11 í™˜ê²½ ì„¤ì •
+   - pip ì˜ì¡´ì„± ì„¤ì¹˜
+   - Python ë¬¸ë²• ê²€ì¦
+   - Docker ì´ë¯¸ì§€ ë¹Œë“œ í…ŒìŠ¤íŠ¸
 
-3. **Docker Compose °ËÁõ**
-   - docker-compose.yml ¼³Á¤ °ËÁõ
-   - MySQL/Redis ÄÁÅ×ÀÌ³Ê ½ÃÀÛ Å×½ºÆ®
+3. **Docker Compose ê²€ì¦**
+   - docker-compose.yml ì„¤ì • ê²€ì¦
+   - MySQL/Redis ì»¨í…Œì´ë„ˆ ì‹œì‘ í…ŒìŠ¤íŠ¸
 
-## ? »ç¿ë¹ı
+### 2. `cd-deploy.yml` - ìë™ ë°°í¬ (CD)
+**íŠ¸ë¦¬ê±°**: 
+- develop ë¸Œëœì¹˜ í‘¸ì‹œ
+- ìˆ˜ë™ ì‹¤í–‰ (Actions íƒ­ì—ì„œ)
 
-### 1?? ÄÚµå Çª½Ã ½Ã ÀÚµ¿ ½ÇÇà
+**ë™ì‘**:
+1. **Docker ì´ë¯¸ì§€ ë¹Œë“œ & í‘¸ì‹œ**
+   - GitHub Container Registry (GHCR)ì— ì´ë¯¸ì§€ ì—…ë¡œë“œ
+   - `ghcr.io/{owner}/{repo}/backend:latest`
+   - `ghcr.io/{owner}/{repo}/fastapi:latest`
+
+2. **EC2 ì„œë²„ ë°°í¬**
+   - SSHë¡œ ì„œë²„ ì ‘ì†
+   - ìµœì‹  ì½”ë“œ pull (develop ë¸Œëœì¹˜)
+   - GHCRì—ì„œ ìµœì‹  ì´ë¯¸ì§€ pull
+   - Docker Composeë¡œ ì»¨í…Œì´ë„ˆ ì¬ì‹œì‘
+   - êµ¬ë²„ì „ ì´ë¯¸ì§€ ì •ë¦¬
+
+## ğŸ“‹ í•„ìš”í•œ GitHub Secrets ì„¤ì •
+
+**Repository â†’ Settings â†’ Secrets and variables â†’ Actions**
+
+### ğŸ” í˜„ì¬ ì„¤ì •ëœ Secrets
+```
+EC2_HOST: EC2 ì„œë²„ IP ì£¼ì†Œ
+EC2_USER: ubuntu
+EC2_SSH_KEY: SSH í”„ë¼ì´ë¹— í‚¤
+```
+
+## ğŸ”„ ë°°í¬ í”Œë¡œìš°
+
+```
+1. feature ë¸Œëœì¹˜ì—ì„œ ê°œë°œ
+   â†“
+2. develop ë¸Œëœì¹˜ë¡œ PR ìƒì„± â†’ CI ìë™ ì‹¤í–‰ (ê²€ì¦ë§Œ)
+   â†“
+3. PR ë¨¸ì§€ â†’ develop ë¸Œëœì¹˜
+   â†“
+4. CD ìë™ ì‹¤í–‰ â†’ EC2 ì„œë²„ ë°°í¬ ğŸš€
+```
+
+## ğŸ“ ì‚¬ìš©ë²•
+
+### 1ï¸âƒ£ ì½”ë“œ í‘¸ì‹œ ì‹œ CI ìë™ ì‹¤í–‰
 ```bash
 git add .
-git commit -m "[feat]: »õ·Î¿î ±â´É Ãß°¡"
+git commit -m "[feat]: ìƒˆë¡œìš´ ê¸°ëŠ¥ ì¶”ê°€"
 git push origin feature/new-feature
 ```
 
-### 2?? PR »ı¼º ½Ã ÀÚµ¿ °ËÁõ
+### 2ï¸âƒ£ PR ìƒì„± ì‹œ ìë™ ê²€ì¦
 ```bash
-# GitHub¿¡¼­ PR »ı¼º
-feature/new-feature ¡æ develop
+# GitHubì—ì„œ PR ìƒì„±
+feature/new-feature â†’ develop
+# â†’ CIê°€ ìë™ ì‹¤í–‰ë˜ì–´ ë¹Œë“œ ê²€ì¦
 ```
 
-### 3?? °á°ú È®ÀÎ
-**GitHub Repository ¡æ Actions ÅÇ**¿¡¼­ ½Ç½Ã°£ ·Î±× È®ÀÎ °¡´É
+### 3ï¸âƒ£ PR ë¨¸ì§€ í›„ ìë™ ë°°í¬
+```bash
+# PR ë¨¸ì§€ ì™„ë£Œ
+# â†’ develop ë¸Œëœì¹˜ì— ë°˜ì˜
+# â†’ CDê°€ ìë™ ì‹¤í–‰ë˜ì–´ EC2ì— ë°°í¬
+```
 
-## ? CI Åë°ú Á¶°Ç
+### 4ï¸âƒ£ ê²°ê³¼ í™•ì¸
+**GitHub Repository â†’ Actions íƒ­**ì—ì„œ ì‹¤ì‹œê°„ ë¡œê·¸ í™•ì¸ ê°€ëŠ¥
 
-- Node.js ºôµå ¼º°ø
-- Python ºôµå ¼º°ø
-- Docker ÀÌ¹ÌÁö ºôµå ¼º°ø
-- Docker Compose ¼³Á¤ À¯È¿¼º °ËÁõ Åë°ú
+## ğŸ› íŠ¸ëŸ¬ë¸”ìŠˆíŒ…
 
-## ? Æ®·¯ºí½´ÆÃ
+### CI ì‹¤íŒ¨ ì‹œ
 
-### npm install ½ÇÆĞ
-¡æ `package.json` ÀÇÁ¸¼º È®ÀÎ ¶Ç´Â `package-lock.json` »èÁ¦ ÈÄ Àç»ı¼º
+**npm install ì‹¤íŒ¨**
+â†’ `package.json` ì˜ì¡´ì„± í™•ì¸ ë˜ëŠ” `package-lock.json` ì‚­ì œ í›„ ì¬ìƒì„±
 
-### Python ¹®¹ı ¿¡·¯
-¡æ `fastapi-server/main.py` ÄÚµå °ËÅä
+**Python ë¬¸ë²• ì—ëŸ¬**
+â†’ `fastapi-server/main.py` ì½”ë“œ ê²€í† 
 
-### Docker ºôµå ½ÇÆĞ
-¡æ `Dockerfile` ¶Ç´Â `fastapi-server/Dockerfile` °ËÅä
+**Docker ë¹Œë“œ ì‹¤íŒ¨**
+â†’ `Dockerfile` ë˜ëŠ” `fastapi-server/Dockerfile` ê²€í† 
 
-### Docker Compose ¿¡·¯
-¡æ `docker-compose.yml` ¹®¹ı ¹× ¼­ºñ½º ¼³Á¤ È®ÀÎ
+**Docker Compose ì—ëŸ¬**
+â†’ `docker-compose.yml` ë¬¸ë²• ë° ì„œë¹„ìŠ¤ ì„¤ì • í™•ì¸
 
-## ? ·Î±× È®ÀÎ
-GitHub Actions ½ÇÇà ·Î±×: **Repository ¡æ Actions ÅÇ ¡æ ÇØ´ç ¿öÅ©ÇÃ·Î¿ì Å¬¸¯**
+### CD ì‹¤íŒ¨ ì‹œ
+
+**SSH ì ‘ì† ì‹¤íŒ¨**
+â†’ EC2_HOST, EC2_USER, EC2_SSH_KEY ê°’ í™•ì¸
+â†’ EC2 ë³´ì•ˆ ê·¸ë£¹ì—ì„œ 22ë²ˆ í¬íŠ¸ ì—´ë ¤ìˆëŠ”ì§€ í™•ì¸
+
+**git pull ì‹¤íŒ¨**
+â†’ EC2 ì„œë²„ì— í”„ë¡œì íŠ¸ê°€ í´ë¡ ë˜ì–´ ìˆëŠ”ì§€ í™•ì¸
+â†’ `/home/ubuntu/moduwa-server` ê²½ë¡œ ì¡´ì¬ ì—¬ë¶€ í™•ì¸
+
+**docker pull ì‹¤íŒ¨**
+â†’ GHCR ê¶Œí•œ ë¬¸ì œ: ì›Œí¬í”Œë¡œìš°ì˜ `permissions: packages: write` í™•ì¸
+â†’ ì´ë¯¸ì§€ê°€ Publicìœ¼ë¡œ ì„¤ì •ë˜ì–´ ìˆëŠ”ì§€ í™•ì¸
+
+**docker-compose ì‹¤íŒ¨**
+â†’ EC2 ì„œë²„ì˜ `.env` íŒŒì¼ í™•ì¸
+â†’ í™˜ê²½ë³€ìˆ˜ê°€ ì œëŒ€ë¡œ ì„¤ì •ë˜ì–´ ìˆëŠ”ì§€ í™•ì¸
+
+## ğŸ“ ë¡œê·¸ í™•ì¸
+**GitHub Actions ì‹¤í–‰ ë¡œê·¸**: Repository â†’ Actions íƒ­ â†’ í•´ë‹¹ ì›Œí¬í”Œë¡œìš° í´ë¦­

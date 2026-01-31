@@ -48,6 +48,7 @@ services:
   # FastAPI AI Server (Python)
   # ==========================================
   fastapi:
+    image: ${FASTAPI_IMAGE:-fastapi-local}
     build:
       context: ./fastapi-server
       dockerfile: Dockerfile
@@ -71,6 +72,7 @@ services:
   # Backend API (Node.js + Express + Prisma)
   # ==========================================
   backend:
+    image: ${BACKEND_IMAGE:-backend-local}
     build:
       context: .
       dockerfile: Dockerfile
