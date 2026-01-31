@@ -1,3 +1,5 @@
+import { ValidationError } from '../../errors/app.error.js';
+
 /**
  * DTO 검증 미들웨어 팩토리
  */
@@ -8,10 +10,7 @@ export const validate = (dtoValidator) => {
       req.body = validatedData;
       next();
     } catch (error) {
-      return res.status(400).error({
-        code: 'VALIDATION_ERROR',
-        message: error.message
-      });
+      return next(new ValidationError(error.message));
     }
   };
 };
@@ -26,10 +25,7 @@ export const validateQuery = (dtoValidator) => {
       req.query = validatedData;
       next();
     } catch (error) {
-      return res.status(400).error({
-        code: 'VALIDATION_ERROR',
-        message: error.message
-      });
+      return next(new ValidationError(error.message));
     }
   };
 };
@@ -44,10 +40,7 @@ export const validateParams = (dtoValidator) => {
       req.params = validatedData;
       next();
     } catch (error) {
-      return res.status(400).error({
-        code: 'VALIDATION_ERROR',
-        message: error.message
-      });
+      return next(new ValidationError(error.message));
     }
   };
 };

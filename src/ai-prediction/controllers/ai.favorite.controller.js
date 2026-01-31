@@ -1,4 +1,9 @@
 import * as favoriteService from '../services/ai.favorite.service.js';
+import {
+  AlreadyFavoritedError,
+  FavoriteNotFoundError,
+  ForbiddenError
+} from '../../errors/app.error.js';
 
 /**
  * AI Favorite Controller
@@ -27,10 +32,7 @@ export const addFavoriteController = async (req, res, next) => {
     );
   } catch (error) {
     if (error.message === 'ALREADY_FAVORITED') {
-      return res.status(409).error({
-        code: 'ALREADY_FAVORITED',
-        message: '이미 즐겨찾기에 추가된 문장입니다'
-      });
+      return next(new AlreadyFavoritedError());
     }
     next(error);
   }
@@ -50,16 +52,10 @@ export const removeFavoriteController = async (req, res, next) => {
     return res.status(200).success(null, '즐겨찾기에서 제거되었습니다');
   } catch (error) {
     if (error.message === 'FAVORITE_NOT_FOUND') {
-      return res.status(404).error({
-        code: 'FAVORITE_NOT_FOUND',
-        message: '즐겨찾기를 찾을 수 없습니다'
-      });
+      return next(new FavoriteNotFoundError());
     }
     if (error.message === 'FORBIDDEN') {
-      return res.status(403).error({
-        code: 'FORBIDDEN',
-        message: '권한이 없습니다'
-      });
+      return next(new ForbiddenError());
     }
     next(error);
   }
