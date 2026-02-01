@@ -1,0 +1,179 @@
+name: CD - Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:  # 수동 실행 가능
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ghcr.io/${{ github.repository_owner }}
+
+jobs:
+  # ==========================================
+  # Build & Push Docker Images
+  # ==========================================
+  build-and-push:
+    name: Build and Push Images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write  # GHCR 푸시 권한
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Convert repository name to lowercase
+        id: repo
+        run: echo "repo_lower=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+      - name: Build and push Backend image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          target: production
+          push: true
+          tags: |
+            ghcr.io/${{ steps.repo.outputs.repo_lower }}/backend:production
+            ghcr.io/${{ steps.repo.outputs.repo_lower }}/backend:prod-${{ github.sha }}
+          cache-from: type=registry,ref=ghcr.io/${{ steps.repo.outputs.repo_lower }}/backend:production
+          cache-to: type=inline
+
+      - name: Build and push FastAPI image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./fastapi-server
+          file: ./fastapi-server/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ steps.repo.outputs.repo_lower }}/fastapi:production
+            ghcr.io/${{ steps.repo.outputs.repo_lower }}/fastapi:prod-${{ github.sha }}
+          cache-from: type=registry,ref=ghcr.io/${{ steps.repo.outputs.repo_lower }}/fastapi:production
+          cache-to: type=inline
+
+  # ==========================================
+  # Deploy to EC2 Production Server
+  # ==========================================
+  deploy:
+    name: Deploy to Production EC2
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Convert repository name to lowercase
+        id: repo
+        run: echo "repo_lower=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST_PROD }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY_PROD }}
+          port: 22
+          script: |
+            # 프로젝트 디렉토리로 이동
+            cd /home/ubuntu/moduwa-server || exit 1
+            
+            # 최신 코드 pull
+            git fetch origin
+            git checkout main
+            git pull origin main
+            
+            # GHCR 로그인 (GitHub Token 사용)
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            # 최신 이미지 pull
+            docker pull ghcr.io/${{ steps.repo.outputs.repo_lower }}/backend:production
+            docker pull ghcr.io/${{ steps.repo.outputs.repo_lower }}/fastapi:production
+            
+            # docker-compose.yml에서 이미지 이름 업데이트
+            export BACKEND_IMAGE=ghcr.io/${{ steps.repo.outputs.repo_lower }}/backend:production
+            export FASTAPI_IMAGE=ghcr.io/${{ steps.repo.outputs.repo_lower }}/fastapi:production
+            
+            # 기존 컨테이너 중지 및 제거
+            docker-compose down
+            
+            # 컨테이너 시작
+            docker-compose up -d
+            
+            # 컨테이너 시작 대기
+            echo "컨테이너 시작 대기 중..."
+            sleep 15
+            
+            # 컨테이너 상태 확인
+            echo "컨테이너 상태:"
+            docker-compose ps
+            
+            # docker-compose.yml에 정의된 서비스 개수 확인
+            EXPECTED_COUNT=$(docker-compose config --services | wc -l)
+            RUNNING_COUNT=$(docker-compose ps | grep "Up" | wc -l)
+            
+            echo "예상 컨테이너 개수: $EXPECTED_COUNT"
+            echo "실행 중인 컨테이너 개수: $RUNNING_COUNT"
+            
+            if [ "$RUNNING_COUNT" -lt "$EXPECTED_COUNT" ]; then
+              echo "에러: 일부 컨테이너가 실행되지 않았습니다."
+              echo "컨테이너 로그:"
+              docker-compose logs --tail=50
+              exit 1
+            fi
+            
+            # Prisma 마이그레이션 실행
+            echo "Prisma 마이그레이션 실행 중..."
+            docker-compose exec -T backend npx prisma migrate deploy || {
+              echo "Prisma 마이그레이션 실패"
+              echo "Backend 로그:"
+              docker-compose logs backend --tail=50
+              exit 1
+            }
+            
+            echo "Prisma 마이그레이션 완료"
+            
+            # 최종 헬스체크
+            echo "헬스체크 진행 중..."
+            sleep 5
+            
+            # Backend 헬스체크 (포트 3000)
+            if ! curl -f http://localhost:3000/ > /dev/null 2>&1; then
+              echo "Backend 헬스체크 실패 (포트 3000이 응답하지 않음)"
+            else
+              echo "Backend 정상 작동"
+            fi
+            
+            # FastAPI 헬스체크 (포트 8000)
+            if ! curl -f http://localhost:8000/health > /dev/null 2>&1; then
+              echo "FastAPI 헬스체크 실패 (포트 8000이 응답하지 않음)"
+            else
+              echo "FastAPI 정상 작동"
+            fi
+            
+            echo "프로덕션 배포 완료: main-${{ github.sha }}"
+            
+            # 구버전 이미지 정리
+            docker image prune -af --filter "until=24h"
+
+      - name: Deployment Status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "프로덕션 배포 성공 - 최신 이미지로 업데이트되었습니다"
+          else
+            echo "프로덕션 배포 실패 - 로그를 확인하세요"
+            exit 1
+          fi

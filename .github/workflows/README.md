@@ -30,7 +30,7 @@
    - docker-compose.yml 설정 검증
    - MySQL/Redis 컨테이너 시작 테스트
 
-### 2. `cd-deploy.yml` - 자동 배포 (CD)
+### 2. `cd-dev.yml` - 개발 서버 자동 배포
 **트리거**: 
 - develop 브랜치 푸시
 - 수동 실행 (Actions 탭에서 workflow_dispatch)
@@ -42,9 +42,32 @@
    - `ghcr.io/moduwa-aac/moduwa-server/fastapi:latest`
    - Docker 빌드 캐시를 활용하여 빌드 속도 최적화
 
-2. **EC2 서버 배포**
-   - SSH로 EC2 서버 접속 (ubuntu@{EC2_HOST})
+2. **개발 서버 배포 (EC2_HOST)**
+   - SSH로 개발 서버 접속 (ubuntu@{EC2_HOST})
    - 최신 코드 pull (develop 브랜치)
+   - GHCR에서 최신 이미지 pull
+   - 기존 컨테이너 중지 및 제거 (`docker-compose down`)
+   - 새 컨테이너 시작 (`docker-compose up -d`)
+   - **컨테이너 개수 검증**: docker-compose.yml에 정의된 서비스 개수와 실행 중인 컨테이너 개수 비교
+   - **Prisma 마이그레이션 자동 실행**: `npx prisma migrate deploy`
+   - **헬스체크**: Backend (포트 3000), FastAPI (포트 8000) 응답 확인
+   - 구버전 이미지 정리 (`docker image prune -f`)
+
+### 3. `cd-prod.yml` - 프로덕션 서버 자동 배포
+**트리거**: 
+- main 브랜치 푸시
+- 수동 실행 (Actions 탭에서 workflow_dispatch)
+
+**동작**:
+1. **Docker 이미지 빌드 & 푸시**
+   - Backend, FastAPI 이미지를 GitHub Container Registry (GHCR)에 업로드
+   - `ghcr.io/moduwa-aac/moduwa-server/backend:production`
+   - `ghcr.io/moduwa-aac/moduwa-server/fastapi:production`
+   - Docker 빌드 캐시를 활용하여 빌드 속도 최적화
+
+2. **프로덕션 서버 배포 (EC2_HOST_PROD)**
+   - SSH로 프로덕션 서버 접속 (ubuntu@{EC2_HOST_PROD})
+   - 최신 코드 pull (main 브랜치)
    - GHCR에서 최신 이미지 pull
    - 기존 컨테이너 중지 및 제거 (`docker-compose down`)
    - 새 컨테이너 시작 (`docker-compose up -d`)
@@ -119,15 +142,20 @@ Repository → Actions → CD Deploy → Run workflow → Run workflow 버튼 �
 
 ### 🔐 필수 Secrets
 
-| Secret 이름 | 설명 | 예시 |
-|------------|------|------|
-| `EC2_HOST` | EC2 서버 IP 주소 | `52.78.164.88` |
-| `EC2_SSH_KEY` | SSH 프라이빗 키 전체 내용 | `-----BEGIN RSA PRIVATE KEY-----\n...` |
+| Secret 이름 | 설명 | 사용처 | 예시 |
+|------------|------|-------|------|
+| `EC2_HOST` | 개발 서버 IP 주소 | develop 배포 | `52.78.164.88` |
+| `EC2_SSH_KEY` | 개발 서버 SSH 프라이빗 키 | develop 배포 | `-----BEGIN RSA PRIVATE KEY-----\n...` |
+| `EC2_HOST_PROD` | 프로덕션 서버 IP 주소 | main 배포 | `43.201.123.45` |
+| `EC2_SSH_KEY_PROD` | 프로덕션 서버 SSH 프라이빗 키 | main 배포 | `-----BEGIN RSA PRIVATE KEY-----\n...` |
 
-> **참고**: `GITHUB_TOKEN`은 자동으로 제공되므로 별도 설정이 필요 없습니다.
+> **참고**: 
+> - `GITHUB_TOKEN`은 자동으로 제공되므로 별도 설정이 필요 없습니다.
+> - 개발/프로덕션 서버가 동일한 경우 `EC2_HOST_PROD`와 `EC2_SSH_KEY_PROD`에 동일한 값을 설정하세요.
 
 ## 🔄 배포 플로우
 
+### Development (develop 브랜치)
 ```
 1. feature 브랜치에서 개발
    ↓
@@ -135,9 +163,27 @@ Repository → Actions → CD Deploy → Run workflow → Run workflow 버튼 �
    ↓
 3. PR 머지 → develop 브랜치
    ↓
-4. CD 자동 실행 → EC2 서버 배포 🚀
-   ├─ Docker 이미지 빌드 & GHCR 푸시
-   ├─ EC2 SSH 접속 & 최신 코드 pull
+4. CD 자동 실행 → 개발 서버 배포 🚀
+   ├─ Docker 이미지 빌드 & GHCR 푸시 (backend:latest, fastapi:latest)
+   ├─ 개발 서버 SSH 접속 (EC2_HOST)
+   ├─ develop 브랜치 코드 pull
+   ├─ Docker Compose로 컨테이너 재시작
+   ├─ Prisma 마이그레이션 실행
+   └─ 헬스체크 & 배포 완료 확인
+```
+
+### Production (main 브랜치)
+```
+1. develop 브랜치 테스트 완료
+   ↓
+2. main 브랜치로 PR 생성 → CI 자동 실행 (검증)
+   ↓
+3. PR 머지 → main 브랜치
+   ↓
+4. CD 자동 실행 → 프로덕션 서버 배포 🔥
+   ├─ Docker 이미지 빌드 & GHCR 푸시 (backend:production, fastapi:production)
+   ├─ 프로덕션 서버 SSH 접속 (EC2_HOST_PROD)
+   ├─ main 브랜치 코드 pull
    ├─ Docker Compose로 컨테이너 재시작
    ├─ Prisma 마이그레이션 실행
    └─ 헬스체크 & 배포 완료 확인
