@@ -257,7 +257,7 @@ export class WordsRepository {
     const data = {};
     if (customWord !== undefined) data.customWord = customWord;
     if (customImageUrl !== undefined) data.customImageUrl = customImageUrl;
-    if (categoryId !== undefined) data.categoryId = categoryId;
+    if (categoryId !== undefined && categoryId !== null) data.categoryId = categoryId;
 
     return await prisma.userWord.update({
       where: { id: userWordId },

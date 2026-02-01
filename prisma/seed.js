@@ -126,10 +126,11 @@ async function main() {
       data: {
         userId: user.id,
         wordId: createdWords[idx].id,
+        categoryId: createdWords[idx].categoryId,
         isFavorite: true,
         isDeleted: false,
-        partOfSpeech: createdWords[idx].partOfSpeech, // 이전 에러 해결
-        displayOrder: i + 1 // 새로 발생한 에러 해결: 순차적으로 1, 2, 3 부여
+        partOfSpeech: createdWords[idx].partOfSpeech,
+        displayOrder: i + 1
       }
     });
   }

@@ -46,24 +46,28 @@ export class WordsService {
       categoryName = category?.categoryName || null;
     }
 
-    // 1. UserWord 조회 (개인화된 낱말) - includeDeleted=true로 삭제된 것도 포함
-    const userWords = await wordsRepository.findUserWords(userId, categoryId, onlyFavorite, true);
-    
-    // UserWord를 cardId 맵으로 저장 (wordId 기준)
+    // userId가 있을 때만 사용자 낱말 조회
+    let userWords = [];
     const userWordMap = new Map();
-    userWords.forEach(uw => {
-      if (uw.wordId) {
-        userWordMap.set(uw.wordId, uw);
-      }
-    });
-
-    // isDeleted=true인 Word.id를 수집 (기본 낱말 필터링용)
     const deletedWordIds = new Set();
-    userWords.forEach(uw => {
-      if (uw.wordId && uw.isDeleted) {
-        deletedWordIds.add(uw.wordId);
-      }
-    });
+    if (userId) {
+      // 1. UserWord 조회 (개인화된 낱말) - includeDeleted=true로 삭제된 것도 포함
+      userWords = await wordsRepository.findUserWords(userId, categoryId, onlyFavorite, true);
+      
+      // UserWord를 cardId 맵으로 저장 (wordId 기준)
+      userWords.forEach(uw => {
+        if (uw.wordId) {
+          userWordMap.set(uw.wordId, uw);
+        }
+      });
+
+      // isDeleted=true인 Word.id를 수집 (기본 낱말 필터링용)
+      userWords.forEach(uw => {
+        if (uw.wordId && uw.isDeleted) {
+          deletedWordIds.add(uw.wordId);
+        }
+      });
+    }
 
     // 2. 기본 낱말(Word) 먼저 조회 (UserWord가 없는 것만)
     if (!onlyFavorite) {
@@ -340,6 +344,7 @@ export class WordsService {
         baseWordIds.push(cardId);
       }
     }
+
 
     // 2. 기본 Word 참조가 있으면 스냅샷 생성 (아직 생성되지 않은 것만)
     if (baseWordIds.length > 0) {
