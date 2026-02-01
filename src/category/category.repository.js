@@ -42,6 +42,13 @@ export const createUserCategory = async ({
   });
 };
 
+export const listUserCategories = async ({ userId }) => {
+  return prisma.userCategory.findMany({
+    where: { userId },
+    orderBy: { displayOrder: "asc" },
+  });
+};
+
 export const findUserCategoryById = async ({ userId, id }) => {
   return prisma.userCategory.findFirst({
     where: { id, userId },

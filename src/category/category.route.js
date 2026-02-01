@@ -1,9 +1,11 @@
 import express from "express";
 import {
+  getCategories,
   createCategory,
   patchCategory,
   removeCategory,
 } from "./category.controller.js";
+import { authenticate } from "../auth/middlewares/auth.middleware.js";
 
 const router = express.Router();
 
@@ -157,6 +159,11 @@ const router = express.Router();
  *       404:
  *         description: 카테고리를 찾을 수 없음
  */
+
+router.use(authenticate);
+
+// GET /api/categories
+router.get("/", getCategories);
 
 // POST /api/categories
 router.post("/", createCategory);
