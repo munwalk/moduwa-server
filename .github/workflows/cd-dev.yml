@@ -106,15 +106,63 @@ jobs:
             export BACKEND_IMAGE=ghcr.io/${{ steps.repo.outputs.repo_lower }}/backend:latest
             export FASTAPI_IMAGE=ghcr.io/${{ steps.repo.outputs.repo_lower }}/fastapi:latest
             
-            # 컨테이너 재시작
+            # 기존 컨테이너 중지 및 제거
             docker-compose down
+            
+            # 컨테이너 시작
             docker-compose up -d
             
-            # 잠시 대기 후 상태 확인
-            sleep 10
+            # 컨테이너 시작 대기
+            echo "컨테이너 시작 대기 중..."
+            sleep 15
+            
+            # 컨테이너 상태 확인
+            echo "컨테이너 상태:"
             docker-compose ps
             
-            # 헬스체크 (선택사항)
+            # docker-compose.yml에 정의된 서비스 개수 확인
+            EXPECTED_COUNT=$(docker-compose config --services | wc -l)
+            RUNNING_COUNT=$(docker-compose ps | grep "Up" | wc -l)
+            
+            echo "예상 컨테이너 개수: $EXPECTED_COUNT"
+            echo "실행 중인 컨테이너 개수: $RUNNING_COUNT"
+            
+            if [ "$RUNNING_COUNT" -lt "$EXPECTED_COUNT" ]; then
+              echo "에러: 일부 컨테이너가 실행되지 않았습니다."
+              echo "컨테이너 로그:"
+              docker-compose logs --tail=50
+              exit 1
+            fi
+            
+            # Prisma 마이그레이션 실행
+            echo "Prisma 마이그레이션 실행 중..."
+            docker-compose exec -T backend npx prisma migrate deploy || {
+              echo "Prisma 마이그레이션 실패"
+              echo "Backend 로그:"
+              docker-compose logs backend --tail=50
+              exit 1
+            }
+            
+            echo "Prisma 마이그레이션 완료"
+            
+            # 최종 헬스체크
+            echo "헬스체크 진행 중..."
+            sleep 5
+            
+            # Backend 헬스체크 (포트 3000)
+            if ! curl -f http://localhost:3000/ > /dev/null 2>&1; then
+              echo "Backend 헬스체크 실패 (포트 3000이 응답하지 않음)"
+            else
+              echo "Backend 정상 작동"
+            fi
+            
+            # FastAPI 헬스체크 (포트 8000)
+            if ! curl -f http://localhost:8000/health > /dev/null 2>&1; then
+              echo "FastAPI 헬스체크 실패 (포트 8000이 응답하지 않음)"
+            else
+              echo "FastAPI 정상 작동"
+            fi
+            
             echo "배포 완료: develop-${{ github.sha }}"
             
             # 구버전 이미지 정리
