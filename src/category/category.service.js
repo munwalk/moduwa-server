@@ -6,6 +6,7 @@ import {
   updateUserCategory,
   countUserWordsInCategory,
   deleteCategoryAndWords,
+  listUserCategories,
 } from "./category.repository.js";
 
 export const createCategoryService = async ({
@@ -30,6 +31,14 @@ export const createCategoryService = async ({
     userCategoryId: created.id,
   });
   return { created, wordCount };
+};
+
+export const getCategoryListService = async ({ userId }) => {
+  const categories = await listUserCategories({ userId });
+  return categories.map((c) => ({
+    category: c,
+    wordCount: 0,
+  }));
 };
 
 export const patchCategoryService = async ({
