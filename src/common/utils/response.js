@@ -29,7 +29,7 @@ export const error = (res, message = 'Error', statusCode = 500, errorCode = null
  * 인증 에러 (401)
  */
 export const unauthorized = (res, message = 'Unauthorized') => {
-  return error(res, message, 401, 'UNAUTHORIZED');
+  return error(res, message, 401, 'AUTH001');
 };
 
 /**

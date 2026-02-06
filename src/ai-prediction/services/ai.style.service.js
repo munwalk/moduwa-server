@@ -1,4 +1,5 @@
 import { AiPredictionTimeoutError } from '../../errors/app.error.js';
+import { rankByLearningData } from './ai.prediction.service.js';
 
 // FastAPI 서버 URL 설정
 const FASTAPI_URL = process.env.FASTAPI_URL || 'http://fastapi:8000';
@@ -11,9 +12,10 @@ const FASTAPI_URL = process.env.FASTAPI_URL || 'http://fastapi:8000';
  * @param {Array<string>} words - 낱말 카드 배열 (예: ["밥", "먹다"])
  * @param {Array<string>} endingCards - 어미 선택 카드 배열 (1~5개, 예: ["질문", "부드럽게"])
  * @param {boolean} refresh - 캐시 무시하고 새로 생성할지 여부
- * @returns {Promise<Object>} 추천 문장 3개 + fromCache 여부
+ * @param {string} userId - 사용자 ID (학습 데이터 가중치 적용용)
+ * @returns {Promise<Object>} 추천 문장 3개 (빈도수 가중치 적용 후 정렬) + rawSentences
  */
-const transformSentenceStyle = async (words, endingCards, refresh = false) => {
+const transformSentenceStyle = async (words, endingCards, refresh = false, userId = null) => {
   // 타임아웃 처리 (10초)
   const timeoutPromise = new Promise((_, reject) => {
     setTimeout(() => {
@@ -48,11 +50,23 @@ const transformSentenceStyle = async (words, endingCards, refresh = false) => {
     throw new Error('AI 응답 형식 오류: sentences 배열이 없습니다');
   }
 
+  // 1단계: 응답 정규화 (confidence 값 추가)
+  const normalizedSentences = result.sentences.slice(0, 3).map(sentence => ({
+    sentence,
+    confidence: 0.5 // Style API는 confidence 값이 없으므로 기본값 사용
+  }));
+
+  // 2단계: 학습 데이터 가중치 적용 및 재정렬
+  const rankedSentences = await rankByLearningData(normalizedSentences, userId);
+
+  // 최종 반환: { sentences, rawSentences }
+  // rawSentences는 캐싱용 (사용자별 가중치 미적용)
   return {
     words,
     endingCards,
-    sentences: result.sentences,
-    fromCache: result.fromCache || false // 캐시 여부 반환
+    sentences: rankedSentences.map(pred => pred.sentence), // 가중치 적용된 문장
+    rawSentences: normalizedSentences.map(pred => pred.sentence), // 캐싱용 원본
+    fromCache: result.fromCache || false
   };
 };
 
