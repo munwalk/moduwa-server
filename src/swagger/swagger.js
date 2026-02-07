@@ -14,6 +14,7 @@ const swaggerDefinition = {
     { name: "AI", description: "AI 관련 API - 문장 추천, 대화 저장, 맥락 조회, 스타일 변환" },
     { name: "History", description: "학습 히스토리 관리 - 사용 기록 조회/삭제, 오프라인 낱말 조회" },
     { name: "User", description: "유저 관련 API" },
+    { name: "Words", description: "낱말 카드 API" },
     { name: "PM02", description: "낱말 카테고리 (생성/수정/삭제)" },
     { name: "PM03", description: "낱말-카테고리 순서 변경" },
     { name: "PM05", description: "루틴 문장 설정" },
@@ -31,6 +32,65 @@ const swaggerDefinition = {
     },
 
     schemas: {
+      WordCard: {
+        type: "object",
+        properties: {
+          cardId: {
+            type: "string",
+            format: "uuid",
+            description: "낱말 카드 ID (Word.id 또는 UserWord.id)",
+            example: "6c10795b-1da1-498e-9bda-d7c23b982ae1",
+          },
+          categoryId: {
+            type: "string",
+            format: "uuid",
+            description: "카테고리 ID (Category.id 또는 UserCategory.id)",
+            example: "4b74596e-5cad-4859-82a1-5cf43f6796fd",
+          },
+          partOfSpeech: {
+            type: "string",
+            description: "품사",
+            enum: ["NOUN", "VERB", "ADJECTIVE", "MODIFIER", "EMOTION", "NONE"],
+            example: "NOUN",
+          },
+          word: {
+            type: "string",
+            description: "낱말",
+            example: "물",
+          },
+          imageUrl: {
+            type: "string",
+            nullable: true,
+            description: "이미지 URL",
+            example: "https://api.moduwa.com/images/물.png",
+          },
+          isDefault: {
+            type: "boolean",
+            description: "기본 낱말 여부",
+            example: true,
+          },
+          isFavorite: {
+            type: "boolean",
+            description: "즐겨찾기 여부",
+            example: false,
+          },
+          displayOrder: {
+            type: "integer",
+            description: "표시 순서",
+            example: 0,
+          },
+        },
+        required: [
+          "cardId",
+          "categoryId",
+          "partOfSpeech",
+          "word",
+          "imageUrl",
+          "isDefault",
+          "isFavorite",
+          "displayOrder",
+        ],
+      },
       // 공통 성공 응답
       SuccessResponse: {
         type: "object",
