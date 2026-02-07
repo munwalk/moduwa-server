@@ -34,7 +34,35 @@ const port = process.env.PORT || 3000;
 const prisma = new PrismaClient();
 
 // 1. 공통 미들웨어
-app.use(helmet());
+// Helmet 설정: 환경별로 다른 보안 정책 적용
+if (process.env.NODE_ENV !== 'production') {
+  // 개발 환경: Swagger UI를 위해 CSP 완화
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'"],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+  }));
+} else {
+  // 프로덕션 환경: 엄격한 CSP 적용
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'"],
+      },
+    },
+  }));
+}
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -66,12 +94,16 @@ app.use(passport.session());
 app.use(responseHelper);
 
 // +) 라우터 등록
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-  swaggerOptions: {
-    persistAuthorization: true,
-    displayRequestDuration: true,
-  }
-}));
+// Swagger UI: 개발/스테이징에서만 활성화 (프로덕션에서는 보안을 위해 비활성화)
+if (process.env.NODE_ENV !== 'production') {
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    swaggerOptions: {
+      persistAuthorization: true,
+      displayRequestDuration: true,
+    }
+  }));
+  console.log('📚 Swagger UI: http://localhost:3000/api-docs');
+}
 
 // 3. 테스트용 라우트
 
