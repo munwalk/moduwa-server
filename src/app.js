@@ -36,18 +36,12 @@ const prisma = new PrismaClient();
 // 1. 공통 미들웨어
 // Helmet 설정: 환경별로 다른 보안 정책 적용
 if (process.env.NODE_ENV !== 'production') {
-  // 개발 환경: Swagger UI를 위해 CSP 완화
+  // 개발 환경: Swagger UI를 위해 보안 정책 완화
   app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", "data:", "https:"],
-        connectSrc: ["'self'"],
-      },
-    },
+    contentSecurityPolicy: false,
     crossOriginEmbedderPolicy: false,
+    crossOriginOpenerPolicy: false,
+    crossOriginResourcePolicy: false,
   }));
 } else {
   // 프로덕션 환경: 엄격한 CSP 적용
