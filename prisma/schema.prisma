@@ -254,9 +254,14 @@ model RoutineMessage {
   id            String   @id @default(uuid()) @db.Char(36)
   userId        String   @map("user_id") @db.VarChar(255)
   message       String   @db.Text
-  daysOfWeek    Json     @map("days_of_week") // MySQL JSON: [1,3,5]
+  daysOfWeek     Json?     @map("days_of_week") // MySQL JSON: [1,3,5]
   scheduledTime String   @map("scheduled_time") @db.VarChar(5) // "11:00"
   isActive      Boolean  @default(true) @map("is_active")
+  repeatType    String   @default("WEEKLY") @map("repeat_type") @db.VarChar(20)
+  daysOfMonth   Json?    @map("days_of_month")
+  isMonthEnd    Boolean  @default(false) @map("is_month_end")
+  snoozedUntil   DateTime? @map("snoozed_until")
+  dismissedUntil DateTime? @map("dismissed_until")
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
@@ -264,6 +269,7 @@ model RoutineMessage {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, isActive, scheduledTime])
+  @@index([userId, repeatType])
   @@map("RoutineMessage")
 }
 

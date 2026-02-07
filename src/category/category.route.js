@@ -11,13 +11,118 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/pm/categories:
+ * tags:
+ *   - name: Words - Categories
+ *     description: 낱말 카테고리 관리 API
+ */
+
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Category:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: string
+ *           example: "c8a1f2c1-1234-4a5b-9d1e-0f3a9d2f1111"
+ *         categoryName:
+ *           type: string
+ *           example: "감정"
+ *         displayOrder:
+ *           type: integer
+ *           example: 1
+ *         iconKey:
+ *           type: string
+ *           nullable: true
+ *           example: "icon-smile"
+ *         iconUrl:
+ *           type: string
+ *           nullable: true
+ *           example: "https://cdn.example.com/icon.png"
+ *
+ *     ApiResponseCategories:
+ *       type: object
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           example: true
+ *         message:
+ *           type: string
+ *           example: "낱말 카테고리 조회 성공"
+ *         data:
+ *           type: object
+ *           properties:
+ *             categories:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Category'
+ *
+ *     ApiResponseCategory:
+ *       type: object
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           example: true
+ *         message:
+ *           type: string
+ *           example: "낱말 카테고리 생성 성공"
+ *         data:
+ *           type: object
+ *           properties:
+ *             category:
+ *               $ref: '#/components/schemas/Category'
+ *
+ *     ApiError:
+ *       type: object
+ *       properties:
+ *         success:
+ *           type: boolean
+ *           example: false
+ *         error:
+ *           type: object
+ *           properties:
+ *             code:
+ *               type: string
+ *               example: "BAD_REQUEST"
+ *             message:
+ *               type: string
+ *               example: "categoryName은 필수입니다."
+ *             detail:
+ *               nullable: true
+ *               example: null
+ */
+
+/**
+ * @swagger
+ * /api/categories:
+ *   get:
+ *     tags: [Words - Categories]
+ *     summary: 낱말 카테고리 목록 조회
+ *     description: 사용자(또는 기본) 낱말 카테고리 목록을 조회합니다.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponseCategories'
+ *       401:
+ *         description: 인증 실패
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiError'
+ */
+
+/**
+ * @swagger
+ * /api/categories:
  *   post:
- *     tags: [Category]
- *     summary: PM02 낱말 카테고리 생성
- *     description: |
- *       사용자 정의 낱말 카테고리를 생성합니다.
- *       iconKey 또는 iconUrl 중 하나는 반드시 필요합니다.
+ *     tags: [Words - Categories]
+ *     summary: 낱말 카테고리 생성
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -26,51 +131,46 @@ const router = express.Router();
  *         application/json:
  *           schema:
  *             type: object
- *             required: [name]
+ *             required: [categoryName]
  *             properties:
- *               name:
+ *               categoryName:
  *                 type: string
- *                 example: 즐겨찾기
+ *                 example: "운동"
  *               iconKey:
  *                 type: string
  *                 nullable: true
- *                 example: ICON_STAR
+ *                 example: "icon-run"
  *               iconUrl:
  *                 type: string
  *                 nullable: true
- *                 example: null
+ *                 example: "https://cdn.example.com/run.png"
  *     responses:
  *       201:
- *         description: 카테고리 생성 성공
+ *         description: 생성 성공
  *         content:
  *           application/json:
- *             example:
- *               success: true
- *               data:
- *                 id: uuid
- *                 name: 즐겨찾기
- *                 iconKey: ICON_STAR
- *                 iconUrl: null
- *                 displayOrder: 4
- *                 wordCount: 0
- *               message: 카테고리 생성 성공
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponseCategory'
  *       400:
- *         description: 잘못된 요청 (필수 값 누락 또는 형식 오류)
+ *         description: 요청값 오류
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiError'
  *       401:
  *         description: 인증 실패
- *       409:
- *         description: 중복된 카테고리 이름
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiError'
  */
 
 /**
  * @swagger
- * /api/pm/categories/{id}:
+ * /api/categories/{id}:
  *   patch:
- *     tags: [Category]
- *     summary: PM02 낱말 카테고리 수정
- *     description: |
- *       낱말 카테고리의 이름 또는 아이콘을 수정합니다.
- *       아이콘을 수정하는 경우 iconKey 또는 iconUrl 중 하나는 반드시 필요합니다.
+ *     tags: [Words - Categories]
+ *     summary: 낱말 카테고리 수정
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -79,8 +179,7 @@ const router = express.Router();
  *         required: true
  *         schema:
  *           type: string
- *           format: uuid
- *         description: 수정할 카테고리 ID
+ *         description: 카테고리 ID
  *     requestBody:
  *       required: true
  *       content:
@@ -88,51 +187,50 @@ const router = express.Router();
  *           schema:
  *             type: object
  *             properties:
- *               name:
+ *               categoryName:
  *                 type: string
- *                 example: 최근사용
+ *                 example: "일상"
  *               iconKey:
  *                 type: string
  *                 nullable: true
- *                 example: null
+ *                 example: "icon-home"
  *               iconUrl:
  *                 type: string
  *                 nullable: true
- *                 example: https://cdn.example.com/icons/my.png
+ *                 example: "https://cdn.example.com/home.png"
  *     responses:
  *       200:
- *         description: 카테고리 수정 성공
+ *         description: 수정 성공
  *         content:
  *           application/json:
- *             example:
- *               success: true
- *               data:
- *                 id: uuid
- *                 name: 최근사용
- *                 iconKey: null
- *                 iconUrl: https://cdn.example.com/icons/my.png
- *                 displayOrder: 4
- *                 wordCount: 0
- *               message: 카테고리 수정 성공
+ *             schema:
+ *               $ref: '#/components/schemas/ApiResponseCategory'
  *       400:
- *         description: 잘못된 요청
+ *         description: 요청값 오류
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiError'
  *       401:
  *         description: 인증 실패
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiError'
  *       404:
- *         description: 카테고리를 찾을 수 없음
- *       409:
- *         description: 중복된 카테고리 이름
+ *         description: 대상 없음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiError'
  */
 
 /**
  * @swagger
- * /api/pm/categories/{id}:
+ * /api/categories/{id}:
  *   delete:
- *     tags: [Category]
- *     summary: PM02 낱말 카테고리 삭제
- *     description: |
- *       낱말 카테고리를 삭제합니다.
- *       해당 카테고리에 포함된 사용자 낱말은 모두 함께 삭제됩니다.
+ *     tags: [Words - Categories]
+ *     summary: 낱말 카테고리 삭제
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -141,23 +239,39 @@ const router = express.Router();
  *         required: true
  *         schema:
  *           type: string
- *           format: uuid
- *         description: 삭제할 카테고리 ID
+ *         description: 카테고리 ID
  *     responses:
  *       200:
- *         description: 카테고리 삭제 성공
+ *         description: 삭제 성공
  *         content:
  *           application/json:
- *             example:
- *               success: true
- *               data:
- *                 categoryId: uuid
- *                 deletedWordCount: 13
- *               message: 카테고리 삭제 성공
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "낱말 카테고리 삭제 성공"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       example: "c8a1f2c1-1234-4a5b-9d1e-0f3a9d2f1111"
  *       401:
  *         description: 인증 실패
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiError'
  *       404:
- *         description: 카테고리를 찾을 수 없음
+ *         description: 대상 없음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ApiError'
  */
 
 router.use(authenticate);

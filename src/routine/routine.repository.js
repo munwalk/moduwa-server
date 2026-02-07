@@ -12,16 +12,24 @@ export const findRoutineMessagesByUser = async ({ userId }) => {
 export const createRoutineMessage = async ({
   userId,
   message,
-  daysOfWeek,
   scheduledTime,
+  repeatType,
+  daysOfWeek,
+  daysOfMonth,
+  isMonthEnd,
 }) => {
   return prisma.routineMessage.create({
     data: {
       userId,
       message,
-      daysOfWeek,
       scheduledTime,
       isActive: true,
+      repeatType: repeatType ?? "WEEKLY",
+      daysOfWeek: daysOfWeek ?? null,
+      daysOfMonth: daysOfMonth ?? null,
+      isMonthEnd: !!isMonthEnd,
+      snoozedUntil: null,
+      dismissedUntil: null,
     },
   });
 };

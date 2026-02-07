@@ -7,18 +7,30 @@ const swaggerDefinition = {
     version: "1.0.0",
     description: "모두와 백엔드 API 문서",
   },
-  servers: [{ url: "http://localhost:3000", description: "local" }],
+  servers: [{ url: "http://localhost:3001", description: "local" }],
 
   tags: [
     { name: "Auth", description: "인증/인가 (JWT, OAuth2)" },
-    { name: "AI", description: "AI 관련 API - 문장 추천, 대화 저장, 맥락 조회, 스타일 변환, 문장 편집, 즐겨찾기" },
-    { name: "History", description: "학습 히스토리 관리 - 사용 기록 조회/삭제, 오프라인 낱말 조회" },
+    {
+      name: "AI",
+      description:
+        "AI 관련 API - 문장 추천, 대화 저장, 맥락 조회, 스타일 변환, 문장 편집, 즐겨찾기",
+    },
+    {
+      name: "History",
+      description:
+        "학습 히스토리 관리 - 사용 기록 조회/삭제, 오프라인 낱말 조회",
+    },
     { name: "User", description: "유저 관련 API" },
     { name: "Words", description: "낱말 카드 API" },
-    { name: "PM02", description: "낱말 카테고리 (생성/수정/삭제)" },
-    { name: "PM03", description: "낱말-카테고리 순서 변경" },
-    { name: "PM05", description: "루틴 문장 설정" },
-    { name: "PM06", description: "그리드 커스터마이징" },
+    {
+      name: "Routines - 자동 출력 문장 API",
+      description: "자동 출력 문장(루틴) 관리 + 모달 API",
+    },
+    {
+      name: "Settings - 말하기 화면 설정 API",
+      description: "말하기 화면(그리드) 설정 API",
+    },
   ],
 
   components: {
