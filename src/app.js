@@ -66,7 +66,12 @@ app.use(passport.session());
 app.use(responseHelper);
 
 // +) 라우터 등록
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  swaggerOptions: {
+    persistAuthorization: true,
+    displayRequestDuration: true,
+  }
+}));
 
 // 3. 테스트용 라우트
 
