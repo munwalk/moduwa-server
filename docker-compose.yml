@@ -86,8 +86,8 @@ services:
       KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
       KAKAO_REDIRECT_URI: ${KAKAO_REDIRECT_URI}
       FASTAPI_URL: http://fastapi:8000
-      NODE_ENV: development
-      PORT: 3000
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: ${PORT:-3000}
     ports:
       - "3000:3000"
     volumes:
