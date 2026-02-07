@@ -7,7 +7,8 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "node src/app.js",
-        "dev": "nodemon -e js,json,prisma --exec \"prisma generate && node src/app.js\""
+        "dev": "nodemon -e js,json,prisma --exec \"prisma generate && node src/app.js\"",
+        "seed": "node prisma/seed.js"
     },
     "author": "",
     "license": "ISC",

@@ -97,7 +97,7 @@ export const createUserWithDefaults = async (userData) => {
 /**
  * 게스트 → 소셜 계정 전환 (트랜잭션)
  */
-export const convertGuestToSocial = async (userId, providerData, userData) => {
+export const convertGuestToSocial = async (userId, providerData, userData, agreementsData = []) => {
   return await prisma.$transaction(async (tx) => {
     const user = await tx.user.update({
       where: { id: userId },
@@ -107,6 +107,14 @@ export const convertGuestToSocial = async (userId, providerData, userData) => {
     await tx.userProvider.create({
       data: providerData
     });
+
+    // 약관 동의 저장
+    if (agreementsData.length > 0) {
+      await tx.termsAgreement.createMany({
+        data: agreementsData,
+        skipDuplicates: true
+      });
+    }
 
     return user;
   });

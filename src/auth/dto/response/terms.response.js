@@ -11,21 +11,3 @@ export class TermsResponseDto {
     this.order = terms.order;
   }
 }
-
-/**
- * 약관 동의 응답 DTO 
- */
-export class TermsAgreementResponseDto {
-  constructor(result) {
-    this.user = result.user ? {
-      id: result.user.id,
-      nickname: result.user.nickname,
-      email: result.user.email,
-      accountType: result.user.accountType
-    } : undefined;
-    
-    this.tokens = result.tokens || undefined;
-    this.agreementsCount = result.agreementsCount;
-    this.completedAt = new Date();
-  }
-}

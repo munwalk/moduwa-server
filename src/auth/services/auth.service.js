@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 import * as userRepository from '../repositories/user.repository.js';
 import * as userProviderRepository from '../repositories/userProvider.repository.js';
+import * as termsRepository from '../repositories/terms.repository.js';
 import { generateAccessToken, generateRefreshToken } from './jwt.service.js';
 import { saveRefreshToken } from './token.service.js';
 
@@ -58,11 +59,12 @@ export const socialLogin = async (provider, profile) => {
 };
 
 /**
- * 게스트 → 소셜 계정 전환
+ * 게스트 → 소셜 계정 전환 (약관 동의 포함)
  */
-export const convertGuestToSocial = async (userId, provider, profile) => {
+export const convertGuestToSocial = async (userId, provider, profile, agreements) => {
   const { id: providerUserId, email, nickname } = profile;
 
+  // 1. 사용자 확인
   const user = await userRepository.findUserById(userId);
 
   if (!user) {
@@ -73,12 +75,34 @@ export const convertGuestToSocial = async (userId, provider, profile) => {
     throw new Error('NOT_GUEST_ACCOUNT');
   }
 
+  // 2. 소셜 계정 중복 확인
   const existingProvider = await userProviderRepository.findUserProvider(provider, String(providerUserId));
-  
+
   if (existingProvider) {
     throw new Error('SOCIAL_ACCOUNT_ALREADY_LINKED');
   }
 
+  // 3. 필수 약관 동의 확인
+  const requiredTerms = await termsRepository.findRequiredTerms();
+  const requiredTermsIds = requiredTerms.map(term => term.id);
+
+  const agreedRequiredTermsIds = agreements
+    .filter(ag => ag.isAgreed && requiredTermsIds.includes(ag.termsId))
+    .map(ag => ag.termsId);
+
+  if (agreedRequiredTermsIds.length !== requiredTermsIds.length) {
+    throw new Error('REQUIRED_TERMS_NOT_AGREED');
+  }
+
+  // 4. 약관 동의 데이터 생성
+  const agreementsData = agreements.map(ag => ({
+    userId,
+    termsId: ag.termsId,
+    isAgreed: ag.isAgreed,
+    agreedAt: ag.isAgreed ? new Date() : null
+  }));
+
+  // 5. 계정 전환 + 약관 동의 저장 (트랜잭션)
   const updatedUser = await userRepository.convertGuestToSocial(
     userId,
     {
@@ -90,7 +114,8 @@ export const convertGuestToSocial = async (userId, provider, profile) => {
       accountType: 'SOCIAL',
       email,
       nickname: nickname || user.nickname
-    }
+    },
+    agreementsData
   );
 
   return updatedUser;
