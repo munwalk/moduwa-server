@@ -9,9 +9,9 @@ import { PrismaClient } from "@prisma/client";
 import { initRedis } from "./auth/services/token.service.js";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger/swagger.js";
-import { 
-  AiPredictionTimeoutError, 
-  UnauthorizedError 
+import {
+  AiPredictionTimeoutError,
+  UnauthorizedError
 } from './errors/app.error.js';
 
 // 라우터
@@ -34,7 +34,18 @@ const port = process.env.PORT || 3000;
 const prisma = new PrismaClient();
 
 // 1. 공통 미들웨어
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        // 오디오/비디오 로딩 허용 범위에 blob 추가
+        "media-src": ["'self'", "blob:"],
+        "img-src": ["'self'", "data:", "blob:"],
+      },
+    },
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());

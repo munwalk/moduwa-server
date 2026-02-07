@@ -7,7 +7,7 @@ const swaggerDefinition = {
     version: "1.0.0",
     description: "모두와 백엔드 API 문서",
   },
-  servers: [{ url: "http://localhost:3001", description: "local" }],
+  servers: [{ url: "http://localhost:3000", description: "local" }],
 
   tags: [
     { name: "Auth", description: "인증/인가 (JWT, OAuth2)" },
