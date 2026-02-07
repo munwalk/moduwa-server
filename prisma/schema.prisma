@@ -297,6 +297,7 @@ model ConversationHistory {
   @@index([userId, createdAt(sort: Desc)])
   @@index([userId, isOutputted, isDeleted])  // 출력된 항목만 조회
   @@index([userId, isDeleted, createdAt])    // 삭제 안 된 항목 월별 조회
+  @@index([userId, isDeleted, selectedSentence(length: 255)])  // AI 문장 빈도수 조회 최적화 (countBySelectedSentence)
   @@map("ConversationHistory")
 }
 

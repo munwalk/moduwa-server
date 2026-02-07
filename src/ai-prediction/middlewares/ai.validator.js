@@ -15,9 +15,9 @@ export const validatePredictRequest = (req, res, next) => {
     return next(new ValidationError('낱말 카드를 최소 1개 이상 선택해주세요'));
   }
 
-  // 2. 낱말 카드 범위 검증 (1~15개)
-  if (words.length < 1 || words.length > 15) {
-    return next(new ValidationError('낱말 카드는 최소 1개, 최대 15개까지 선택 가능합니다'));
+  // 2. 낱말 카드 범위 검증 (1~10개)
+  if (words.length < 1 || words.length > 10) {
+    return next(new ValidationError('낱말 카드는 최소 1개, 최대 10개까지 선택 가능합니다'));
   }
 
   // 3. Joi 검증 에러 처리
@@ -42,9 +42,9 @@ export const validateStyleRequest = (req, res, next) => {
     return next(new ValidationError('낱말 카드를 최소 1개 이상 선택해주세요'));
   }
 
-  // 낱말 카드 개수 검증 (최대 15개)
-  if (words.length > 15) {
-    return next(new ValidationError('낱말 카드는 최대 15개까지 선택 가능합니다'));
+  // 낱말 카드 개수 검증 (최대 10개)
+  if (words.length > 10) {
+    return next(new ValidationError('낱말 카드는 최대 10개까지 선택 가능합니다'));
   }
 
   // 어미 선택 카드 검증 (배열, 1~5개)
@@ -58,29 +58,6 @@ export const validateStyleRequest = (req, res, next) => {
 
   if (endingCards.length > 5) {
     return next(new ValidationError('어미 선택 카드는 최대 5개까지 선택 가능합니다'));
-  }
-
-  next();
-};
-
-/**
- * 사용자 선택 문장 저장 요청 검증 미들웨어
- * POST /api/ai/selections
- */
-export const validateSelectionRequest = (req, res, next) => {
-  const { words, suggestedSentences, selectedSentence } = req.body;
-
-  // 필수 값 검증 - 개별적으로 검사
-  if (!words || !Array.isArray(words) || words.length === 0) {
-    return next(new ValidationError('낱말 배열이 필요합니다'));
-  }
-
-  if (!suggestedSentences || !Array.isArray(suggestedSentences)) {
-    return next(new ValidationError('추천 문장 배열이 필요합니다'));
-  }
-
-  if (!selectedSentence || typeof selectedSentence !== 'string') {
-    return next(new ValidationError('선택한 문장이 필요합니다'));
   }
 
   next();

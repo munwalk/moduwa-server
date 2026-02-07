@@ -1,4 +1,5 @@
 import { transformSentenceStyle } from '../services/ai.style.service.js';
+import { rankByLearningData } from '../services/ai.prediction.service.js';
 import { generateCacheKey, getFromCache, saveToCache } from '../../utils/cache.util.js';
 
 /**
@@ -20,6 +21,7 @@ const transformStyleController = async (req, res, next) => {
 
     // 검증된 데이터 추출 (미들웨어에서 이미 검증 완료)
     const { words, endingCards, refresh = false } = req.body;
+    const userId = req.user?.userId; // 인증된 사용자 ID (학습 데이터 가중치 적용용)
 
     // 캐시 조회 (refresh가 false일 때만)
     if (!refresh && words.length > 0 && endingCards.length > 0) {
@@ -27,28 +29,51 @@ const transformStyleController = async (req, res, next) => {
       const cacheKey = generateCacheKey(words, cacheContext, 'styles', endingCards);
       const cached = await getFromCache(cacheKey);
 
-      if (cached) {
+      if (cached?.sentences) {
         console.log('💾 캐시에서 반환');
+
+        // 캐시된 결과에도 사용자별 학습 데이터 가중치 적용
+        const cachedWithConfidence = cached.sentences.map(sentence => ({
+          sentence,
+          confidence: 0.5 // 캐시된 데이터는 기본 confidence 값 사용
+        }));
+        const rankedCached = await rankByLearningData(cachedWithConfidence, userId);
+        const finalSentences = rankedCached.map(pred => pred.sentence);
+
         return res.status(200).success(
-          { ...cached, fromCache: true },
+          {
+            words: cached.words,
+            endingCards: cached.endingCards,
+            sentences: finalSentences,
+            fromCache: true
+          },
           '문장 추천 성공 (캐시)'
         );
       }
     }
 
-    // AI 문장 추천 호출 (refresh 파라미터 전달)
-    console.log('🤖 FastAPI 호출:', { words, endingCards, refresh });
-    const result = await transformSentenceStyle(words, endingCards, refresh);
+    // AI 문장 추천 호출 (userId 전달하여 학습 데이터 가중치 적용)
+    console.log('🤖 FastAPI 호출:', { words, endingCards, refresh, userId });
+    const result = await transformSentenceStyle(words, endingCards, refresh, userId);
 
-    // 캐시 저장
+    // 캐시 저장 (원본 sentences만 저장, 사용자별 가중치 미적용)
     if (words.length > 0 && endingCards.length > 0) {
       const cacheContext = { previousMessages: [] };
       const cacheKey = generateCacheKey(words, cacheContext, 'styles', endingCards);
-      await saveToCache(cacheKey, result, 86400); // 24시간 TTL
+      await saveToCache(cacheKey, {
+        words: result.words,
+        endingCards: result.endingCards,
+        sentences: result.rawSentences // 가중치 미적용 원본
+      }, 86400); // 24시간 TTL
     }
 
     return res.status(200).success(
-      { ...result, fromCache: false },
+      {
+        words: result.words,
+        endingCards: result.endingCards,
+        sentences: result.sentences, // 가중치 적용된 sentences (문자열 배열)
+        fromCache: false
+      },
       '문장 추천 성공'
     );
   } catch (error) {

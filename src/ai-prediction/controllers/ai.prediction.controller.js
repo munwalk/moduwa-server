@@ -27,10 +27,7 @@ const predictController = async (req, res, next) => {
 
         // 캐시된 결과에도 사용자별 학습 데이터 가중치 적용
         const rankedCached = await rankByLearningData(cachedData.predictions, userId);
-        const finalPredictions = rankedCached.map(pred => ({
-          sentence: pred.sentence,
-          confidence: pred.finalScore || pred.confidence
-        }));
+        const finalPredictions = rankedCached.map(pred => pred.sentence);
 
         return res.status(200).success(
           { predictions: finalPredictions, fromCache: true },
@@ -50,13 +47,14 @@ const predictController = async (req, res, next) => {
       await saveToCache(cacheKey, { predictions: result.rawPredictions }, 86400);
     }
 
-    // 응답 반환 (가중치 적용된 predictions)
+    // 응답 반환 (가중치 적용된 predictions, 문자열 배열로 반환)
+    const finalPredictions = result.predictions.map(pred => pred.sentence);
     console.log('✅ 응답 전송:', {
-      predictionsCount: result.predictions.length,
-      size: JSON.stringify(result.predictions).length
+      predictionsCount: finalPredictions.length,
+      size: JSON.stringify(finalPredictions).length
     });
     return res.status(200).success(
-      { predictions: result.predictions, fromCache: false },
+      { predictions: finalPredictions, fromCache: false },
       '문장 추천 성공'
     );
 
