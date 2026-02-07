@@ -6,7 +6,13 @@ export const convertToSocialSchema = Joi.object({
     id: Joi.string().required(),
     email: Joi.string().email().optional().allow(null),
     nickname: Joi.string().optional().allow(null)
-  }).required()
+  }).required(),
+  agreements: Joi.array().items(
+    Joi.object({
+      termsId: Joi.string().uuid().required(),
+      isAgreed: Joi.boolean().required()
+    })
+  ).min(1).required()
 });
 
 export const validate = (data) => {

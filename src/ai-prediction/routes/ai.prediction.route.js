@@ -442,16 +442,216 @@ router.post('/styles', authenticate, validateStyleRequest, transformStyleControl
 // ==========================================
 
 /**
- * @route PATCH /api/ai/conversations/:conversationId
- * @desc AI-02: 대화 문장 편집
- * @access Private (인증 필요)
+ * @swagger
+ * /api/ai/conversations/{conversationId}:
+ *   patch:
+ *     summary: 대화 문장 편집
+ *     description: 저장된 대화 기록의 selectedSentence를 편집하고, AIFeedback 레코드를 생성합니다.
+ *     tags: [AI]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: conversationId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: 대화 기록 ID (중괄호 없이 UUID만 입력)
+ *         example: "be7502ed-61ee-4932-a212-8eaa656a7c36"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - editedSentence
+ *             properties:
+ *               editedSentence:
+ *                 type: string
+ *                 description: 편집된 문장 (빈 문자열 불가)
+ *                 example: "배고파서 밥 먹고 싶습니다"
+ *               editDetails:
+ *                 type: object
+ *                 description: 편집 세부 정보 (선택사항)
+ *                 properties:
+ *                   editType:
+ *                     type: string
+ *                     description: 편집 유형
+ *                     example: "STYLE_CHANGE"
+ *                   changedWords:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                     description: 변경된 단어 목록
+ *                     example: ["싶어요 → 싶습니다"]
+ *     responses:
+ *       200:
+ *         description: 문장 편집 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     conversationId:
+ *                       type: string
+ *                       format: uuid
+ *                       example: "be7502ed-61ee-4932-a212-8eaa656a7c36"
+ *                     originalSentence:
+ *                       type: string
+ *                       example: "배고파서 밥 먹고 싶어요"
+ *                     editedSentence:
+ *                       type: string
+ *                       example: "배고파서 밥 먹고 싶습니다"
+ *                     feedbackId:
+ *                       type: string
+ *                       format: uuid
+ *                       example: "fb-uuid-5678"
+ *                     updatedAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2026-02-07T12:00:00.000Z"
+ *                 message:
+ *                   type: string
+ *                   example: "문장이 성공적으로 편집되었습니다"
+ *       400:
+ *         description: 유효성 검사 실패 또는 변경 없음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               validationError:
+ *                 summary: editedSentence 누락
+ *                 value:
+ *                   success: false
+ *                   error:
+ *                     code: "VALIDATION001"
+ *                     message: "editedSentence이 필요합니다"
+ *               noChange:
+ *                 summary: 변경 사항 없음
+ *                 value:
+ *                   success: false
+ *                   error:
+ *                     code: "AI005"
+ *                     message: "기존 문장과 동일합니다"
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       404:
+ *         description: 대화를 찾을 수 없음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               success: false
+ *               error:
+ *                 code: "AI003"
+ *                 message: "대화를 찾을 수 없습니다"
+ *       410:
+ *         description: 삭제된 대화
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               success: false
+ *               error:
+ *                 code: "AI004"
+ *                 message: "삭제된 대화입니다"
  */
 router.patch('/conversations/:conversationId', authenticate, validateEditRequest, editConversationController);
 
 /**
- * @route GET /api/ai/conversations/:conversationId/history
- * @desc AI-02: 대화 편집 이력 조회
- * @access Private (인증 필요)
+ * @swagger
+ * /api/ai/conversations/{conversationId}/history:
+ *   get:
+ *     summary: 대화 편집 이력 조회
+ *     description: 특정 대화의 편집 이력을 조회합니다. AIFeedback 레코드를 반환합니다.
+ *     tags: [AI]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: conversationId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: 대화 기록 ID
+ *         example: "be7502ed-61ee-4932-a212-8eaa656a7c36"
+ *     responses:
+ *       200:
+ *         description: 편집 이력 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     conversationId:
+ *                       type: string
+ *                       format: uuid
+ *                       example: "be7502ed-61ee-4932-a212-8eaa656a7c36"
+ *                     history:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             format: uuid
+ *                             example: "fb-uuid-1"
+ *                           originalSentence:
+ *                             type: string
+ *                             example: "배고파서 밥 먹고 싶어요"
+ *                           editedSentence:
+ *                             type: string
+ *                             example: "배고파서 밥 먹고 싶습니다"
+ *                           feedbackType:
+ *                             type: string
+ *                             enum: [EDITED, STYLE_CHANGED]
+ *                             example: "EDITED"
+ *                           editDetails:
+ *                             type: object
+ *                             nullable: true
+ *                             example: { "editType": "STYLE_CHANGE", "changedWords": ["싶어요 → 싶습니다"] }
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *                             example: "2026-02-07T12:00:00.000Z"
+ *                 message:
+ *                   type: string
+ *                   example: "편집 이력 조회 성공"
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       404:
+ *         description: 대화를 찾을 수 없음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               success: false
+ *               error:
+ *                 code: "AI003"
+ *                 message: "대화를 찾을 수 없습니다"
  */
 router.get('/conversations/:conversationId/history', authenticate, getEditHistoryController);
 
@@ -460,23 +660,232 @@ router.get('/conversations/:conversationId/history', authenticate, getEditHistor
 // ==========================================
 
 /**
- * @route POST /api/ai/favorites
- * @desc AI-03: 즐겨찾기 추가
- * @access Private (인증 필요)
+ * @swagger
+ * /api/ai/favorites:
+ *   post:
+ *     summary: 즐겨찾기 추가
+ *     description: 문장을 즐겨찾기에 추가합니다. 중복된 문장은 추가할 수 없습니다.
+ *     tags: [AI]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - sentence
+ *               - sentenceSource
+ *             properties:
+ *               sentence:
+ *                 type: string
+ *                 description: 즐겨찾기할 문장 (빈 문자열 불가)
+ *                 example: "배고파서 밥 먹고 싶습니다"
+ *               sentenceSource:
+ *                 type: string
+ *                 enum: [AI_SUGGESTED, USER_TYPED, EDITED]
+ *                 description: 문장 출처 (AI_SUGGESTED | USER_TYPED | EDITED)
+ *                 example: "EDITED"
+ *     responses:
+ *       201:
+ *         description: 즐겨찾기 추가 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       format: uuid
+ *                       example: "fav-uuid-1234"
+ *                     sentence:
+ *                       type: string
+ *                       example: "배고파서 밥 먹고 싶습니다"
+ *                     sentenceSource:
+ *                       type: string
+ *                       enum: [AI_SUGGESTED, USER_TYPED, EDITED]
+ *                       example: "EDITED"
+ *                     createdAt:
+ *                       type: string
+ *                       format: date-time
+ *                       example: "2026-02-07T12:00:00.000Z"
+ *                 message:
+ *                   type: string
+ *                   example: "즐겨찾기에 추가되었습니다"
+ *       400:
+ *         description: 유효성 검사 실패
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             examples:
+ *               noSentence:
+ *                 summary: sentence 누락
+ *                 value:
+ *                   success: false
+ *                   error:
+ *                     code: "VALIDATION001"
+ *                     message: "sentence이 필요합니다"
+ *               invalidSource:
+ *                 summary: sentenceSource 유효하지 않음
+ *                 value:
+ *                   success: false
+ *                   error:
+ *                     code: "VALIDATION001"
+ *                     message: "sentenceSource는 AI_SUGGESTED, USER_TYPED, EDITED 중 하나여야 합니다"
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       409:
+ *         description: 이미 즐겨찾기에 추가된 문장
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               success: false
+ *               error:
+ *                 code: "AI006"
+ *                 message: "이미 즐겨찾기에 추가된 문장입니다"
  */
 router.post('/favorites', authenticate, validateAddFavoriteRequest, addFavoriteController);
 
 /**
- * @route DELETE /api/ai/favorites/:favoriteId
- * @desc AI-03: 즐겨찾기 해제
- * @access Private (인증 필요)
+ * @swagger
+ * /api/ai/favorites/{favoriteId}:
+ *   delete:
+ *     summary: 즐겨찾기 해제
+ *     description: 즐겨찾기에서 문장을 삭제합니다.
+ *     tags: [AI]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: favoriteId
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: 즐겨찾기 ID
+ *         example: "fav-uuid-1234"
+ *     responses:
+ *       200:
+ *         description: 즐겨찾기 해제 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: "null"
+ *                   example: null
+ *                 message:
+ *                   type: string
+ *                   example: "즐겨찾기에서 제거되었습니다"
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       403:
+ *         $ref: '#/components/responses/Forbidden'
+ *       404:
+ *         description: 즐겨찾기를 찾을 수 없음
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *             example:
+ *               success: false
+ *               error:
+ *                 code: "AI007"
+ *                 message: "즐겨찾기를 찾을 수 없습니다"
  */
 router.delete('/favorites/:favoriteId', authenticate, removeFavoriteController);
 
 /**
- * @route GET /api/ai/favorites
- * @desc AI-03: 즐겨찾기 목록 조회
- * @access Private (인증 필요)
+ * @swagger
+ * /api/ai/favorites:
+ *   get:
+ *     summary: 즐겨찾기 목록 조회
+ *     description: 사용자의 즐겨찾기 목록을 조회합니다. limit과 offset으로 페이지네이션을 지원합니다.
+ *     tags: [AI]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *         description: 조회할 개수 (기본값 전체)
+ *         example: 10
+ *       - in: query
+ *         name: offset
+ *         schema:
+ *           type: integer
+ *           minimum: 0
+ *         description: 건너뛸 개수 (기본값 0)
+ *         example: 0
+ *     responses:
+ *       200:
+ *         description: 즐겨찾기 목록 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     favorites:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             format: uuid
+ *                             example: "fav-uuid-1"
+ *                           sentence:
+ *                             type: string
+ *                             example: "배고파서 밥 먹고 싶습니다"
+ *                           sentenceSource:
+ *                             type: string
+ *                             enum: [AI_SUGGESTED, USER_TYPED, EDITED]
+ *                             example: "EDITED"
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *                             example: "2026-02-07T12:00:00.000Z"
+ *                     total:
+ *                       type: integer
+ *                       description: 전체 즐겨찾기 개수
+ *                       example: 15
+ *                     pagination:
+ *                       type: object
+ *                       properties:
+ *                         limit:
+ *                           type: integer
+ *                           example: 10
+ *                         offset:
+ *                           type: integer
+ *                           example: 0
+ *                 message:
+ *                   type: string
+ *                   example: "즐겨찾기 목록 조회 성공"
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
  */
 router.get('/favorites', authenticate, getFavoritesController);
 

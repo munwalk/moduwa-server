@@ -11,7 +11,7 @@ const swaggerDefinition = {
 
   tags: [
     { name: "Auth", description: "인증/인가 (JWT, OAuth2)" },
-    { name: "AI", description: "AI 관련 API - 문장 추천, 대화 저장, 맥락 조회, 스타일 변환" },
+    { name: "AI", description: "AI 관련 API - 문장 추천, 대화 저장, 맥락 조회, 스타일 변환, 문장 편집, 즐겨찾기" },
     { name: "History", description: "학습 히스토리 관리 - 사용 기록 조회/삭제, 오프라인 낱말 조회" },
     { name: "User", description: "유저 관련 API" },
     { name: "Words", description: "낱말 카드 API" },

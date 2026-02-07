@@ -49,7 +49,8 @@ export const convertToSocial = asyncHandler(async (req, res) => {
   const user = await authService.convertGuestToSocial(
     userId,
     validatedData.provider,
-    validatedData.profile
+    validatedData.profile,
+    validatedData.agreements
   );
 
   const responseDto = new ConvertAccountResponseDto(user);
