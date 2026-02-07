@@ -19,14 +19,20 @@ export const getRoutineList = async ({ userId }) => {
 export const createRoutine = async ({
   userId,
   message,
-  daysOfWeek,
   scheduledTime,
+  repeatType,
+  daysOfWeek,
+  daysOfMonth,
+  isMonthEnd,
 }) => {
   const created = await createRoutineMessage({
     userId,
     message,
-    daysOfWeek,
     scheduledTime,
+    repeatType,
+    daysOfWeek,
+    daysOfMonth,
+    isMonthEnd,
   });
 
   return toRoutineDto(created);
@@ -36,13 +42,9 @@ export const createRoutine = async ({
 export const updateRoutine = async ({ routineId, userId, patchData }) => {
   const routine = await findRoutineById({ id: routineId });
 
-  if (!routine) {
-    throw new BaseError("루틴 문장을 찾을 수 없습니다.", 404);
-  }
-
-  if (routine.userId !== userId) {
+  if (!routine) throw new BaseError("루틴 문장을 찾을 수 없습니다.", 404);
+  if (routine.userId !== userId)
     throw new BaseError("수정 권한이 없습니다.", 403);
-  }
 
   const updated = await updateRoutineMessage({
     id: routineId,
