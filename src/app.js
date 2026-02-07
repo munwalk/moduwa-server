@@ -9,9 +9,9 @@ import { PrismaClient } from "@prisma/client";
 import { initRedis } from "./auth/services/token.service.js";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger/swagger.js";
-import { 
-  AiPredictionTimeoutError, 
-  UnauthorizedError 
+import {
+  AiPredictionTimeoutError,
+  UnauthorizedError
 } from './errors/app.error.js';
 
 // 라우터
@@ -48,6 +48,9 @@ if (process.env.NODE_ENV !== 'production') {
   app.use(helmet({
     contentSecurityPolicy: {
       directives: {
+        // 오디오/비디오 로딩 허용 범위에 blob 추가
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        "media-src": ["'self'", "blob:"],
         defaultSrc: ["'self'"],
         styleSrc: ["'self'"],
         scriptSrc: ["'self'"],
