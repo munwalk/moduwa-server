@@ -3,7 +3,8 @@ import {
   findById,
   deleteById,
   deleteAllByUserId,
-  findFrequentWords
+  findFrequentWords,
+  findRecentUsedWords
 } from './history.repository.js';
 import { NotFoundError } from '../errors/app.error.js';
 import { getFromCache, saveToCache } from '../utils/cache.util.js';
@@ -58,4 +59,40 @@ const getOfflineWords = async (userId, limit = 80) => { // 기본값 80
   };
 };
 
-export { getAllHistory, deleteHistory, deleteAllHistory, getOfflineWords };
+// 최근 1주일 이내 사용한 낱말 조회 (시간순)
+const getRecentWords = async (userId) => {
+  // DB에서 최근 1주일 대화 이력 조회
+  const histories = await findRecentUsedWords(userId);
+
+  // 단어 수집 (중복 제거, 시간순 유지)
+  const seenWords = new Set();
+  const recentWords = [];
+
+  for (const history of histories) {
+    const words = typeof history.inputWords === 'string'
+      ? JSON.parse(history.inputWords)
+      : history.inputWords;
+
+    if (Array.isArray(words)) {
+      for (const wordObj of words) {
+        const key = wordObj.word; // 단어 텍스트를 키로 사용
+
+        // 이미 본 단어면 건너뛰기 (최초 사용 시간 기준)
+        if (seenWords.has(key)) {
+          continue;
+        }
+
+        seenWords.add(key);
+        recentWords.push({
+          word: wordObj.word,
+          wordId: wordObj.wordId || null,
+          usedAt: history.createdAt
+        });
+      }
+    }
+  }
+
+  return recentWords;
+};
+
+export { getAllHistory, deleteHistory, deleteAllHistory, getOfflineWords, getRecentWords };

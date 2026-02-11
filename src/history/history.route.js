@@ -3,7 +3,8 @@ import {
   getHistoryController,
   deleteHistoryController,
   deleteAllHistoryController,
-  getOfflineWordsController
+  getOfflineWordsController,
+  getRecentWordsController
 } from './history.controller.js';
 import { authenticate } from '../auth/middlewares/auth.middleware.js';
 
@@ -130,6 +131,64 @@ const router = express.Router();
  *         $ref: '#/components/responses/Unauthorized'
  */
 router.get('/offline-words', authenticate, getOfflineWordsController);
+
+/**
+ * @swagger
+ * /api/histories/recent-words:
+ *   get:
+ *     summary: 최근 사용 낱말 조회
+ *     description: |
+ *       최근 1주일 이내 사용한 낱말을 시간순으로 조회합니다.
+ *       중복된 낱말은 최초 사용 시간 기준으로 한 번만 표시됩니다.
+ *     tags: [History]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: 최근 사용 낱말 조회 성공
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     words:
+ *                       type: array
+ *                       description: 최근 사용한 낱말 목록 (시간순)
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           word:
+ *                             type: string
+ *                             description: 낱말
+ *                             example: "물"
+ *                           wordId:
+ *                             type: string
+ *                             format: uuid
+ *                             nullable: true
+ *                             description: 낱말 ID
+ *                             example: null
+ *                           usedAt:
+ *                             type: string
+ *                             format: date-time
+ *                             description: 사용 시각 (ISO 8601 형식)
+ *                             example: "2026-02-11T10:30:00.000Z"
+ *                     totalCount:
+ *                       type: integer
+ *                       description: 반환된 낱말 개수
+ *                       example: 15
+ *                 message:
+ *                   type: string
+ *                   example: "최근 사용 낱말 조회 성공"
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+router.get('/recent-words', authenticate, getRecentWordsController);
 
 /**
  * @swagger
