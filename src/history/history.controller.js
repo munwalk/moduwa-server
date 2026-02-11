@@ -2,7 +2,8 @@ import {
   getAllHistory,
   deleteHistory,
   deleteAllHistory,
-  getOfflineWords
+  getOfflineWords,
+  getRecentWords
 } from './history.service.js';
 import { ValidationError } from '../errors/app.error.js';
 
@@ -122,9 +123,36 @@ const getOfflineWordsController = async (req, res, next) => {
   }
 };
 
+const getRecentWordsController = async (req, res, next) => {
+  try {
+    const userId = req.user.id || req.user.userId;
+
+    if (!userId) {
+      console.error('❌ [HIS-06] 유저 ID를 찾을 수 없습니다. req.user:', req.user);
+      throw new ValidationError('인증 정보가 올바르지 않습니다');
+    }
+
+    console.log(`🔵 최근 사용 낱말 조회 요청: userId=${userId}`);
+
+    const words = await getRecentWords(userId);
+    console.log(`✅ 최근 사용 낱말 조회 완료: ${words.length}개`);
+
+    return res.status(200).success(
+      {
+        words,
+        totalCount: words.length
+      },
+      '최근 사용 낱말 조회 성공'
+    );
+  } catch (error) {
+    return next(error);
+  }
+};
+
 export {
   getHistoryController,
   deleteHistoryController,
   deleteAllHistoryController,
-  getOfflineWordsController
+  getOfflineWordsController,
+  getRecentWordsController
 };

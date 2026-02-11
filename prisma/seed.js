@@ -256,6 +256,49 @@ async function main() {
 
   console.log(`✅ 대화 이력 생성 완료`);
 
+  // ==========================================
+  // 1주일 이상 지난 대화 이력 생성 (필터링 테스트용)
+  // ==========================================
+  console.log('📅 오래된 대화 이력 생성 중 (1주일 초과)...');
+
+  const tenDaysAgo = new Date(new Date().getTime() - (10 * 24 * 60 * 60 * 1000)); // 10일 전
+  const fifteenDaysAgo = new Date(new Date().getTime() - (15 * 24 * 60 * 60 * 1000)); // 15일 전
+
+  // 10일 전 데이터 (이건 recent-words에서 제외되어야 함)
+  // 최근 데이터에 없는 고유한 단어 사용
+  await prisma.conversationHistory.create({
+    data: {
+      userId: user.id,
+      inputType: 'WORD_ONLY',
+      inputWords: [
+        { wordId: null, word: '오래된단어1', order: 1 },
+        { wordId: null, word: '테스트', order: 2 }
+      ],
+      suggestedSentences: ['오래된단어1 테스트'],
+      selectedSentence: '오래된단어1 테스트',
+      isOutputted: true,
+      createdAt: tenDaysAgo
+    }
+  });
+
+  // 15일 전 데이터 (이것도 recent-words에서 제외되어야 함)
+  await prisma.conversationHistory.create({
+    data: {
+      userId: user.id,
+      inputType: 'WORD_ONLY',
+      inputWords: [
+        { wordId: null, word: '오래된단어2', order: 1 },
+        { wordId: null, word: '검증', order: 2 }
+      ],
+      suggestedSentences: ['오래된단어2 검증'],
+      selectedSentence: '오래된단어2 검증',
+      isOutputted: true,
+      createdAt: fifteenDaysAgo
+    }
+  });
+
+  console.log(`✅ 오래된 대화 이력 2개 생성 완료 (10일 전, 15일 전)`);
+
   console.log('\n🎉 All data seeded successfully!');
 }
 
