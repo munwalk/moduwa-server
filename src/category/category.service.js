@@ -11,9 +11,7 @@ import {
   listUserCategories,
 } from "./category.repository.js";
 
-/* =====================================================
-   카테고리 생성
-===================================================== */
+// 카테고리 생성
 
 export const createCategoryService = async ({
   userId,
@@ -44,17 +42,15 @@ export const createCategoryService = async ({
   return { created, wordCount };
 };
 
-/* =====================================================
-   카테고리 목록 조회
-   - 기본 + 사용자 모두 userCategory에서 조회
-   - isDefault 여부만 다름
-===================================================== */
+// 카테고리 목록 조회
+// - 기본 + 사용자 모두 userCategory에서 조회
+// - isDefault 여부만 다름
 
 export const getCategoryListService = async ({ userId }) => {
-  // 1️⃣ 현재 유저 카테고리 조회
+  // 현재 유저 카테고리 조회
   let categories = await listUserCategories({ userId });
 
-  // 2️⃣ 기본 카테고리가 하나도 없다면 자동 생성
+  // 기본 카테고리가 하나도 없다면 자동 생성
   const hasDefault = categories.some((c) => c.isDefault);
 
   if (!hasDefault) {
@@ -86,7 +82,7 @@ export const getCategoryListService = async ({ userId }) => {
     categories = await listUserCategories({ userId });
   }
 
-  // 3️⃣ wordCount 계산
+  // wordCount 계산
   return Promise.all(
     categories.map(async (c) => {
       let wordCount = 0;
@@ -115,10 +111,8 @@ export const getCategoryListService = async ({ userId }) => {
   );
 };
 
-/* =====================================================
-   카테고리 수정
-   - 기본 카테고리는 이름 수정 금지
-===================================================== */
+// 카테고리 수정
+// - 기본 카테고리는 이름 수정 금지
 
 export const patchCategoryService = async ({
   userId,
@@ -170,10 +164,8 @@ export const patchCategoryService = async ({
   return { updated, wordCount };
 };
 
-/* =====================================================
-   카테고리 삭제
-   - 기본 카테고리 삭제 금지
-===================================================== */
+// 카테고리 삭제
+// - 기본 카테고리 삭제 금지
 
 export const removeCategoryService = async ({ userId, id }) => {
   const existing = await findUserCategoryById({ userId, id });
