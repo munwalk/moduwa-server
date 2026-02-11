@@ -12,6 +12,7 @@ import * as convertToSocialDto from '../dto/request/convertToSocial.dto.js';
 import * as accountController from '../controllers/account.controller.js';
 import * as termsController from '../controllers/terms.controller.js';
 import * as completeSocialSignupDto from '../dto/request/completeSocialSignup.dto.js';
+import * as sdkController from '../controllers/sdk.controller.js';
 // ==========================================
 // 게스트 계정
 // ==========================================
@@ -854,5 +855,243 @@ router.post(
   validate(completeSocialSignupDto),
   termsController.completeSocialSignup
 );
+
+// ==========================================
+// SDK 소셜 로그인 (네이티브 앱용)
+// ==========================================
+
+/**
+ * @swagger
+ * /api/auth/kakao/sdk:
+ *   post:
+ *     summary: 카카오 SDK 로그인 (네이티브 앱)
+ *     description: 카카오 SDK에서 발급받은 accessToken으로 서버 로그인을 처리합니다. 기존 회원이면 토큰 발급, 신규 회원이면 pendingToken 발급 후 약관 동의가 필요합니다.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - kakaoAccessToken
+ *             properties:
+ *               kakaoAccessToken:
+ *                 type: string
+ *                 description: 카카오 SDK에서 발급받은 access token
+ *                 example: "kakao_access_token_..."
+ *     responses:
+ *       200:
+ *         description: 로그인 성공 또는 약관 동의 필요
+ *         content:
+ *           application/json:
+ *             schema:
+ *               oneOf:
+ *                 - description: 기존 회원 - 토큰 발급
+ *                   type: object
+ *                   properties:
+ *                     success:
+ *                       type: boolean
+ *                       example: true
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         user:
+ *                           type: object
+ *                           properties:
+ *                             id:
+ *                               type: string
+ *                             nickname:
+ *                               type: string
+ *                             accountType:
+ *                               type: string
+ *                               example: "SOCIAL"
+ *                         tokens:
+ *                           type: object
+ *                           properties:
+ *                             accessToken:
+ *                               type: string
+ *                             refreshToken:
+ *                               type: string
+ *                             tokenType:
+ *                               type: string
+ *                               example: "Bearer"
+ *                             expiresIn:
+ *                               type: integer
+ *                               example: 3600
+ *                 - description: 신규 회원 - 약관 동의 필요
+ *                   type: object
+ *                   properties:
+ *                     success:
+ *                       type: boolean
+ *                       example: true
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         pendingToken:
+ *                           type: string
+ *                         provider:
+ *                           type: string
+ *                           example: "KAKAO"
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ */
+router.post('/kakao/sdk', sdkController.kakaoSdkLogin);
+
+/**
+ * @swagger
+ * /api/auth/google/sdk:
+ *   post:
+ *     summary: 구글 SDK 로그인 (네이티브 앱)
+ *     description: 구글 Sign-In SDK에서 발급받은 idToken으로 서버 로그인을 처리합니다. 기존 회원이면 토큰 발급, 신규 회원이면 pendingToken 발급 후 약관 동의가 필요합니다.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - idToken
+ *             properties:
+ *               idToken:
+ *                 type: string
+ *                 description: 구글 Sign-In SDK에서 발급받은 ID token
+ *                 example: "eyJhbGci..."
+ *     responses:
+ *       200:
+ *         description: 로그인 성공 또는 약관 동의 필요
+ *         content:
+ *           application/json:
+ *             schema:
+ *               oneOf:
+ *                 - description: 기존 회원 - 토큰 발급
+ *                   type: object
+ *                   properties:
+ *                     success:
+ *                       type: boolean
+ *                       example: true
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         user:
+ *                           type: object
+ *                           properties:
+ *                             id:
+ *                               type: string
+ *                             nickname:
+ *                               type: string
+ *                             accountType:
+ *                               type: string
+ *                               example: "SOCIAL"
+ *                         tokens:
+ *                           type: object
+ *                           properties:
+ *                             accessToken:
+ *                               type: string
+ *                             refreshToken:
+ *                               type: string
+ *                             tokenType:
+ *                               type: string
+ *                               example: "Bearer"
+ *                             expiresIn:
+ *                               type: integer
+ *                               example: 3600
+ *                 - description: 신규 회원 - 약관 동의 필요
+ *                   type: object
+ *                   properties:
+ *                     success:
+ *                       type: boolean
+ *                       example: true
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         pendingToken:
+ *                           type: string
+ *                         provider:
+ *                           type: string
+ *                           example: "GOOGLE"
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ */
+router.post('/google/sdk', sdkController.googleSdkLogin);
+
+/**
+ * @swagger
+ * /api/auth/naver/sdk:
+ *   post:
+ *     summary: 네이버 SDK 로그인 (네이티브 앱)
+ *     description: 네이버 SDK에서 발급받은 accessToken으로 서버 로그인을 처리합니다. 기존 회원이면 토큰 발급, 신규 회원이면 pendingToken 발급 후 약관 동의가 필요합니다.
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - naverAccessToken
+ *             properties:
+ *               naverAccessToken:
+ *                 type: string
+ *                 description: 네이버 SDK에서 발급받은 access token
+ *                 example: "naver_access_token_..."
+ *     responses:
+ *       200:
+ *         description: 로그인 성공 또는 약관 동의 필요
+ *         content:
+ *           application/json:
+ *             schema:
+ *               oneOf:
+ *                 - description: 기존 회원 - 토큰 발급
+ *                   type: object
+ *                   properties:
+ *                     success:
+ *                       type: boolean
+ *                       example: true
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         user:
+ *                           type: object
+ *                           properties:
+ *                             id:
+ *                               type: string
+ *                             nickname:
+ *                               type: string
+ *                             accountType:
+ *                               type: string
+ *                               example: "SOCIAL"
+ *                         tokens:
+ *                           type: object
+ *                           properties:
+ *                             accessToken:
+ *                               type: string
+ *                             refreshToken:
+ *                               type: string
+ *                             tokenType:
+ *                               type: string
+ *                               example: "Bearer"
+ *                             expiresIn:
+ *                               type: integer
+ *                               example: 3600
+ *                 - description: 신규 회원 - 약관 동의 필요
+ *                   type: object
+ *                   properties:
+ *                     success:
+ *                       type: boolean
+ *                       example: true
+ *                     data:
+ *                       type: object
+ *                       properties:
+ *                         pendingToken:
+ *                           type: string
+ *                         provider:
+ *                           type: string
+ *                           example: "NAVER"
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ */
+router.post('/naver/sdk', sdkController.naverSdkLogin);
 
 export default router;

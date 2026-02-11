@@ -2,7 +2,6 @@ import asyncHandler from '../../common/utils/asyncHandler.js';
 import * as termsService from '../services/terms.service.js';
 import { successResponse } from '../../common/utils/response.js';
 import { TermsResponseDto } from '../dto/response/terms.response.js';
-import { setRefreshTokenCookie } from '../../utils/cookie.helper.js';
 import { ValidationError } from '../../errors/app.error.js';
 
 /**
@@ -29,12 +28,6 @@ export const completeSocialSignup = asyncHandler(async (req, res) => {
 
   const result = await termsService.completeSocialSignupWithTerms(pendingToken, agreements);
 
-  // refreshToken은 httpOnly 쿠키로 설정
-  if (result.tokens) {
-    setRefreshTokenCookie(res, result.tokens.refreshToken);
-  }
-
-  // 응답에는 accessToken만 포함
   const responseDto = {
     user: {
       id: result.user.id,
@@ -44,6 +37,7 @@ export const completeSocialSignup = asyncHandler(async (req, res) => {
     },
     tokens: {
       accessToken: result.tokens.accessToken,
+      refreshToken: result.tokens.refreshToken,
       tokenType: 'Bearer',
       expiresIn: result.tokens.expiresIn
     },
