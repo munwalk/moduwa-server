@@ -11,10 +11,11 @@ import { setRefreshTokenCookie } from '../../utils/cookie.helper.js';
  */
 export const kakaoCallback = asyncHandler(async (req, res) => {
   passport.authenticate('kakao', { session: false }, async (err, profile) => {
+    const appDeepLink = process.env.APP_DEEP_LINK;
     try {
       if (err || !profile) {
         console.error('Kakao auth error:', err);
-        return res.redirect(`${process.env.CORS_ORIGIN}/login?error=kakao_auth_failed`);
+        return res.redirect(`${appDeepLink}://login?error=kakao_auth_failed`);
       }
 
       // 기존 회원인지 확인
@@ -28,8 +29,8 @@ export const kakaoCallback = asyncHandler(async (req, res) => {
         // refreshToken은 httpOnly 쿠키로 설정
         setRefreshTokenCookie(res, responseDto.tokens.refreshToken);
 
-        // accessToken과 userId만 URL로 전달
-        const redirectUrl = `${process.env.CORS_ORIGIN}/auth/callback?` +
+        // 앱 딥링크로 accessToken과 userId 전달
+        const redirectUrl = `${appDeepLink}://auth/callback?` +
           `accessToken=${responseDto.tokens.accessToken}&` +
           `userId=${responseDto.user.id}`;
 
@@ -39,7 +40,7 @@ export const kakaoCallback = asyncHandler(async (req, res) => {
         // 임시 토큰 생성 (5분 유효)
         const pendingToken = await savePendingSignup('KAKAO', profile);
 
-        const redirectUrl = `${process.env.CORS_ORIGIN}/terms?` +
+        const redirectUrl = `${appDeepLink}://terms?` +
           `pendingToken=${pendingToken}&` +
           `provider=KAKAO`;
 
@@ -47,7 +48,7 @@ export const kakaoCallback = asyncHandler(async (req, res) => {
       }
     } catch (error) {
       console.error('Kakao login error:', error);
-      return res.redirect(`${process.env.CORS_ORIGIN}/login?error=login_failed`);
+      return res.redirect(`${appDeepLink}://login?error=login_failed`);
     }
   })(req, res);
 });
@@ -57,10 +58,11 @@ export const kakaoCallback = asyncHandler(async (req, res) => {
  */
 export const googleCallback = asyncHandler(async (req, res) => {
   passport.authenticate('google', { session: false }, async (err, profile) => {
+    const appDeepLink = process.env.APP_DEEP_LINK;
     try {
       if (err || !profile) {
         console.error('Google auth error:', err);
-        return res.redirect(`${process.env.CORS_ORIGIN}/login?error=google_auth_failed`);
+        return res.redirect(`${appDeepLink}://login?error=google_auth_failed`);
       }
 
       const existingUser = await authService.checkExistingUser('GOOGLE', profile.id);
@@ -69,11 +71,9 @@ export const googleCallback = asyncHandler(async (req, res) => {
         const result = await authService.loginExistingUser(existingUser);
         const responseDto = new AuthResponseDto(result.user, result.tokens);
 
-        // refreshToken은 httpOnly 쿠키로 설정
         setRefreshTokenCookie(res, responseDto.tokens.refreshToken);
 
-        // accessToken과 userId만 URL로 전달
-        const redirectUrl = `${process.env.CORS_ORIGIN}/auth/callback?` +
+        const redirectUrl = `${appDeepLink}://auth/callback?` +
           `accessToken=${responseDto.tokens.accessToken}&` +
           `userId=${responseDto.user.id}`;
 
@@ -81,7 +81,7 @@ export const googleCallback = asyncHandler(async (req, res) => {
       } else {
         const pendingToken = await savePendingSignup('GOOGLE', profile);
 
-        const redirectUrl = `${process.env.CORS_ORIGIN}/terms?` +
+        const redirectUrl = `${appDeepLink}://terms?` +
           `pendingToken=${pendingToken}&` +
           `provider=GOOGLE`;
 
@@ -89,7 +89,7 @@ export const googleCallback = asyncHandler(async (req, res) => {
       }
     } catch (error) {
       console.error('Google login error:', error);
-      return res.redirect(`${process.env.CORS_ORIGIN}/login?error=login_failed`);
+      return res.redirect(`${appDeepLink}://login?error=login_failed`);
     }
   })(req, res);
 });
@@ -99,10 +99,11 @@ export const googleCallback = asyncHandler(async (req, res) => {
  */
 export const naverCallback = asyncHandler(async (req, res) => {
   passport.authenticate('naver', { session: false }, async (err, profile) => {
+    const appDeepLink = process.env.APP_DEEP_LINK;
     try {
       if (err || !profile) {
         console.error('Naver auth error:', err);
-        return res.redirect(`${process.env.CORS_ORIGIN}/login?error=naver_auth_failed`);
+        return res.redirect(`${appDeepLink}://login?error=naver_auth_failed`);
       }
 
       const existingUser = await authService.checkExistingUser('NAVER', profile.id);
@@ -111,11 +112,9 @@ export const naverCallback = asyncHandler(async (req, res) => {
         const result = await authService.loginExistingUser(existingUser);
         const responseDto = new AuthResponseDto(result.user, result.tokens);
 
-        // refreshToken은 httpOnly 쿠키로 설정
         setRefreshTokenCookie(res, responseDto.tokens.refreshToken);
 
-        // accessToken과 userId만 URL로 전달
-        const redirectUrl = `${process.env.CORS_ORIGIN}/auth/callback?` +
+        const redirectUrl = `${appDeepLink}://auth/callback?` +
           `accessToken=${responseDto.tokens.accessToken}&` +
           `userId=${responseDto.user.id}`;
 
@@ -123,7 +122,7 @@ export const naverCallback = asyncHandler(async (req, res) => {
       } else {
         const pendingToken = await savePendingSignup('NAVER', profile);
 
-        const redirectUrl = `${process.env.CORS_ORIGIN}/terms?` +
+        const redirectUrl = `${appDeepLink}://terms?` +
           `pendingToken=${pendingToken}&` +
           `provider=NAVER`;
 
@@ -131,7 +130,7 @@ export const naverCallback = asyncHandler(async (req, res) => {
       }
     } catch (error) {
       console.error('Naver login error:', error);
-      return res.redirect(`${process.env.CORS_ORIGIN}/login?error=login_failed`);
+      return res.redirect(`${appDeepLink}://login?error=login_failed`);
     }
   })(req, res);
 });
