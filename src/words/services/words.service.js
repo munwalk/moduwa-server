@@ -80,6 +80,7 @@ export class WordsService {
           wordCards.push(new WordCardResponseDto({
             cardId: word.id, // Word.id
             categoryId: word.categoryId,
+            categoryName: word.category?.categoryName,
             partOfSpeech: word.partOfSpeech,
             word: word.word,
             imageUrl: word.imageUrl,
@@ -104,10 +105,12 @@ export class WordsService {
       
       // categoryId 결정: userCategoryId 우선, 없으면 categoryId
       const cardCategoryId = uw.userCategoryId || uw.categoryId;
+      const cardCategoryName = uw.userCategory?.categoryName || uw.category?.categoryName;
 
       wordCards.push(new WordCardResponseDto({
         cardId: uw.id, // UserWord.id
         categoryId: cardCategoryId,
+        categoryName: cardCategoryName,
         partOfSpeech: uw.partOfSpeech,
         word: displayWord,
         imageUrl: displayImageUrl,
@@ -161,15 +164,19 @@ export class WordsService {
       partOfSpeech
     );
 
+    // 4. 생성된 UserWord 다시 조회 (category 정보 포함)
+    const userWordWithCategory = await wordsRepository.findUserWordById(createdUserWord.id);
+
     return new WordCardResponseDto({
-      cardId: createdUserWord.id,
-      categoryId: createdUserWord.userCategoryId || createdUserWord.categoryId,
-      partOfSpeech: createdUserWord.partOfSpeech,
-      word: createdUserWord.customWord,
-      imageUrl: createdUserWord.customImageUrl,
+      cardId: userWordWithCategory.id,
+      categoryId: userWordWithCategory.userCategoryId || userWordWithCategory.categoryId,
+      categoryName: userWordWithCategory.userCategory?.categoryName || userWordWithCategory.category?.categoryName,
+      partOfSpeech: userWordWithCategory.partOfSpeech,
+      word: userWordWithCategory.customWord,
+      imageUrl: userWordWithCategory.customImageUrl,
       isDefault: false,
-      isFavorite: createdUserWord.isFavorite,
-      displayOrder: createdUserWord.displayOrder
+      isFavorite: userWordWithCategory.isFavorite,
+      displayOrder: userWordWithCategory.displayOrder
     });
   }
 
@@ -250,6 +257,7 @@ export class WordsService {
       return new WordCardResponseDto({
         cardId: updatedUserWord.id,
         categoryId: updatedUserWord.userCategoryId || updatedUserWord.categoryId,
+        categoryName: updatedUserWord.userCategory?.categoryName || updatedUserWord.category?.categoryName,
         partOfSpeech: updatedUserWord.partOfSpeech,
         word: displayWord,
         imageUrl: displayImageUrl,
@@ -285,6 +293,7 @@ export class WordsService {
       return new WordCardResponseDto({
         cardId: newUserWord.id,
         categoryId: newUserWord.categoryId,
+        categoryName: newUserWord.category?.categoryName,
         partOfSpeech: newUserWord.partOfSpeech,
         word: displayWord,
         imageUrl: displayImageUrl,
