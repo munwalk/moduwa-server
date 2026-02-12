@@ -1,6 +1,23 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
+// 기본 카테고리
+
+export const listDefaultCategories = async () => {
+  return prisma.category.findMany({
+    where: { isDefault: true },
+    orderBy: { displayOrder: "asc" },
+  });
+};
+
+export const countDefaultWordsInCategory = async ({ categoryId }) => {
+  return prisma.word.count({
+    where: { categoryId },
+  });
+};
+
+// 사용자 카테고리
+
 export const getNextDisplayOrder = async ({ userId }) => {
   const max = await prisma.userCategory.aggregate({
     where: { userId },
@@ -29,7 +46,12 @@ export const createUserCategory = async ({
   iconKey,
   iconUrl,
 }) => {
-  const displayOrder = await getNextDisplayOrder({ userId });
+  const maxOrder = await prisma.userCategory.aggregate({
+    where: { userId },
+    _max: { displayOrder: true },
+  });
+
+  const nextOrder = (maxOrder._max.displayOrder ?? -1) + 1;
 
   return prisma.userCategory.create({
     data: {
@@ -37,7 +59,8 @@ export const createUserCategory = async ({
       categoryName,
       iconKey,
       iconUrl,
-      displayOrder,
+      displayOrder: nextOrder,
+      isDefault: false,
     },
   });
 };

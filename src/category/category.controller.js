@@ -14,6 +14,7 @@ import {
 export const getCategories = async (req, res, next) => {
   try {
     const userId = req.user?.userId;
+
     if (!userId) throw new BaseError("인증이 필요합니다", 401, "AUTH001");
 
     const items = await getCategoryListService({ userId });

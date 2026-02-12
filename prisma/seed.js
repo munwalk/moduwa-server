@@ -1,9 +1,9 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Seeding database...');
+  console.log("🌱 Seeding database...");
 
   // 기존 약관 삭제
   await prisma.termsAgreement.deleteMany({});
@@ -18,13 +18,13 @@ async function main() {
   // ==========================================
   // 약관 데이터 생성
   // ==========================================
-  console.log('📜 약관 생성 중...');
+  console.log("📜 약관 생성 중...");
 
   const terms = await prisma.terms.createMany({
     data: [
       {
-        id: '550e8400-e29b-41d4-a716-446655440001',
-        title: '서비스 이용약관',
+        id: "550e8400-e29b-41d4-a716-446655440001",
+        title: "서비스 이용약관",
         content: `제1조 (목적)
 본 약관은 '모두와 AAC'(이하 '서비스')가 제공하는 AI 기반 의사소통 보조 서비스 및 관련 제반 서비스의 이용과 관련하여, 서비스와 회원 간의 권리, 의무 및 책임 사항, 기타 필요한 사항을 규정함을 목적으로 합니다.
 
@@ -63,14 +63,14 @@ async function main() {
 
 제8조 (개인정보 보호)
 서비스는 회원의 개인정보를 보호하기 위해 관련 법령을 준수하며, 상세한 사항은 '개인정보 처리방침'에 따릅니다.`,
-        version: '1.0',
+        version: "1.0",
         isRequired: true,
         isActive: true,
-        order: 1
+        order: 1,
       },
       {
-        id: '550e8400-e29b-41d4-a716-446655440002',
-        title: '개인정보 처리방침',
+        id: "550e8400-e29b-41d4-a716-446655440002",
+        title: "개인정보 처리방침",
         content: `제1조 (개인정보의 처리 목적)
 '모두와 AAC'(이하 '서비스')는 다음의 목적을 위하여 개인정보를 처리합니다. 처리하고 있는 개인정보는 다음의 목적 이외의 용도로는 이용되지 않으며, 이용 목적이 변경되는 경우에는 별도의 동의를 받는 등 필요한 조치를 이행할 예정입니다.
 1. 회원 가입 및 관리: 회원 가입 의사 확인, 본인 식별·인증, 회원자격 유지·관리, 서비스 부정 이용 방지.
@@ -104,14 +104,14 @@ async function main() {
 
 제7조 (이용자의 권리와 행사 방법)
 이용자는 언제든지 자신의 개인정보를 조회하거나 수정할 수 있으며, 회원 탈퇴를 통해 개인정보 주체로서의 권리를 행사할 수 있습니다.`,
-        version: '1.0',
+        version: "1.0",
         isRequired: true,
         isActive: true,
-        order: 2
+        order: 2,
       },
       {
-        id: '550e8400-e29b-41d4-a716-446655440003',
-        title: '마케팅 정보 수신 동의 (선택)',
+        id: "550e8400-e29b-41d4-a716-446655440003",
+        title: "마케팅 정보 수신 동의 (선택)",
         content: `제1조 (목적)
 모두와의 신규 서비스, 이벤트 정보를 이메일 또는 푸시 알림으로 제공받을 수 있습니다.
 
@@ -122,12 +122,12 @@ async function main() {
 
 제3조 (철회)
 마이페이지에서 언제든지 수신 동의를 철회할 수 있습니다.`,
-        version: '1.0',
+        version: "1.0",
         isRequired: false,
         isActive: true,
-        order: 3
-      }
-    ]
+        order: 3,
+      },
+    ],
   });
 
   console.log(`✅ 약관 ${terms.count}개 생성 완료`);
@@ -135,56 +135,86 @@ async function main() {
   // ==========================================
   // 테스트용 사용자 생성
   // ==========================================
-  console.log('👤 테스트 사용자 생성 중...');
+  console.log("👤 테스트 사용자 생성 중...");
 
-  const TEST_USER_ID = 'test-user-uuid-0001';
+  const TEST_USER_ID = "test-user-uuid-0001";
 
   const user = await prisma.user.upsert({
     where: { id: TEST_USER_ID },
-    update: { nickname: '테스트유저' },
+    update: { nickname: "테스트유저" },
     create: {
       id: TEST_USER_ID,
-      nickname: '테스트유저',
-      email: 'test@moduwa.com',
-      accountType: 'SOCIAL'
-    }
+      nickname: "테스트유저",
+      email: "test@moduwa.com",
+      accountType: "SOCIAL",
+    },
   });
   console.log(`✅ 테스트 사용자 설정 완료: ${user.nickname}`);
 
-  // ==========================================
-  // 카테고리 데이터 생성
-  // ==========================================
-  console.log('📁 카테고리 생성 중...');
+  /* =====================================================
+     기본 카테고리 (category 테이블용)
+     ⚠ userCategory에는 넣지 않음
+  ===================================================== */
 
-  const categories = await Promise.all([
-    prisma.category.create({ data: { categoryName: '인사', displayOrder: 1 } }),
-    prisma.category.create({ data: { categoryName: '음식', displayOrder: 2 } }),
-    prisma.category.create({ data: { categoryName: '장소', displayOrder: 3 } }),
-    prisma.category.create({ data: { categoryName: '감정', displayOrder: 4 } })
-  ]);
+  console.log("📁 기본 카테고리 생성 중...");
 
-  console.log(`✅ 카테고리 ${categories.length}개 생성 완료`);
+  const defaultCategoryNames = [
+    "최근사용",
+    "즐겨찾기",
+    "기본",
+    "사람",
+    "행동",
+    "감정",
+    "음식",
+    "장소",
+    "신체",
+  ];
+
+  const createdCategories = [];
+
+  for (let i = 0; i < defaultCategoryNames.length; i++) {
+    const category = await prisma.category.create({
+      data: {
+        categoryName: defaultCategoryNames[i],
+        displayOrder: i,
+        isDefault: true,
+      },
+    });
+
+    createdCategories.push(category);
+  }
+
+  console.log("✅ 기본 카테고리 9개 생성 완료");
+
+  // const categories = await Promise.all([
+  //   prisma.category.create({ data: { categoryName: "인사", displayOrder: 1 } }),
+  //   prisma.category.create({ data: { categoryName: "음식", displayOrder: 2 } }),
+  //   prisma.category.create({ data: { categoryName: "장소", displayOrder: 3 } }),
+  //   prisma.category.create({ data: { categoryName: "감정", displayOrder: 4 } }),
+  // ]);
+
+  // console.log(`✅ 카테고리 ${categories.length}개 생성 완료`);
 
   // ==========================================
   // 기본 낱말 데이터 (Word 테이블)
   // ==========================================
-  console.log('📝 낱말 데이터 생성 중...');
+  console.log("📝 낱말 데이터 생성 중...");
 
   const wordData = [
-    { word: '물', catIdx: 1, pos: 'NOUN' },
-    { word: '밥', catIdx: 1, pos: 'NOUN' },
-    { word: '사과', catIdx: 1, pos: 'NOUN' },
-    { word: '화장실', catIdx: 2, pos: 'NOUN' },
-    { word: '학교', catIdx: 2, pos: 'NOUN' },
-    { word: '집', catIdx: 2, pos: 'NOUN' },
-    { word: '안녕', catIdx: 0, pos: 'NOUN' },
-    { word: '도움', catIdx: 0, pos: 'NOUN' },
-    { word: '아프다', catIdx: 3, pos: 'ADJECTIVE' },
-    { word: '좋다', catIdx: 3, pos: 'ADJECTIVE' },
-    { word: '먹다', catIdx: 1, pos: 'VERB' },
-    { word: '가다', catIdx: 2, pos: 'VERB' },
-    { word: '주세요', catIdx: 0, pos: 'VERB' },
-    { word: '졸리다', catIdx: 3, pos: 'ADJECTIVE' }
+    { word: "물", catIdx: 1, pos: "NOUN" },
+    { word: "밥", catIdx: 1, pos: "NOUN" },
+    { word: "사과", catIdx: 1, pos: "NOUN" },
+    { word: "화장실", catIdx: 2, pos: "NOUN" },
+    { word: "학교", catIdx: 2, pos: "NOUN" },
+    { word: "집", catIdx: 2, pos: "NOUN" },
+    { word: "안녕", catIdx: 0, pos: "NOUN" },
+    { word: "도움", catIdx: 0, pos: "NOUN" },
+    { word: "아프다", catIdx: 3, pos: "ADJECTIVE" },
+    { word: "좋다", catIdx: 3, pos: "ADJECTIVE" },
+    { word: "먹다", catIdx: 1, pos: "VERB" },
+    { word: "가다", catIdx: 2, pos: "VERB" },
+    { word: "주세요", catIdx: 0, pos: "VERB" },
+    { word: "졸리다", catIdx: 3, pos: "ADJECTIVE" },
   ];
 
   const createdWords = [];
@@ -192,11 +222,11 @@ async function main() {
     const w = await prisma.word.create({
       data: {
         word: item.word,
-        categoryId: categories[item.catIdx].id,
+        categoryId: createdCategories[item.catIdx].id,
         partOfSpeech: item.pos,
         imageUrl: `https://api.moduwa.com/images/${item.word}.png`,
-        isDefault: true
-      }
+        isDefault: true,
+      },
     });
     createdWords.push(w);
   }
@@ -206,7 +236,7 @@ async function main() {
   // ==========================================
   // 즐겨찾기(Favorites) 데이터 생성
   // ==========================================
-  console.log('⭐️ 즐겨찾기 설정 중...');
+  console.log("⭐️ 즐겨찾기 설정 중...");
 
   const favIndices = [0, 3, 6]; // '물', '화장실', '안녕'
 
@@ -220,8 +250,8 @@ async function main() {
         isFavorite: true,
         isDeleted: false,
         partOfSpeech: createdWords[idx].partOfSpeech,
-        displayOrder: i + 1
-      }
+        displayOrder: i + 1,
+      },
     });
   }
 
@@ -230,7 +260,7 @@ async function main() {
   // ==========================================
   // 대화 이력 생성 (빈도수 테스트용)
   // ==========================================
-  console.log('💬 대화 이력 생성 중...');
+  console.log("💬 대화 이력 생성 중...");
 
   for (let i = 0; i < createdWords.length; i++) {
     const targetWord = createdWords[i];
@@ -240,16 +270,16 @@ async function main() {
       await prisma.conversationHistory.create({
         data: {
           userId: user.id,
-          inputType: 'WORD_ONLY',
+          inputType: "WORD_ONLY",
           inputWords: [
             { wordId: targetWord.id, word: targetWord.word, order: 1 },
-            { wordId: createdWords[12].id, word: '주세요', order: 2 }
+            { wordId: createdWords[12].id, word: "주세요", order: 2 },
           ],
           suggestedSentences: [`${targetWord.word} 주세요`],
           selectedSentence: `${targetWord.word} 주세요`,
           isOutputted: true,
-          createdAt: new Date(new Date().getTime() - (i * 60000))
-        }
+          createdAt: new Date(new Date().getTime() - i * 60000),
+        },
       });
     }
   }
@@ -304,7 +334,7 @@ async function main() {
 
 main()
   .catch((e) => {
-    console.error('❌ Seed error:', e);
+    console.error("❌ Seed error:", e);
     process.exit(1);
   })
   .finally(async () => {
