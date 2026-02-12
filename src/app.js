@@ -9,9 +9,9 @@ import { PrismaClient } from "@prisma/client";
 import { initRedis } from "./auth/services/token.service.js";
 import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger/swagger.js";
-import { 
-  AiPredictionTimeoutError, 
-  UnauthorizedError 
+import {
+  AiPredictionTimeoutError,
+  UnauthorizedError
 } from './errors/app.error.js';
 
 // 라우터
@@ -34,7 +34,32 @@ const port = process.env.PORT || 3000;
 const prisma = new PrismaClient();
 
 // 1. 공통 미들웨어
-app.use(helmet());
+// Helmet 설정: 환경별로 다른 보안 정책 적용
+if (process.env.NODE_ENV !== 'production') {
+  // 개발 환경: Swagger UI를 위해 보안 정책 완화
+  app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    crossOriginOpenerPolicy: false,
+    crossOriginResourcePolicy: false,
+  }));
+} else {
+  // 프로덕션 환경: 엄격한 CSP 적용
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        // 오디오/비디오 로딩 허용 범위에 blob 추가
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        "media-src": ["'self'", "blob:"],
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'"],
+      },
+    },
+  }));
+}
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -66,7 +91,16 @@ app.use(passport.session());
 app.use(responseHelper);
 
 // +) 라우터 등록
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Swagger UI: 개발/스테이징에서만 활성화 (프로덕션에서는 보안을 위해 비활성화)
+if (process.env.NODE_ENV !== 'production') {
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    swaggerOptions: {
+      persistAuthorization: true,
+      displayRequestDuration: true,
+    }
+  }));
+  console.log('📚 Swagger UI: http://localhost:3000/api-docs');
+}
 
 // 3. 테스트용 라우트
 

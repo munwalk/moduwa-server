@@ -7,7 +7,10 @@ const swaggerDefinition = {
     version: "1.0.0",
     description: "모두와 백엔드 API 문서",
   },
-  servers: [{ url: "http://localhost:3001", description: "local" }],
+  servers: [
+    { url: "http://localhost:3000", description: "Local" },
+    { url: "http://52.78.164.88:3000", description: "Development Server" }
+  ],
 
   tags: [
     { name: "Auth", description: "인증/인가 (JWT, OAuth2)" },
@@ -21,7 +24,6 @@ const swaggerDefinition = {
       description:
         "학습 히스토리 관리 - 사용 기록 조회/삭제, 오프라인 낱말 조회",
     },
-    { name: "User", description: "유저 관련 API" },
     { name: "Words", description: "낱말 카드 API" },
     {
       name: "Routines - 자동 출력 문장 API",

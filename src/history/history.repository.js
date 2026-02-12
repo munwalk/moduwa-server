@@ -197,3 +197,20 @@ export const findFrequentWords = async (userId, frequentLimit = 80) => {
     return new Date(b.lastUsedAt) - new Date(a.lastUsedAt);
   });
 };
+
+// HIS-06: 최근 1주일 이내 사용한 낱말 조회 (시간순)
+export const findRecentUsedWords = async (userId) => {
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+
+  return await prisma.conversationHistory.findMany({
+    where: {
+      userId,
+      isDeleted: false,
+      inputWords: { not: prisma.DbNull },
+      createdAt: { gte: oneWeekAgo }
+    },
+    select: { inputWords: true, createdAt: true },
+    orderBy: { createdAt: 'desc' }
+  });
+};

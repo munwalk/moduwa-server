@@ -115,6 +115,7 @@ export class WordCardResponseDto {
   constructor({
     cardId,
     categoryId,
+    categoryName,
     partOfSpeech,
     word,
     imageUrl,
@@ -124,6 +125,7 @@ export class WordCardResponseDto {
   }) {
     this.cardId = cardId;
     this.categoryId = categoryId;
+    this.categoryName = categoryName;
     this.partOfSpeech = partOfSpeech;
     this.word = word;
     this.imageUrl = imageUrl;
