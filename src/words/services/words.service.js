@@ -354,26 +354,41 @@ export class WordsService {
       }
     }
 
-
     // 2. 기본 Word 참조가 있으면 스냅샷 생성 (아직 생성되지 않은 것만)
+    let createdUserWords = [];
     if (baseWordIds.length > 0) {
       const snapshotCount = await wordsRepository.countUserWordReferences(userId, categoryId);
       if (snapshotCount === 0) {
         // 스냅샷이 없으면 생성
-        await wordsRepository.createSnapshotFromWords(userId, categoryId);
+        createdUserWords = await wordsRepository.createSnapshotFromWords(userId, categoryId);
       }
     }
 
-    // 3. 업데이트할 displayOrder 목록 작성
-    const updates = orderedCardIds.map((cardId, index) => {
-      // 최종적으로 모든 cardId는 UserWord여야 함
-      return { userWordId: cardId, displayOrder: index };
+    // 3. Word.id를 UserWord.id로 매핑 (스냅샷이 생성된 경우)
+    const wordIdToUserWordIdMap = new Map();
+    if (createdUserWords.length > 0) {
+      createdUserWords.forEach(uw => {
+        if (uw.wordId) {
+          wordIdToUserWordIdMap.set(uw.wordId, uw.id);
+        }
+      });
+    }
+
+    // 4. orderedCardIds를 UserWord.id로 변환
+    const finalOrderedCardIds = orderedCardIds.map(cardId => {
+      // 이미 UserWord.id면 그대로, Word.id면 변환된 UserWord.id 사용
+      return wordIdToUserWordIdMap.get(cardId) || cardId;
     });
 
-    // 4. 대량 업데이트
+    // 5. 업데이트할 displayOrder 목록 작성
+    const updates = finalOrderedCardIds.map((userWordId, index) => {
+      return { userWordId, displayOrder: index };
+    });
+
+    // 6. 대량 업데이트
     await wordsRepository.bulkUpdateDisplayOrders(updates);
 
-    // 5. 변경된 낱말 목록 반환
+    // 7. 변경된 낱말 목록 반환
     const reorderedWords = await this.getWords(userId, categoryId, false);
     return reorderedWords.words;
   }
