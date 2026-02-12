@@ -8,13 +8,38 @@ const prisma = new PrismaClient();
 export class WordsRepository {
   /**
    * 기본 낱말(Word) 조회
-   * @param {string|null} categoryId - Category.id
+   * @param {string|null} categoryId - Category.id 또는 UserCategory.id
+   * @param {string|null} userId - 사용자 ID (UserCategory 조회용)
    * @returns {Promise<Array>}
    */
-  async findWords(categoryId = null) {
+  async findWords(categoryId = null, userId = null) {
     const where = { isDefault: true };
+    
     if (categoryId) {
-      where.categoryId = categoryId;
+      // UserCategory인지 확인
+      const userCategory = await prisma.userCategory.findUnique({
+        where: { id: categoryId }
+      });
+      
+      if (userCategory) {
+        // UserCategory면 categoryName으로 Category 찾기
+        const category = await prisma.category.findFirst({
+          where: { 
+            categoryName: userCategory.categoryName,
+            isDefault: true
+          }
+        });
+        
+        if (category) {
+          where.categoryId = category.id;
+        } else {
+          // 사용자 커스텀 카테고리는 기본 Word가 없음
+          return [];
+        }
+      } else {
+        // Category.id를 직접 전달한 경우 (하위 호환성)
+        where.categoryId = categoryId;
+      }
     }
 
     return await prisma.word.findMany({
@@ -47,6 +72,44 @@ export class WordsRepository {
     });
     
     return userCategory;
+  }
+
+  /**
+   * 사용자 카테고리 이름으로 조회
+   * @param {string} userId
+   * @param {string} categoryName
+   * @returns {Promise<Object|null>}
+   */
+  async findUserCategoryByName(userId, categoryName) {
+    return await prisma.userCategory.findFirst({
+      where: {
+        userId,
+        categoryName
+      }
+    });
+  }
+
+  /**
+   * 사용자의 모든 카테고리 조회
+   * @param {string} userId
+   * @returns {Promise<Array>}
+   */
+  async findAllUserCategories(userId) {
+    return await prisma.userCategory.findMany({
+      where: { userId },
+      orderBy: { displayOrder: 'asc' }
+    });
+  }
+
+  /**
+   * 모든 기본 카테고리 조회
+   * @returns {Promise<Array>}
+   */
+  async findAllCategories() {
+    return await prisma.category.findMany({
+      where: { isDefault: true },
+      orderBy: { displayOrder: 'asc' }
+    });
   }
 
   /**
@@ -314,7 +377,7 @@ export class WordsRepository {
    */
   async createSnapshotFromWords(userId, categoryId) {
     // 1. 해당 카테고리의 모든 Word 조회
-    const words = await this.findWords(categoryId);
+    const words = await this.findWords(categoryId, userId);
     
     // 2. 각 Word를 참조하는 UserWord 생성
     const createPromises = words.map((word, index) => 

@@ -23,7 +23,7 @@ export class WordsService {
     }
     
     // 3. UserWord가 없으면 기본 Word 개수 반환
-    const words = await wordsRepository.findWords(categoryId);
+    const words = await wordsRepository.findWords(categoryId, userId);
     return words.length;
   }
 
@@ -39,11 +39,45 @@ export class WordsService {
   async getWords(userId, categoryId = null, onlyFavorite = false) {
     const wordCards = [];
     let categoryName = null;
+    let userCategoryId = categoryId; // 응답용 categoryId
+
+    // userId가 있을 때 categoryName → UserCategory.id 매핑 생성
+    let categoryNameToUserCategoryIdMap = new Map();
+    let categoryNameToCategoryIdMap = new Map(); // Category.id 매핑 (게스트용)
+    let hasUserCategories = false;
+    
+    if (userId) {
+      const userCategories = await wordsRepository.findAllUserCategories(userId);
+      
+      if (userCategories.length > 0) {
+        // 소셜 로그인 사용자 (UserCategory 있음)
+        hasUserCategories = true;
+        userCategories.forEach(uc => {
+          categoryNameToUserCategoryIdMap.set(uc.categoryName, uc.id);
+        });
+      } else {
+        // 게스트 (UserCategory 없음) - Category.id 매핑
+        const categories = await wordsRepository.findAllCategories();
+        categories.forEach(c => {
+          categoryNameToCategoryIdMap.set(c.categoryName, c.id);
+        });
+      }
+    }
 
     // 카테고리 이름 조회 (categoryId가 있을 때만)
     if (categoryId) {
       const category = await wordsRepository.findCategoryById(categoryId);
       categoryName = category?.categoryName || null;
+      
+      // categoryId 확인 (응답에 사용)
+      if (category && category.userId) {
+        // 이미 UserCategory
+        userCategoryId = category.id;
+      } else if (category && userId && hasUserCategories) {
+        // Category인 경우 → userId의 UserCategory.id 찾기
+        const userCat = await wordsRepository.findUserCategoryByName(userId, category.categoryName);
+        userCategoryId = userCat?.id || categoryId;
+      }
     }
 
     // userId가 있을 때만 사용자 낱말 조회
@@ -69,18 +103,30 @@ export class WordsService {
       });
     }
 
-    // 2. 기본 낱말(Word) 먼저 조회 (UserWord가 없는 것만)
+    // 2. 기본 낱말(Word) 먼저 조회 (UserWord가 있으면 UserWord 기준으로 내려줌)
     if (!onlyFavorite) {
-      const words = await wordsRepository.findWords(categoryId);
+      const words = await wordsRepository.findWords(categoryId, userId);
 
       words.forEach((word, index) => {
-        // 이미 UserWord로 개인화된 낱말은 제외
-        // isDeleted=true로 표시된 낱말도 제외
-        if (!userWordMap.has(word.id) && !deletedWordIds.has(word.id)) {
+        // UserWord가 있으면 Word는 추가하지 않음 (중복 방지)
+        const userWord = userWordMap.get(word.id);
+        if (userWord && !userWord.isDeleted) {
+          // 이미 UserWord로 내려가므로 Word는 추가하지 않음
+          return;
+        }
+        if (!deletedWordIds.has(word.id)) {
+          // UserWord가 없고 삭제도 안된 경우 Word 기준으로 내려줌
+          const wordCategoryName = word.category?.categoryName;
+          let mappedCategoryId;
+          if (hasUserCategories) {
+            mappedCategoryId = categoryNameToUserCategoryIdMap.get(wordCategoryName) || userCategoryId;
+          } else {
+            mappedCategoryId = categoryNameToCategoryIdMap.get(wordCategoryName) || word.categoryId;
+          }
           wordCards.push(new WordCardResponseDto({
             cardId: word.id, // Word.id
-            categoryId: word.categoryId,
-            categoryName: word.category?.categoryName,
+            categoryId: mappedCategoryId,
+            categoryName: wordCategoryName,
             partOfSpeech: word.partOfSpeech,
             word: word.word,
             imageUrl: word.imageUrl,
@@ -103,9 +149,20 @@ export class WordsService {
       const displayWord = uw.customWord || (uw.word?.word || '');
       const displayImageUrl = uw.customImageUrl || (uw.word?.imageUrl || '');
       
-      // categoryId 결정: userCategoryId 우선, 없으면 categoryId
-      const cardCategoryId = uw.userCategoryId || uw.categoryId;
-      const cardCategoryName = uw.userCategory?.categoryName || uw.category?.categoryName;
+      // categoryId 결정: userCategoryId 우선, 없으면 categoryId (게스트는 categoryNameToCategoryIdMap에서 매핑)
+      let cardCategoryId, cardCategoryName;
+      if (uw.userCategoryId) {
+        cardCategoryId = uw.userCategoryId;
+        cardCategoryName = uw.userCategory?.categoryName;
+      } else if (uw.categoryId) {
+        cardCategoryName = uw.category?.categoryName;
+        // 게스트라면 categoryNameToCategoryIdMap에서 매핑
+        if (!hasUserCategories && cardCategoryName) {
+          cardCategoryId = categoryNameToCategoryIdMap.get(cardCategoryName) || uw.categoryId;
+        } else {
+          cardCategoryId = uw.categoryId;
+        }
+      }
 
       wordCards.push(new WordCardResponseDto({
         cardId: uw.id, // UserWord.id
@@ -219,7 +276,11 @@ export class WordsService {
 
       if (isFavorite) {
         // 즐겨찾기 설정: UserWord 생성
-        const newDisplayOrder = await this.getNextDisplayOrder(userId, word.categoryId);
+        // 기본 낱말의 displayOrder(카테고리 내 인덱스)를 UserWord의 displayOrder로 사용
+        // 같은 카테고리의 모든 Word를 가져와서 현재 Word의 인덱스를 찾음
+        const allWords = await wordsRepository.findWords(word.categoryId, null);
+        const wordIndex = allWords.findIndex(w => w.id === cardId);
+        const newDisplayOrder = wordIndex >= 0 ? wordIndex : await this.getNextDisplayOrder(userId, word.categoryId);
 
         const newUserWord = await wordsRepository.createUserWordForFavorite(
           userId,

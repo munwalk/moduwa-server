@@ -78,8 +78,7 @@ export class WordsController {
         cardId,
         updateDto.isFavorite
       );
-
-      return res.success({ word: result }, '낱말 카드 즐겨찾기 변경 성공');
+      return res.success(result, '낱말 카드 즐겨찾기 변경 성공');
     } catch (error) {
       next(error);
     }
