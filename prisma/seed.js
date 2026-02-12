@@ -109,25 +109,7 @@ async function main() {
         isActive: true,
         order: 2,
       },
-      {
-        id: "550e8400-e29b-41d4-a716-446655440003",
-        title: "마케팅 정보 수신 동의 (선택)",
-        content: `제1조 (목적)
-모두와의 신규 서비스, 이벤트 정보를 이메일 또는 푸시 알림으로 제공받을 수 있습니다.
-
-제2조 (수신 정보)
-   • 신규 기능 안내
-   • 이벤트 및 프로모션 정보
-   • 서비스 개선 설문 요청
-
-제3조 (철회)
-마이페이지에서 언제든지 수신 동의를 철회할 수 있습니다.`,
-        version: "1.0",
-        isRequired: false,
-        isActive: true,
-        order: 3,
-      },
-    ],
+    ]
   });
 
   console.log(`✅ 약관 ${terms.count}개 생성 완료`);
