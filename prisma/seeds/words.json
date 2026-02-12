@@ -5,109 +5,109 @@
       {
         "uuid": "a5f26926-57fc-4448-b05e-e67947cda2c8",
         "word": "좋다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/a5f26926-57fc-4448-b05e-e67947cda2c8.png",
+        "imageUrl": "words/a5f26926-57fc-4448-b05e-e67947cda2c8.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "4f79ee33-9428-45e2-bb9e-7f68dc3cba02",
         "word": "싫다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/4f79ee33-9428-45e2-bb9e-7f68dc3cba02.png",
+        "imageUrl": "words/4f79ee33-9428-45e2-bb9e-7f68dc3cba02.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "4fcdbae1-7e00-45df-abe9-25df6b9636c1",
         "word": "기쁘다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/4fcdbae1-7e00-45df-abe9-25df6b9636c1.png",
+        "imageUrl": "words/4fcdbae1-7e00-45df-abe9-25df6b9636c1.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "f3f47de8-a330-4e71-b7fd-00f7f92b6a08",
         "word": "슬프다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/f3f47de8-a330-4e71-b7fd-00f7f92b6a08.png",
+        "imageUrl": "words/f3f47de8-a330-4e71-b7fd-00f7f92b6a08.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "612d7972-35b5-4a0f-bc1c-8d8965e62b1b",
         "word": "화나다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/612d7972-35b5-4a0f-bc1c-8d8965e62b1b.png",
+        "imageUrl": "words/612d7972-35b5-4a0f-bc1c-8d8965e62b1b.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "7e07638f-bc28-4a7a-80d7-da805bae941b",
         "word": "무섭다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/7e07638f-bc28-4a7a-80d7-da805bae941b.png",
+        "imageUrl": "words/7e07638f-bc28-4a7a-80d7-da805bae941b.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "048cd540-129b-42a9-8d4e-c5d47369ffc9",
         "word": "재밌다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/048cd540-129b-42a9-8d4e-c5d47369ffc9.png",
+        "imageUrl": "words/048cd540-129b-42a9-8d4e-c5d47369ffc9.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "9beb8eae-1db5-4ebc-94e5-b5b60dc5e72b",
         "word": "지루하다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/9beb8eae-1db5-4ebc-94e5-b5b60dc5e72b.png",
+        "imageUrl": "words/9beb8eae-1db5-4ebc-94e5-b5b60dc5e72b.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "fb61fc54-bc28-4c7a-8881-c35872b7d91e",
         "word": "편하다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/fb61fc54-bc28-4c7a-8881-c35872b7d91e.png",
+        "imageUrl": "words/fb61fc54-bc28-4c7a-8881-c35872b7d91e.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "2b721502-ec80-443a-bb0e-6ee503426ed5",
         "word": "불편하다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/2b721502-ec80-443a-bb0e-6ee503426ed5.png",
+        "imageUrl": "words/2b721502-ec80-443a-bb0e-6ee503426ed5.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "1f3dc9e3-2ecd-4757-b4bf-6a7be4731510",
         "word": "힘들다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/1f3dc9e3-2ecd-4757-b4bf-6a7be4731510.png",
+        "imageUrl": "words/1f3dc9e3-2ecd-4757-b4bf-6a7be4731510.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "eb0b2cbf-a92a-4217-80c9-81bac1348042",
         "word": "아쉽다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/eb0b2cbf-a92a-4217-80c9-81bac1348042.png",
+        "imageUrl": "words/eb0b2cbf-a92a-4217-80c9-81bac1348042.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "3adbc442-db61-4d69-a3ba-a920a9d95c8a",
         "word": "신난다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/3adbc442-db61-4d69-a3ba-a920a9d95c8a.png",
+        "imageUrl": "words/3adbc442-db61-4d69-a3ba-a920a9d95c8a.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "87c8c919-ef3f-460e-a5e5-1b55db8978a4",
         "word": "괜찮다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/87c8c919-ef3f-460e-a5e5-1b55db8978a4.png",
+        "imageUrl": "words/87c8c919-ef3f-460e-a5e5-1b55db8978a4.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "9282424d-464c-4a39-8893-abc520acd31c",
         "word": "졸리다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/9282424d-464c-4a39-8893-abc520acd31c.png",
+        "imageUrl": "words/9282424d-464c-4a39-8893-abc520acd31c.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "d41e3c9d-04c0-4130-ba24-29ad28b8d93a",
         "word": "웃기다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/d41e3c9d-04c0-4130-ba24-29ad28b8d93a.png",
+        "imageUrl": "words/d41e3c9d-04c0-4130-ba24-29ad28b8d93a.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "46d8af4a-898e-496e-9992-19aa72dc42a3",
         "word": "짜증난다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/46d8af4a-898e-496e-9992-19aa72dc42a3.png",
+        "imageUrl": "words/46d8af4a-898e-496e-9992-19aa72dc42a3.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "b6680ef2-8905-4b58-a221-437021d3f2d4",
         "word": "긴장되다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/b6680ef2-8905-4b58-a221-437021d3f2d4.png",
+        "imageUrl": "words/b6680ef2-8905-4b58-a221-437021d3f2d4.png",
         "partOfSpeech": "ADJECTIVE"
       }
     ]
@@ -118,175 +118,175 @@
       {
         "uuid": "699bc385-5a62-463d-9369-9df9d7d2d04f",
         "word": "나",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/699bc385-5a62-463d-9369-9df9d7d2d04f.png",
+        "imageUrl": "words/699bc385-5a62-463d-9369-9df9d7d2d04f.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "57fe1edf-a374-4001-b80f-fcfe1160e625",
         "word": "너",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/57fe1edf-a374-4001-b80f-fcfe1160e625.png",
+        "imageUrl": "words/57fe1edf-a374-4001-b80f-fcfe1160e625.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "a4158bfb-b7e6-405d-b112-6482a868c235",
         "word": "우리",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/a4158bfb-b7e6-405d-b112-6482a868c235.png",
+        "imageUrl": "words/a4158bfb-b7e6-405d-b112-6482a868c235.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "1df859f3-3d46-4e3e-acca-436d7ec48e9c",
         "word": "이것",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/1df859f3-3d46-4e3e-acca-436d7ec48e9c.png",
+        "imageUrl": "words/1df859f3-3d46-4e3e-acca-436d7ec48e9c.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "a8fee3df-815d-43f4-b124-a6d0157cec4b",
         "word": "저것",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/a8fee3df-815d-43f4-b124-a6d0157cec4b.png",
+        "imageUrl": "words/a8fee3df-815d-43f4-b124-a6d0157cec4b.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "2876e6ee-0285-42fd-8150-b961e6f85b11",
         "word": "그것",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/2876e6ee-0285-42fd-8150-b961e6f85b11.png",
+        "imageUrl": "words/2876e6ee-0285-42fd-8150-b961e6f85b11.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "1ade28fa-a60a-457b-be20-d670b08cf09b",
         "word": "여기",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/1ade28fa-a60a-457b-be20-d670b08cf09b.png",
+        "imageUrl": "words/1ade28fa-a60a-457b-be20-d670b08cf09b.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "f266fa2f-945e-4f01-a3ef-731a470b617b",
         "word": "저기",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/f266fa2f-945e-4f01-a3ef-731a470b617b.png",
+        "imageUrl": "words/f266fa2f-945e-4f01-a3ef-731a470b617b.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "6e30b7af-5144-46a2-8008-94c7c709f465",
         "word": "거기",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/6e30b7af-5144-46a2-8008-94c7c709f465.png",
+        "imageUrl": "words/6e30b7af-5144-46a2-8008-94c7c709f465.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "be54d1ac-b1af-444d-984e-cb993c2ed371",
         "word": "지금",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/be54d1ac-b1af-444d-984e-cb993c2ed371.png",
+        "imageUrl": "words/be54d1ac-b1af-444d-984e-cb993c2ed371.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "32ea0f49-5e72-49bf-aa83-7f5f93b79896",
         "word": "나중에",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/32ea0f49-5e72-49bf-aa83-7f5f93b79896.png",
+        "imageUrl": "words/32ea0f49-5e72-49bf-aa83-7f5f93b79896.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "591dc74c-5635-4d0b-8f84-5e77af572028",
         "word": "있다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/591dc74c-5635-4d0b-8f84-5e77af572028.png",
+        "imageUrl": "words/591dc74c-5635-4d0b-8f84-5e77af572028.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "2f11db71-e4c1-46b9-895c-50d29e157148",
         "word": "없다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/2f11db71-e4c1-46b9-895c-50d29e157148.png",
+        "imageUrl": "words/2f11db71-e4c1-46b9-895c-50d29e157148.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "5d26ebaf-d98f-4137-a0f7-aa4579061def",
         "word": "그리고",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/5d26ebaf-d98f-4137-a0f7-aa4579061def.png",
+        "imageUrl": "words/5d26ebaf-d98f-4137-a0f7-aa4579061def.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "144e1ea5-e2ec-4692-86c8-fba20c5a4a99",
         "word": "그래서",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/144e1ea5-e2ec-4692-86c8-fba20c5a4a99.png",
+        "imageUrl": "words/144e1ea5-e2ec-4692-86c8-fba20c5a4a99.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "dd1ff263-b3cf-4e5a-961d-fae6f4bf921c",
         "word": "그런데",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/dd1ff263-b3cf-4e5a-961d-fae6f4bf921c.png",
+        "imageUrl": "words/dd1ff263-b3cf-4e5a-961d-fae6f4bf921c.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "1581be9c-e946-4945-ae2f-7bc9944dde7b",
         "word": "때문에",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/1581be9c-e946-4945-ae2f-7bc9944dde7b.png",
+        "imageUrl": "words/1581be9c-e946-4945-ae2f-7bc9944dde7b.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "fbf3a707-b92f-46f7-9f7c-ef4e05e6f257",
         "word": "또",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/fbf3a707-b92f-46f7-9f7c-ef4e05e6f257.png",
+        "imageUrl": "words/fbf3a707-b92f-46f7-9f7c-ef4e05e6f257.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "df6ad7ad-c370-4068-b270-7b773c96c691",
         "word": "왜",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/df6ad7ad-c370-4068-b270-7b773c96c691.png",
+        "imageUrl": "words/df6ad7ad-c370-4068-b270-7b773c96c691.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "d57320ef-731b-4f7c-9b50-642061c1fdf2",
         "word": "뭐",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/d57320ef-731b-4f7c-9b50-642061c1fdf2.png",
+        "imageUrl": "words/d57320ef-731b-4f7c-9b50-642061c1fdf2.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "a3ee1fdb-2f82-4c73-a8da-672b51b7e0e6",
         "word": "어떻게",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/a3ee1fdb-2f82-4c73-a8da-672b51b7e0e6.png",
+        "imageUrl": "words/a3ee1fdb-2f82-4c73-a8da-672b51b7e0e6.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "400d0d9c-42cf-4f80-bcd7-60b91b99dab1",
         "word": "더",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/400d0d9c-42cf-4f80-bcd7-60b91b99dab1.png",
+        "imageUrl": "words/400d0d9c-42cf-4f80-bcd7-60b91b99dab1.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "614cb864-af0d-4f5d-b15f-6c8214ba7bd8",
         "word": "조금",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/614cb864-af0d-4f5d-b15f-6c8214ba7bd8.png",
+        "imageUrl": "words/614cb864-af0d-4f5d-b15f-6c8214ba7bd8.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "54e4dd92-2d4d-4104-a0f9-bfda23e1694c",
         "word": "많이",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/54e4dd92-2d4d-4104-a0f9-bfda23e1694c.png",
+        "imageUrl": "words/54e4dd92-2d4d-4104-a0f9-bfda23e1694c.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "60eb0138-eb3c-41f4-94c8-5c877a3295ed",
         "word": "다시",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/60eb0138-eb3c-41f4-94c8-5c877a3295ed.png",
+        "imageUrl": "words/60eb0138-eb3c-41f4-94c8-5c877a3295ed.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "aa99bf42-56c2-4565-bc1c-01d8c4c30505",
         "word": "크다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/aa99bf42-56c2-4565-bc1c-01d8c4c30505.png",
+        "imageUrl": "words/aa99bf42-56c2-4565-bc1c-01d8c4c30505.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "a88b879d-ef31-4fa4-abd7-e5f60b82a425",
         "word": "작다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/a88b879d-ef31-4fa4-abd7-e5f60b82a425.png",
+        "imageUrl": "words/a88b879d-ef31-4fa4-abd7-e5f60b82a425.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "a3ab4c11-46e9-42c3-bcd3-ae2fd1dc203f",
         "word": "많다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/a3ab4c11-46e9-42c3-bcd3-ae2fd1dc203f.png",
+        "imageUrl": "words/a3ab4c11-46e9-42c3-bcd3-ae2fd1dc203f.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "e3e8e6cf-1dd7-4fe3-a8c6-3b1ff192eae6",
         "word": "적다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/e3e8e6cf-1dd7-4fe3-a8c6-3b1ff192eae6.png",
+        "imageUrl": "words/e3e8e6cf-1dd7-4fe3-a8c6-3b1ff192eae6.png",
         "partOfSpeech": "ADJECTIVE"
       }
     ]
@@ -297,109 +297,109 @@
       {
         "uuid": "3582b583-bc01-460f-9c44-7f0ee9ded8c3",
         "word": "엄마",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/3582b583-bc01-460f-9c44-7f0ee9ded8c3.png",
+        "imageUrl": "words/3582b583-bc01-460f-9c44-7f0ee9ded8c3.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "922a00bc-789b-4167-8015-b50f1354e930",
         "word": "아빠",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/922a00bc-789b-4167-8015-b50f1354e930.png",
+        "imageUrl": "words/922a00bc-789b-4167-8015-b50f1354e930.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "7e40434b-d859-436d-a190-47a7640fcb83",
         "word": "보호자",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/7e40434b-d859-436d-a190-47a7640fcb83.png",
+        "imageUrl": "words/7e40434b-d859-436d-a190-47a7640fcb83.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "39b03fbc-f18f-4fb0-a606-5d903574cefa",
         "word": "선생님",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/39b03fbc-f18f-4fb0-a606-5d903574cefa.png",
+        "imageUrl": "words/39b03fbc-f18f-4fb0-a606-5d903574cefa.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "7da7e933-9cc0-4851-9de4-aa90c2fa9387",
         "word": "의사",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/7da7e933-9cc0-4851-9de4-aa90c2fa9387.png",
+        "imageUrl": "words/7da7e933-9cc0-4851-9de4-aa90c2fa9387.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "975d3abc-5ef2-4f2e-a6ec-4c350317ceea",
         "word": "간호사",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/975d3abc-5ef2-4f2e-a6ec-4c350317ceea.png",
+        "imageUrl": "words/975d3abc-5ef2-4f2e-a6ec-4c350317ceea.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "6dee0797-9bb5-446c-9d27-d1da3a5cbe34",
         "word": "친구",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/6dee0797-9bb5-446c-9d27-d1da3a5cbe34.png",
+        "imageUrl": "words/6dee0797-9bb5-446c-9d27-d1da3a5cbe34.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "1229e55e-89e4-4273-aedd-f003acb8ed1e",
         "word": "동생",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/1229e55e-89e4-4273-aedd-f003acb8ed1e.png",
+        "imageUrl": "words/1229e55e-89e4-4273-aedd-f003acb8ed1e.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "496a908c-3e7f-4370-b11b-f11e6e164a5b",
         "word": "남편",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/496a908c-3e7f-4370-b11b-f11e6e164a5b.png",
+        "imageUrl": "words/496a908c-3e7f-4370-b11b-f11e6e164a5b.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "fedff0d9-452d-4662-8a74-bebce56441f7",
         "word": "아내",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/fedff0d9-452d-4662-8a74-bebce56441f7.png",
+        "imageUrl": "words/fedff0d9-452d-4662-8a74-bebce56441f7.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "fb0dac1d-3e3d-4e66-8d79-2f5aac076d14",
         "word": "딸",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/fb0dac1d-3e3d-4e66-8d79-2f5aac076d14.png",
+        "imageUrl": "words/fb0dac1d-3e3d-4e66-8d79-2f5aac076d14.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "7a5bba6e-a88d-4c7e-8f60-9283ec9b4e8c",
         "word": "아들",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/7a5bba6e-a88d-4c7e-8f60-9283ec9b4e8c.png",
+        "imageUrl": "words/7a5bba6e-a88d-4c7e-8f60-9283ec9b4e8c.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "e367c398-8e89-42e8-8fcf-9ad44b2048b7",
         "word": "언니",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/e367c398-8e89-42e8-8fcf-9ad44b2048b7.png",
+        "imageUrl": "words/e367c398-8e89-42e8-8fcf-9ad44b2048b7.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "a425eef0-451c-4fb6-af10-520e6a3f7934",
         "word": "누나",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/a425eef0-451c-4fb6-af10-520e6a3f7934.png",
+        "imageUrl": "words/a425eef0-451c-4fb6-af10-520e6a3f7934.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "3caaca09-a05e-48cb-8e97-265c683074e7",
         "word": "오빠",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/3caaca09-a05e-48cb-8e97-265c683074e7.png",
+        "imageUrl": "words/3caaca09-a05e-48cb-8e97-265c683074e7.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "0fda2d3d-e872-4fe2-a0be-b35d2bd9141b",
         "word": "형",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/0fda2d3d-e872-4fe2-a0be-b35d2bd9141b.png",
+        "imageUrl": "words/0fda2d3d-e872-4fe2-a0be-b35d2bd9141b.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "659c07eb-7f21-428f-96a9-ad33cd609211",
         "word": "기가지니",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/659c07eb-7f21-428f-96a9-ad33cd609211.png",
+        "imageUrl": "words/659c07eb-7f21-428f-96a9-ad33cd609211.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "3d4937c1-7745-4c2b-a413-13149b09e4a0",
         "word": "헤이클로바",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/3d4937c1-7745-4c2b-a413-13149b09e4a0.png",
+        "imageUrl": "words/3d4937c1-7745-4c2b-a413-13149b09e4a0.png",
         "partOfSpeech": "NOUN"
       }
     ]
@@ -410,67 +410,67 @@
       {
         "uuid": "efb71421-2cde-4beb-be47-1e3d77a7891d",
         "word": "머리",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/efb71421-2cde-4beb-be47-1e3d77a7891d.png",
+        "imageUrl": "words/efb71421-2cde-4beb-be47-1e3d77a7891d.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "a214cf7f-e598-4f28-99b6-be5343d3b762",
         "word": "배",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/a214cf7f-e598-4f28-99b6-be5343d3b762.png",
+        "imageUrl": "words/a214cf7f-e598-4f28-99b6-be5343d3b762.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "70134407-a8ac-4bfa-ae4c-6beab50eec5e",
         "word": "손",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/70134407-a8ac-4bfa-ae4c-6beab50eec5e.png",
+        "imageUrl": "words/70134407-a8ac-4bfa-ae4c-6beab50eec5e.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "37a25e7c-8c3f-43ed-9991-3060af172152",
         "word": "발",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/37a25e7c-8c3f-43ed-9991-3060af172152.png",
+        "imageUrl": "words/37a25e7c-8c3f-43ed-9991-3060af172152.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "4619b580-6c6c-43d1-b1ae-dfb2eec99b50",
         "word": "아프다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/4619b580-6c6c-43d1-b1ae-dfb2eec99b50.png",
+        "imageUrl": "words/4619b580-6c6c-43d1-b1ae-dfb2eec99b50.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "bf7fff66-575b-4138-be60-df8396f28e9a",
         "word": "약",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/bf7fff66-575b-4138-be60-df8396f28e9a.png",
+        "imageUrl": "words/bf7fff66-575b-4138-be60-df8396f28e9a.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "5e723aed-779e-4b2c-8ac0-b9f3c819d5ef",
         "word": "피곤하다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/5e723aed-779e-4b2c-8ac0-b9f3c819d5ef.png",
+        "imageUrl": "words/5e723aed-779e-4b2c-8ac0-b9f3c819d5ef.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "8df739a7-224b-452a-a6a1-1d6f7b3c9a96",
         "word": "다쳤다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/8df739a7-224b-452a-a6a1-1d6f7b3c9a96.png",
+        "imageUrl": "words/8df739a7-224b-452a-a6a1-1d6f7b3c9a96.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "49c38935-6b17-427a-abec-d021a78b13d5",
         "word": "아프지 않다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/49c38935-6b17-427a-abec-d021a78b13d5.png",
+        "imageUrl": "words/49c38935-6b17-427a-abec-d021a78b13d5.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "a8c0ce09-a12d-4dd1-96c6-fd8b3331ce8f",
         "word": "괜찮다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/a8c0ce09-a12d-4dd1-96c6-fd8b3331ce8f.png",
+        "imageUrl": "words/a8c0ce09-a12d-4dd1-96c6-fd8b3331ce8f.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "336dfa9a-42a9-421d-ae5c-29475ce84265",
         "word": "치료",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/336dfa9a-42a9-421d-ae5c-29475ce84265.png",
+        "imageUrl": "words/336dfa9a-42a9-421d-ae5c-29475ce84265.png",
         "partOfSpeech": "NOUN"
       }
     ]
@@ -481,115 +481,115 @@
       {
         "uuid": "d5c39787-0a3a-4370-8f5c-a0816c0e5440",
         "word": "밥",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/d5c39787-0a3a-4370-8f5c-a0816c0e5440.png",
+        "imageUrl": "words/d5c39787-0a3a-4370-8f5c-a0816c0e5440.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "cc24b6a0-36af-4e0a-a1a4-edaa6b401777",
         "word": "물",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/cc24b6a0-36af-4e0a-a1a4-edaa6b401777.png",
+        "imageUrl": "words/cc24b6a0-36af-4e0a-a1a4-edaa6b401777.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "16a4a099-2b92-4454-ac83-b214da2b2e5b",
         "word": "간식",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/16a4a099-2b92-4454-ac83-b214da2b2e5b.png",
+        "imageUrl": "words/16a4a099-2b92-4454-ac83-b214da2b2e5b.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "f7f92509-3c7a-4210-a0ee-da28f9db7dfa",
         "word": "우유",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/f7f92509-3c7a-4210-a0ee-da28f9db7dfa.png",
+        "imageUrl": "words/f7f92509-3c7a-4210-a0ee-da28f9db7dfa.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "73797d95-8122-4756-8d02-956aca5507bb",
         "word": "주스",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/73797d95-8122-4756-8d02-956aca5507bb.png",
+        "imageUrl": "words/73797d95-8122-4756-8d02-956aca5507bb.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "c6d42cdf-d492-4048-8e35-4e9d696ce781",
         "word": "과일",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/c6d42cdf-d492-4048-8e35-4e9d696ce781.png",
+        "imageUrl": "words/c6d42cdf-d492-4048-8e35-4e9d696ce781.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "5b5ba241-0673-40bf-bd3c-9a29b96b74f9",
         "word": "빵",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/5b5ba241-0673-40bf-bd3c-9a29b96b74f9.png",
+        "imageUrl": "words/5b5ba241-0673-40bf-bd3c-9a29b96b74f9.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "8b01d645-51d9-4bce-a491-5a6dee59cc33",
         "word": "국",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/8b01d645-51d9-4bce-a491-5a6dee59cc33.png",
+        "imageUrl": "words/8b01d645-51d9-4bce-a491-5a6dee59cc33.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "10aad76b-d09e-499f-894b-1e23184c36e9",
         "word": "반찬",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/10aad76b-d09e-499f-894b-1e23184c36e9.png",
+        "imageUrl": "words/10aad76b-d09e-499f-894b-1e23184c36e9.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "b1c02c73-57e9-44e7-96f8-00cffa8d2b3c",
         "word": "고기",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/b1c02c73-57e9-44e7-96f8-00cffa8d2b3c.png",
+        "imageUrl": "words/b1c02c73-57e9-44e7-96f8-00cffa8d2b3c.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "f5ae9555-0a7e-49ee-94df-60763f10aa74",
         "word": "채소",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/f5ae9555-0a7e-49ee-94df-60763f10aa74.png",
+        "imageUrl": "words/f5ae9555-0a7e-49ee-94df-60763f10aa74.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "0a985982-6ca5-4446-a509-ed16bea3a9a9",
         "word": "배고프다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/0a985982-6ca5-4446-a509-ed16bea3a9a9.png",
+        "imageUrl": "words/0a985982-6ca5-4446-a509-ed16bea3a9a9.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "f5824d69-3c0c-4757-9352-501a4269dc3d",
         "word": "목마르다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/f5824d69-3c0c-4757-9352-501a4269dc3d.png",
+        "imageUrl": "words/f5824d69-3c0c-4757-9352-501a4269dc3d.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "1c881b8f-7fb1-4b4b-a12c-6d00080f102f",
         "word": "맛있다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/1c881b8f-7fb1-4b4b-a12c-6d00080f102f.png",
+        "imageUrl": "words/1c881b8f-7fb1-4b4b-a12c-6d00080f102f.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "7577a5ce-70f9-4b95-b3f6-549458c8e052",
         "word": "맛없다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/7577a5ce-70f9-4b95-b3f6-549458c8e052.png",
+        "imageUrl": "words/7577a5ce-70f9-4b95-b3f6-549458c8e052.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "11cc97b6-121c-46e3-b3d1-2470de127c2d",
         "word": "쓰다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/11cc97b6-121c-46e3-b3d1-2470de127c2d.png",
+        "imageUrl": "words/11cc97b6-121c-46e3-b3d1-2470de127c2d.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "8f37fad7-48e9-49f5-8f55-7719f4624a4d",
         "word": "짜다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/8f37fad7-48e9-49f5-8f55-7719f4624a4d.png",
+        "imageUrl": "words/8f37fad7-48e9-49f5-8f55-7719f4624a4d.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "c9366f9d-9a69-40e8-b949-f2553c042eb7",
         "word": "달다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/c9366f9d-9a69-40e8-b949-f2553c042eb7.png",
+        "imageUrl": "words/c9366f9d-9a69-40e8-b949-f2553c042eb7.png",
         "partOfSpeech": "ADJECTIVE"
       },
       {
         "uuid": "623f637e-f756-4e0c-bfd5-8a280a8b3c7e",
         "word": "맵다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/623f637e-f756-4e0c-bfd5-8a280a8b3c7e.png",
+        "imageUrl": "words/623f637e-f756-4e0c-bfd5-8a280a8b3c7e.png",
         "partOfSpeech": "ADJECTIVE"
       }
     ]
@@ -600,139 +600,139 @@
       {
         "uuid": "fbff77ed-7b9a-4cc2-b1bf-513d2412429c",
         "word": "집",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/fbff77ed-7b9a-4cc2-b1bf-513d2412429c.png",
+        "imageUrl": "words/fbff77ed-7b9a-4cc2-b1bf-513d2412429c.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "3bf0c6e4-2b18-42f7-a6e6-ce2ad48f2f97",
         "word": "학교",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/3bf0c6e4-2b18-42f7-a6e6-ce2ad48f2f97.png",
+        "imageUrl": "words/3bf0c6e4-2b18-42f7-a6e6-ce2ad48f2f97.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "bf933ed1-7992-4563-85f1-3f33ddb2570e",
         "word": "병원",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/bf933ed1-7992-4563-85f1-3f33ddb2570e.png",
+        "imageUrl": "words/bf933ed1-7992-4563-85f1-3f33ddb2570e.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "b7bb0cde-bca4-4f19-8477-37a4e7b6e5ca",
         "word": "화장실",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/b7bb0cde-bca4-4f19-8477-37a4e7b6e5ca.png",
+        "imageUrl": "words/b7bb0cde-bca4-4f19-8477-37a4e7b6e5ca.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "4d841e71-8d25-46eb-940c-e4c51cbfbd65",
         "word": "방",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/4d841e71-8d25-46eb-940c-e4c51cbfbd65.png",
+        "imageUrl": "words/4d841e71-8d25-46eb-940c-e4c51cbfbd65.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "895da849-701f-4ede-ba2f-2eaafa34d293",
         "word": "밖",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/895da849-701f-4ede-ba2f-2eaafa34d293.png",
+        "imageUrl": "words/895da849-701f-4ede-ba2f-2eaafa34d293.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "29b67a44-da0d-4d0c-b2fc-2e0fc3da3003",
         "word": "안",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/29b67a44-da0d-4d0c-b2fc-2e0fc3da3003.png",
+        "imageUrl": "words/29b67a44-da0d-4d0c-b2fc-2e0fc3da3003.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "96808450-eee9-4f1d-883d-f0fbb95cbd0b",
         "word": "위",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/96808450-eee9-4f1d-883d-f0fbb95cbd0b.png",
+        "imageUrl": "words/96808450-eee9-4f1d-883d-f0fbb95cbd0b.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "9634da8b-32d2-4105-8e31-dff919043b7f",
         "word": "아래",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/9634da8b-32d2-4105-8e31-dff919043b7f.png",
+        "imageUrl": "words/9634da8b-32d2-4105-8e31-dff919043b7f.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "43c0fb50-1d16-4ba4-b698-6843b625702a",
         "word": "옆",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/43c0fb50-1d16-4ba4-b698-6843b625702a.png",
+        "imageUrl": "words/43c0fb50-1d16-4ba4-b698-6843b625702a.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "1afb4b48-b947-4eb8-b216-2c1dbd39703e",
         "word": "오른쪽",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/1afb4b48-b947-4eb8-b216-2c1dbd39703e.png",
+        "imageUrl": "words/1afb4b48-b947-4eb8-b216-2c1dbd39703e.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "7bfaa4bf-0ee0-463d-9179-9cf11e3b7dab",
         "word": "왼쪽",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/7bfaa4bf-0ee0-463d-9179-9cf11e3b7dab.png",
+        "imageUrl": "words/7bfaa4bf-0ee0-463d-9179-9cf11e3b7dab.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "ecafe371-5296-4bc0-93f2-72ecde879f71",
         "word": "앞",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/ecafe371-5296-4bc0-93f2-72ecde879f71.png",
+        "imageUrl": "words/ecafe371-5296-4bc0-93f2-72ecde879f71.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "d229d99d-0b93-4f77-908f-e079057d4daa",
         "word": "뒤",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/d229d99d-0b93-4f77-908f-e079057d4daa.png",
+        "imageUrl": "words/d229d99d-0b93-4f77-908f-e079057d4daa.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "ce611e6d-04d0-4acb-a0a8-d60c7d268859",
         "word": "멀리",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/ce611e6d-04d0-4acb-a0a8-d60c7d268859.png",
+        "imageUrl": "words/ce611e6d-04d0-4acb-a0a8-d60c7d268859.png",
         "partOfSpeech": "MODIFIER"
       },
       {
         "uuid": "4761be7c-2f13-48e7-8ea9-441ae7ea9cdc",
         "word": "식당",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/4761be7c-2f13-48e7-8ea9-441ae7ea9cdc.png",
+        "imageUrl": "words/4761be7c-2f13-48e7-8ea9-441ae7ea9cdc.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "f5377a83-bb3f-4b9e-985c-4982c60a765b",
         "word": "복지관",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/f5377a83-bb3f-4b9e-985c-4982c60a765b.png",
+        "imageUrl": "words/f5377a83-bb3f-4b9e-985c-4982c60a765b.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "530dbaed-8339-456f-8491-e53053469eed",
         "word": "놀이터",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/530dbaed-8339-456f-8491-e53053469eed.png",
+        "imageUrl": "words/530dbaed-8339-456f-8491-e53053469eed.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "ddc5d344-5b9f-4e74-93f0-8b99c2a11150",
         "word": "부엌",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/ddc5d344-5b9f-4e74-93f0-8b99c2a11150.png",
+        "imageUrl": "words/ddc5d344-5b9f-4e74-93f0-8b99c2a11150.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "04d01dc2-5f5e-423a-a841-a75d03894f23",
         "word": "지하철",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/04d01dc2-5f5e-423a-a841-a75d03894f23.png",
+        "imageUrl": "words/04d01dc2-5f5e-423a-a841-a75d03894f23.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "b0c67e4b-a398-441f-aa01-7ec4129d2f11",
         "word": "버스",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/b0c67e4b-a398-441f-aa01-7ec4129d2f11.png",
+        "imageUrl": "words/b0c67e4b-a398-441f-aa01-7ec4129d2f11.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "2cf91591-262a-469c-8e63-0eb49dec697d",
         "word": "자동차",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/2cf91591-262a-469c-8e63-0eb49dec697d.png",
+        "imageUrl": "words/2cf91591-262a-469c-8e63-0eb49dec697d.png",
         "partOfSpeech": "NOUN"
       },
       {
         "uuid": "81b21547-1844-4826-b4c5-a13659900e13",
         "word": "택시",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/81b21547-1844-4826-b4c5-a13659900e13.png",
+        "imageUrl": "words/81b21547-1844-4826-b4c5-a13659900e13.png",
         "partOfSpeech": "NOUN"
       }
     ]
@@ -743,145 +743,145 @@
       {
         "uuid": "2c0107a5-facc-4867-9a69-675f43409bc3",
         "word": "하다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/2c0107a5-facc-4867-9a69-675f43409bc3.png",
+        "imageUrl": "words/2c0107a5-facc-4867-9a69-675f43409bc3.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "faa5996b-2611-40ea-aff8-cf6f85e1a979",
         "word": "가다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/faa5996b-2611-40ea-aff8-cf6f85e1a979.png",
+        "imageUrl": "words/faa5996b-2611-40ea-aff8-cf6f85e1a979.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "61963fbc-b4da-42ea-a400-1047902df72e",
         "word": "오다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/61963fbc-b4da-42ea-a400-1047902df72e.png",
+        "imageUrl": "words/61963fbc-b4da-42ea-a400-1047902df72e.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "42c2becb-f636-4cac-9e68-d4d31f920c3d",
         "word": "먹다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/42c2becb-f636-4cac-9e68-d4d31f920c3d.png",
+        "imageUrl": "words/42c2becb-f636-4cac-9e68-d4d31f920c3d.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "e94c2416-2ce8-4e44-b957-1cc059210042",
         "word": "마시다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/e94c2416-2ce8-4e44-b957-1cc059210042.png",
+        "imageUrl": "words/e94c2416-2ce8-4e44-b957-1cc059210042.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "b75a2d80-8d06-4ae3-84c2-394b5f895df0",
         "word": "보다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/b75a2d80-8d06-4ae3-84c2-394b5f895df0.png",
+        "imageUrl": "words/b75a2d80-8d06-4ae3-84c2-394b5f895df0.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "7dacb4d8-75a3-48d3-9005-8787c544b4ac",
         "word": "듣다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/7dacb4d8-75a3-48d3-9005-8787c544b4ac.png",
+        "imageUrl": "words/7dacb4d8-75a3-48d3-9005-8787c544b4ac.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "c47c28be-62d1-4edb-801d-74a6e01f0dd3",
         "word": "말하다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/c47c28be-62d1-4edb-801d-74a6e01f0dd3.png",
+        "imageUrl": "words/c47c28be-62d1-4edb-801d-74a6e01f0dd3.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "edb9103e-6ad7-4e2e-ae12-c14264301064",
         "word": "쉬다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/edb9103e-6ad7-4e2e-ae12-c14264301064.png",
+        "imageUrl": "words/edb9103e-6ad7-4e2e-ae12-c14264301064.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "c6002e1b-7734-4c83-ad26-388a1564d26c",
         "word": "자다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/c6002e1b-7734-4c83-ad26-388a1564d26c.png",
+        "imageUrl": "words/c6002e1b-7734-4c83-ad26-388a1564d26c.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "561a3bcb-d916-43ed-865b-531f4f2ce23d",
         "word": "앉다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/561a3bcb-d916-43ed-865b-531f4f2ce23d.png",
+        "imageUrl": "words/561a3bcb-d916-43ed-865b-531f4f2ce23d.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "7688165a-cbc6-41e0-b47a-55c3a2314079",
         "word": "일어나다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/7688165a-cbc6-41e0-b47a-55c3a2314079.png",
+        "imageUrl": "words/7688165a-cbc6-41e0-b47a-55c3a2314079.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "847049e4-26a3-442a-ae22-22d8092dda09",
         "word": "걷다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/847049e4-26a3-442a-ae22-22d8092dda09.png",
+        "imageUrl": "words/847049e4-26a3-442a-ae22-22d8092dda09.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "2f5e6d27-d83c-401b-9d22-f6725085e78a",
         "word": "놀다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/2f5e6d27-d83c-401b-9d22-f6725085e78a.png",
+        "imageUrl": "words/2f5e6d27-d83c-401b-9d22-f6725085e78a.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "43a61053-d0c2-452d-8449-818d4f61816c",
         "word": "공부하다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/43a61053-d0c2-452d-8449-818d4f61816c.png",
+        "imageUrl": "words/43a61053-d0c2-452d-8449-818d4f61816c.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "d4053ec6-2c37-4b97-ac98-c3054ec55a0f",
         "word": "세안하다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/d4053ec6-2c37-4b97-ac98-c3054ec55a0f.png",
+        "imageUrl": "words/d4053ec6-2c37-4b97-ac98-c3054ec55a0f.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "4b8388e1-136b-46a7-a86d-e94c47ab619e",
         "word": "양치하다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/4b8388e1-136b-46a7-a86d-e94c47ab619e.png",
+        "imageUrl": "words/4b8388e1-136b-46a7-a86d-e94c47ab619e.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "73eba5d4-203c-4393-848c-a426710bd963",
         "word": "샤워하다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/73eba5d4-203c-4393-848c-a426710bd963.png",
+        "imageUrl": "words/73eba5d4-203c-4393-848c-a426710bd963.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "f13d2db9-ac29-4bc9-ae01-cd8623cd1442",
         "word": "기다리다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/f13d2db9-ac29-4bc9-ae01-cd8623cd1442.png",
+        "imageUrl": "words/f13d2db9-ac29-4bc9-ae01-cd8623cd1442.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "8c355521-85f0-4d24-aa60-97825929aab4",
         "word": "쓰다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/8c355521-85f0-4d24-aa60-97825929aab4.png",
+        "imageUrl": "words/8c355521-85f0-4d24-aa60-97825929aab4.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "d70c4609-6412-4935-9da2-c8336b77542c",
         "word": "열다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/d70c4609-6412-4935-9da2-c8336b77542c.png",
+        "imageUrl": "words/d70c4609-6412-4935-9da2-c8336b77542c.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "c9eb7597-cdac-4618-9d4b-a533d4ea4566",
         "word": "닫다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/c9eb7597-cdac-4618-9d4b-a533d4ea4566.png",
+        "imageUrl": "words/c9eb7597-cdac-4618-9d4b-a533d4ea4566.png",
         "partOfSpeech": "VERB"
       },
       {
         "uuid": "37e1060c-030a-4668-9042-5f425f7df80a",
         "word": "들다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/37e1060c-030a-4668-9042-5f425f7df80a.png",
+        "imageUrl": "words/37e1060c-030a-4668-9042-5f425f7df80a.png",
         "partOfSpeech": ""
       },
       {
         "uuid": "540cf1a7-2aa3-4b45-b1ad-eceb4e8863d0",
         "word": "보고싶다",
-        "imageUrl": "https://moduwa.s3.ap-northeast-2.amazonaws.com/words/540cf1a7-2aa3-4b45-b1ad-eceb4e8863d0.png",
+        "imageUrl": "words/540cf1a7-2aa3-4b45-b1ad-eceb4e8863d0.png",
         "partOfSpeech": "VERB"
       }
     ]
