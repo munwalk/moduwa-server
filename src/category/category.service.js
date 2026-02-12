@@ -27,11 +27,19 @@ export const createCategoryService = async ({
   if (dup > 0)
     throw new BaseError("이미 존재하는 카테고리명입니다", 409, "CAT_DUP");
 
+  const lastCategory = await prisma.userCategory.findFirst({
+    where: { userId },
+    orderBy: { displayOrder: "desc" },
+  });
+
+  const nextOrder = lastCategory ? lastCategory.displayOrder + 1 : 0;
+
   const created = await createUserCategory({
     userId,
     categoryName: name,
     iconKey,
     iconUrl,
+    displayOrder: nextOrder,
   });
 
   const wordCount = await countUserWordsInCategory({
@@ -126,15 +134,22 @@ export const patchCategoryService = async ({
   if (!existing)
     throw new BaseError("카테고리를 찾을 수 없습니다", 404, "CAT404");
 
-  // 기본 카테고리 이름 수정 방지
-  if (existing.isDefault && name !== undefined) {
+  const LOCKED_DEFAULT_NAMES = ["최근사용", "즐겨찾기", "어미"];
+
+  // 일부 기본 카테고리만 수정 금지
+  if (
+    existing.isDefault &&
+    name !== undefined &&
+    LOCKED_DEFAULT_NAMES.includes(existing.categoryName)
+  ) {
     throw new BaseError(
-      "기본 카테고리 이름은 수정할 수 없습니다",
+      "해당 기본 카테고리는 이름을 수정할 수 없습니다",
       400,
       "CAT_DEFAULT_EDIT",
     );
   }
 
+  // 이름 중복 검사
   if (name !== undefined) {
     const dup = await countDuplicateCategoryName({
       userId,
