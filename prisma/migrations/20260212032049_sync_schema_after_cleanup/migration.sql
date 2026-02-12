@@ -1,9 +1,3 @@
-/*
-  Warnings:
-
-  - The primary key for the `User` table will be changed. If it partially fails, the table could be left without primary key constraint.
-
-*/
 -- DropForeignKey
 ALTER TABLE `AIFeedback` DROP FOREIGN KEY `AIFeedback_user_id_fkey`;
 
@@ -57,11 +51,6 @@ ALTER TABLE `Subscription` MODIFY `user_id` VARCHAR(255) NOT NULL;
 
 -- AlterTable
 ALTER TABLE `TermsAgreement` MODIFY `user_id` VARCHAR(255) NOT NULL;
-
--- AlterTable
-ALTER TABLE `User` DROP PRIMARY KEY,
-    MODIFY `id` VARCHAR(255) NOT NULL,
-    ADD PRIMARY KEY (`id`);
 
 -- AlterTable
 ALTER TABLE `UserCategory` ADD COLUMN `isDefault` BOOLEAN NOT NULL DEFAULT false,
