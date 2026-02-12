@@ -7,8 +7,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "node src/app.js",
-        "dev": "nodemon -e js,json,prisma --exec \"prisma generate && node src/app.js\"",
-        "seed": "node prisma/seed.js"
+        "dev": "nodemon -e js,json,prisma --exec \"prisma generate && node src/app.js\""
     },
     "author": "",
     "license": "ISC",
@@ -46,9 +45,6 @@
     "devDependencies": {
         "prisma": "^6.18.0",
         "nodemon": "^3.1.10"
-        },
-    "prisma": {
-        "seed": "node prisma/seed.js"
     }
-    
 }
+
