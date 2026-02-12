@@ -45,6 +45,7 @@ export const createUserCategory = async ({
   categoryName,
   iconKey,
   iconUrl,
+  displayOrder,
 }) => {
   const maxOrder = await prisma.userCategory.aggregate({
     where: { userId },
