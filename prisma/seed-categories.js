@@ -15,6 +15,7 @@ async function main() {
   const defaultCategoryNames = [
     "최근사용",
     "즐겨찾기",
+    "어미",
     "기본",
     "사람",
     "행동",
