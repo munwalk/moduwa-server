@@ -80,7 +80,7 @@ const router = express.Router();
  */
 /**
  * @swagger
- * /categories:
+ * /api/categories:
  *   get:
  *     summary: 카테고리 목록 조회
  *     tags: [Categories]
@@ -109,7 +109,7 @@ const router = express.Router();
  */
 /**
  * @swagger
- * /categories:
+ * /api/categories:
  *   post:
  *     summary: 사용자 카테고리 생성
  *     tags: [Categories]
@@ -142,7 +142,7 @@ const router = express.Router();
  */
 /**
  * @swagger
- * /categories/{id}:
+ * /api/categories/{id}:
  *   patch:
  *     summary: 카테고리 수정 (이름, 아이콘 변경)
  *     tags: [Categories]
@@ -184,7 +184,7 @@ const router = express.Router();
  */
 /**
  * @swagger
- * /categories/{id}:
+ * /api/categories/{id}:
  *   delete:
  *     summary: 카테고리 삭제
  *     tags: [Categories]
