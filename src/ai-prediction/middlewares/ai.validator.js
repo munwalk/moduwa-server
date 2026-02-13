@@ -35,7 +35,7 @@ export const validatePredictRequest = (req, res, next) => {
  * POST /api/ai/styles
  */
 export const validateStyleRequest = (req, res, next) => {
-  const { words, endingCards } = req.body;
+  const { words, endingCards, tone } = req.body;
 
   // 낱말 카드 검증
   if (!words || !Array.isArray(words) || words.length === 0) {
@@ -47,17 +47,31 @@ export const validateStyleRequest = (req, res, next) => {
     return next(new ValidationError('낱말 카드는 최대 10개까지 선택 가능합니다'));
   }
 
-  // 어미 선택 카드 검증 (배열, 1~5개)
-  if (!endingCards || !Array.isArray(endingCards)) {
-    return next(new ValidationError('어미 선택 카드를 최소 1개 이상 선택해주세요'));
+  const hasTone = typeof tone === 'string' && tone.length > 0;
+  const hasEndingCards = Array.isArray(endingCards);
+
+  // tone도 endingCards도 없으면 에러
+  if (!hasTone && !hasEndingCards) {
+    return next(new ValidationError('어미 선택 카드 또는 tone 중 하나는 반드시 제공해야 합니다'));
   }
 
-  if (endingCards.length === 0) {
-    return next(new ValidationError('어미 선택 카드를 최소 1개 이상 선택해주세요'));
+  // tone 값 검증 (있을 때만)
+  if (hasTone) {
+    const validTones = ['HONORIFIC', 'INFORMAL'];
+    if (!validTones.includes(tone)) {
+      return next(new ValidationError('tone은 HONORIFIC 또는 INFORMAL만 가능합니다'));
+    }
   }
 
-  if (endingCards.length > 5) {
-    return next(new ValidationError('어미 선택 카드는 최대 5개까지 선택 가능합니다'));
+  // endingCards 검증 (있을 때만)
+  if (hasEndingCards) {
+    if (endingCards.length === 0) {
+      return next(new ValidationError('어미 선택 카드를 최소 1개 이상 선택해주세요'));
+    }
+
+    if (endingCards.length > 5) {
+      return next(new ValidationError('어미 선택 카드는 최대 5개까지 선택 가능합니다'));
+    }
   }
 
   next();
