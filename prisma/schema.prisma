@@ -252,19 +252,19 @@ model FavoriteSentence {
 // ============================================
 
 model RoutineMessage {
-  id            String   @id @default(uuid()) @db.Char(36)
-  userId        String   @map("user_id") @db.VarChar(255)
-  message       String   @db.Text
+  id             String    @id @default(uuid()) @db.Char(36)
+  userId         String    @map("user_id") @db.VarChar(255)
+  message        String    @db.Text
   daysOfWeek     Json?     @map("days_of_week") // MySQL JSON: [1,3,5]
-  scheduledTime String   @map("scheduled_time") @db.VarChar(5) // "11:00"
-  isActive      Boolean  @default(true) @map("is_active")
-  repeatType    String   @default("WEEKLY") @map("repeat_type") @db.VarChar(20)
-  daysOfMonth   Json?    @map("days_of_month")
-  isMonthEnd    Boolean  @default(false) @map("is_month_end")
+  scheduledTime  String    @map("scheduled_time") @db.VarChar(5) // "11:00"
+  isActive       Boolean   @default(true) @map("is_active")
+  repeatType     String    @default("WEEKLY") @map("repeat_type") @db.VarChar(20)
+  daysOfMonth    Json?     @map("days_of_month")
+  isMonthEnd     Boolean   @default(false) @map("is_month_end")
   snoozedUntil   DateTime? @map("snoozed_until")
   dismissedUntil DateTime? @map("dismissed_until")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
 
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -289,22 +289,22 @@ model ConversationHistory {
   suggestedSentences Json      @map("suggested_sentences") // ["문장1", "문장2", "문장3"]
   selectedSentence   String?   @map("selected_sentence") @db.Text
   selectionIndex     Int?      @map("selection_index")
-  
+
   // 사용 기록 기능
-  isOutputted        Boolean   @default(false) @map("is_outputted") // TTS 실제 출력 여부
-  isDeleted          Boolean   @default(false) @map("is_deleted")   // Soft Delete
-  deletedAt          DateTime? @map("deleted_at")                   // 삭제 시간
-  
-  createdAt          DateTime  @default(now()) @map("created_at")
+  isOutputted Boolean   @default(false) @map("is_outputted") // TTS 실제 출력 여부
+  isDeleted   Boolean   @default(false) @map("is_deleted") // Soft Delete
+  deletedAt   DateTime? @map("deleted_at") // 삭제 시간
+
+  createdAt DateTime @default(now()) @map("created_at")
 
   // Relations
   user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   aiFeedbacks AIFeedback[]
 
   @@index([userId, createdAt(sort: Desc)])
-  @@index([userId, isOutputted, isDeleted])  // 출력된 항목만 조회
-  @@index([userId, isDeleted, createdAt])    // 삭제 안 된 항목 월별 조회
-  @@index([userId, isDeleted, selectedSentence(length: 255)])  // AI 문장 빈도수 조회 최적화 (countBySelectedSentence)
+  @@index([userId, isOutputted, isDeleted]) // 출력된 항목만 조회
+  @@index([userId, isDeleted, createdAt]) // 삭제 안 된 항목 월별 조회
+  @@index([userId, isDeleted, selectedSentence(length: 255)]) // AI 문장 빈도수 조회 최적화 (countBySelectedSentence)
   @@map("ConversationHistory")
 }
 
@@ -343,7 +343,8 @@ model UserSettings {
   ttsAgeType   TtsAgeType   @default(YOUNG) @map("tts_age_type")
   ttsTone      TtsTone      @default(NEUTRAL) @map("tts_tone")
   gridColumns  Int          @default(4) @map("grid_columns")
-  preferences  Json?        // 기타 설정
+  voiceKey     String       @default("ADULT_FEMALE_DEFAULT") @db.VarChar(191)
+  preferences  Json? // 기타 설정
   updatedAt    DateTime     @updatedAt @map("updated_at")
 
   // Relations
@@ -375,20 +376,21 @@ model Subscription {
   @@index([endDate])
   @@map("Subscription")
 }
+
 // ============================================
 // 13. Terms (약관)
 // ============================================
 
 model Terms {
-  id          String   @id @default(uuid()) @db.Char(36)
-  title       String   @db.VarChar(100)
-  content     String   @db.LongText
-  version     String   @db.VarChar(20)
-  isRequired  Boolean  @default(false) @map("is_required")
-  isActive    Boolean  @default(true) @map("is_active")
-  order       Int      @default(0) @map("display_order")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id         String   @id @default(uuid()) @db.Char(36)
+  title      String   @db.VarChar(100)
+  content    String   @db.LongText
+  version    String   @db.VarChar(20)
+  isRequired Boolean  @default(false) @map("is_required")
+  isActive   Boolean  @default(true) @map("is_active")
+  order      Int      @default(0) @map("display_order")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
 
   // Relations
   agreements TermsAgreement[]
@@ -419,4 +421,3 @@ model TermsAgreement {
   @@index([termsId])
   @@map("TermsAgreement")
 }
-

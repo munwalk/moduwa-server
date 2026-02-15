@@ -24,6 +24,7 @@ import authRoutes from "./auth/routes/auth.routes.js";
 import routineRouter from "./routine/routine.route.js";
 import settingsRouter from "./settings/settings.route.js";
 import orderRouter from "./order/order.route.js";
+import ttsSettingsRouter from "./tts/settings/ttsSettings.route.js";
 
 // 유틸리티
 import responseHelper from "./utils/response.util.js";
@@ -115,6 +116,7 @@ app.use("/api/ai", aiRouter);
 
 // TTS API
 app.use("/api/ai/tts", ttsRouter);
+app.use("/api/ai/tts-settings", ttsSettingsRouter);
 
 // Words API
 app.use("/api/words", wordsRouter);

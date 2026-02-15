@@ -9,6 +9,10 @@ const VOICE_KEYS = new Set([
 
 export function parseTtsRequest(body = {}) {
     const text = typeof body.text === "string" ? body.text.trim() : "";
+
+    // 요청에 voiceKey 키가 존재했는지(값이 빈 문자열이어도 “보냈다”로 간주)
+    const voiceKeyProvided = Object.prototype.hasOwnProperty.call(body, "voiceKey");
+
     const voiceKey =
         typeof body.voiceKey === "string" && body.voiceKey.trim()
             ? body.voiceKey.trim()
@@ -55,5 +59,6 @@ export function parseTtsRequest(body = {}) {
         };
     }
 
-    return { ok: true, data: { text, voiceKey, speed } };
+    // data에 voiceKeyProvided 추가
+    return { ok: true, data: { text, voiceKey, speed, voiceKeyProvided } };
 }
