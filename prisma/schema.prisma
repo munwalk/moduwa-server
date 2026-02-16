@@ -65,6 +65,7 @@ enum PartOfSpeech {
   ADJECTIVE
   MODIFIER
   NONE
+  ENDING
 }
 
 enum PlanType {

@@ -885,5 +885,40 @@
         "partOfSpeech": "VERB"
       }
     ]
+  },
+  {
+    "categoryName": "어미",
+    "words": [
+      {
+        "uuid": "563f2537-796e-4c83-9ea3-0cd0cd95e0fd",
+        "word": "합시다",
+        "imageUrl": "ending/563f2537-796e-4c83-9ea3-0cd0cd95e0fd.png",
+        "partOfSpeech": "ENDING"
+      },
+      {
+        "uuid": "9f0d8701-d2a3-403b-bc2b-ecd5dd030bac",
+        "word": "질문",
+        "imageUrl": "ending/9f0d8701-d2a3-403b-bc2b-ecd5dd030bac.png",
+        "partOfSpeech": "ENDING"
+      },
+      {
+        "uuid": "a4a611fe-9c11-4397-9a65-997a5b6a804f",
+        "word": "해주세요",
+        "imageUrl": "ending/a4a611fe-9c11-4397-9a65-997a5b6a804f.png",
+        "partOfSpeech": "ENDING"
+      },
+      {
+        "uuid": "d4d43351-0133-45c8-ba0c-f714d6597073",
+        "word": "하기 싫어요",
+        "imageUrl": "ending/d4d43351-0133-45c8-ba0c-f714d6597073.png",
+        "partOfSpeech": "ENDING"
+      },
+      {
+        "uuid": "daa19925-4aa1-4744-af31-4ab7bba0a68a",
+        "word": "하고 싶어요",
+        "imageUrl": "ending/daa19925-4aa1-4744-af31-4ab7bba0a68a.png",
+        "partOfSpeech": "ENDING"
+      }
+    ]
   }
 ]
