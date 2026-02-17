@@ -375,14 +375,21 @@ export class WordsRepository {
   async createSnapshotFromWords(userId, categoryId) {
     // 1. 해당 카테고리의 모든 Word 조회
     const words = await this.findWords(categoryId, userId);
-    
-    // 2. 각 Word를 참조하는 UserWord 생성
-    const createPromises = words.map((word, index) => 
+
+    // 2. categoryId가 UserCategory인지 확인
+    const userCategory = await prisma.userCategory.findUnique({
+      where: { id: categoryId }
+    });
+    const isUserCategory = !!userCategory;
+
+    // 3. 각 Word를 참조하는 UserWord 생성 (필드 분기)
+    const createPromises = words.map((word, index) =>
       prisma.userWord.create({
         data: {
           userId,
           wordId: word.id,
-          categoryId: word.categoryId,
+          categoryId: isUserCategory ? null : word.categoryId,
+          userCategoryId: isUserCategory ? categoryId : null,
           partOfSpeech: word.partOfSpeech,
           displayOrder: index, // 생성 순서대로 0, 1, 2...
           isFavorite: false,
