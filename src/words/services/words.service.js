@@ -6,6 +6,106 @@ import { analyzeWord } from '../../utils/nlp.client.js';
  * Words Service
  */
 export class WordsService {
+    /**
+     * 내부용: 전체 낱말 카드 목록 생성 (categoryId 없이)
+     */
+    async _getAllWordCards(userId, onlyFavorite = false) {
+      const wordCards = [];
+      let categoryNameToUserCategoryIdMap = new Map();
+      let categoryNameToCategoryIdMap = new Map();
+      let hasUserCategories = false;
+
+      if (userId) {
+        const userCategories = await wordsRepository.findAllUserCategories(userId);
+        if (userCategories.length > 0) {
+          hasUserCategories = true;
+          userCategories.forEach(uc => {
+            categoryNameToUserCategoryIdMap.set(uc.categoryName, uc.id);
+          });
+        } else {
+          const categories = await wordsRepository.findAllCategories();
+          categories.forEach(c => {
+            categoryNameToCategoryIdMap.set(c.categoryName, c.id);
+          });
+        }
+      }
+
+      // userWords 조회 (전체)
+      let userWords = [];
+      const userWordMap = new Map();
+      const deletedWordIds = new Set();
+      if (userId) {
+        userWords = await wordsRepository.findUserWords(userId, null, onlyFavorite, true);
+        userWords.forEach(uw => {
+          if (uw.wordId) userWordMap.set(uw.wordId, uw);
+        });
+        userWords.forEach(uw => {
+          if (uw.wordId && uw.isDeleted) deletedWordIds.add(uw.wordId);
+        });
+      }
+
+      // 기본 낱말(Word) 조회
+      if (!onlyFavorite) {
+        const words = await wordsRepository.findWords(null, userId);
+        words.forEach((word, index) => {
+          const userWord = userWordMap.get(word.id);
+          if (userWord && !userWord.isDeleted) return;
+          if (!deletedWordIds.has(word.id)) {
+            const wordCategoryName = word.category?.categoryName;
+            let mappedCategoryId;
+            if (hasUserCategories) {
+              mappedCategoryId = categoryNameToUserCategoryIdMap.get(wordCategoryName);
+            } else {
+              mappedCategoryId = categoryNameToCategoryIdMap.get(wordCategoryName) || word.categoryId;
+            }
+            wordCards.push(new WordCardResponseDto({
+              cardId: word.id,
+              categoryId: mappedCategoryId,
+              categoryName: wordCategoryName,
+              partOfSpeech: word.partOfSpeech,
+              word: word.word,
+              imageUrl: word.imageUrl,
+              isDefault: true,
+              isFavorite: false,
+              displayOrder: index
+            }));
+          }
+        });
+      }
+
+      // UserWord를 WordCardResponseDto로 변환 (isDeleted=false인 것만)
+      userWords.forEach(uw => {
+        if (uw.isDeleted) return;
+        const displayWord = uw.customWord || (uw.word?.word || '');
+        const displayImageUrl = uw.customImageUrl || (uw.word?.imageUrl || '');
+        let cardCategoryId, cardCategoryName;
+        if (uw.userCategoryId) {
+          cardCategoryId = uw.userCategoryId;
+          cardCategoryName = uw.userCategory?.categoryName;
+        } else if (uw.categoryId) {
+          cardCategoryName = uw.category?.categoryName;
+          if (!hasUserCategories && cardCategoryName) {
+            cardCategoryId = categoryNameToCategoryIdMap.get(cardCategoryName) || uw.categoryId;
+          } else {
+            cardCategoryId = uw.categoryId;
+          }
+        }
+        wordCards.push(new WordCardResponseDto({
+          cardId: uw.id,
+          categoryId: cardCategoryId,
+          categoryName: cardCategoryName,
+          partOfSpeech: uw.partOfSpeech,
+          word: displayWord,
+          imageUrl: displayImageUrl,
+          isDefault: uw.wordId !== null,
+          isFavorite: uw.isFavorite,
+          displayOrder: uw.displayOrder
+        }));
+      });
+
+      wordCards.sort((a, b) => a.displayOrder - b.displayOrder);
+      return wordCards;
+    }
   /**
    * 다음 displayOrder 계산 (기본 Word + UserWord 모두 고려)
    * @param {string} userId
@@ -37,160 +137,26 @@ export class WordsService {
    * @returns {Promise<Object>} { category, words }
    */
   async getWords(userId, categoryId = null, onlyFavorite = false) {
-    const wordCards = [];
+    // 1. 전체 낱말 목록 생성 (categoryId 없이)
+    const allWords = await this._getAllWordCards(userId, onlyFavorite);
+
+    // 2. categoryId가 없으면 전체 반환
+    if (!categoryId) {
+      return { words: allWords };
+    }
+
+    // 3. categoryId가 있으면 해당 카테고리만 필터링
+    const filteredWords = allWords.filter(w => w.categoryId === categoryId);
+    // 카테고리명 조회
     let categoryName = null;
-    let userCategoryId = categoryId; // 응답용 categoryId
-
-    // userId가 있을 때 categoryName → UserCategory.id 매핑 생성
-    let categoryNameToUserCategoryIdMap = new Map();
-    let categoryNameToCategoryIdMap = new Map(); // Category.id 매핑 (게스트용)
-    let hasUserCategories = false;
-    
-    if (userId) {
-      const userCategories = await wordsRepository.findAllUserCategories(userId);
-      
-      if (userCategories.length > 0) {
-        // 소셜 로그인 사용자 (UserCategory 있음)
-        hasUserCategories = true;
-        userCategories.forEach(uc => {
-          categoryNameToUserCategoryIdMap.set(uc.categoryName, uc.id);
-        });
-      } else {
-        // 게스트 (UserCategory 없음) - Category.id 매핑
-        const categories = await wordsRepository.findAllCategories();
-        categories.forEach(c => {
-          categoryNameToCategoryIdMap.set(c.categoryName, c.id);
-        });
-      }
+    const category = await wordsRepository.findCategoryById(categoryId);
+    if (category) {
+      categoryName = category.categoryName;
     }
-
-    // 카테고리 이름 조회 (categoryId가 있을 때만)
-    if (categoryId) {
-      const category = await wordsRepository.findCategoryById(categoryId);
-      categoryName = category?.categoryName || null;
-      
-      // categoryId 확인 (응답에 사용)
-      if (category && category.userId) {
-        // 이미 UserCategory
-        userCategoryId = category.id;
-      } else if (category && userId && hasUserCategories) {
-        // Category인 경우 → userId의 UserCategory.id 찾기
-        const userCat = await wordsRepository.findUserCategoryByName(userId, category.categoryName);
-        userCategoryId = userCat?.id || categoryId;
-      }
-    }
-
-    // userId가 있을 때만 사용자 낱말 조회
-    let userWords = [];
-    const userWordMap = new Map();
-    const deletedWordIds = new Set();
-    if (userId) {
-      // 1. UserWord 조회 (개인화된 낱말) - includeDeleted=true로 삭제된 것도 포함
-      userWords = await wordsRepository.findUserWords(userId, categoryId, onlyFavorite, true);
-      
-      // UserWord를 cardId 맵으로 저장 (wordId 기준)
-      userWords.forEach(uw => {
-        if (uw.wordId) {
-          userWordMap.set(uw.wordId, uw);
-        }
-      });
-
-      // isDeleted=true인 Word.id를 수집 (기본 낱말 필터링용)
-      userWords.forEach(uw => {
-        if (uw.wordId && uw.isDeleted) {
-          deletedWordIds.add(uw.wordId);
-        }
-      });
-    }
-
-    // 2. 기본 낱말(Word) 먼저 조회 (UserWord가 있으면 UserWord 기준으로 내려줌)
-    if (!onlyFavorite) {
-      const words = await wordsRepository.findWords(categoryId, userId);
-
-      words.forEach((word, index) => {
-        // UserWord가 있으면 Word는 추가하지 않음 (중복 방지)
-        const userWord = userWordMap.get(word.id);
-        if (userWord && !userWord.isDeleted) {
-          // 이미 UserWord로 내려가므로 Word는 추가하지 않음
-          return;
-        }
-        if (!deletedWordIds.has(word.id)) {
-          // UserWord가 없고 삭제도 안된 경우 Word 기준으로 내려줌
-          const wordCategoryName = word.category?.categoryName;
-          let mappedCategoryId;
-          if (hasUserCategories) {
-            mappedCategoryId = categoryNameToUserCategoryIdMap.get(wordCategoryName) || userCategoryId;
-          } else {
-            mappedCategoryId = categoryNameToCategoryIdMap.get(wordCategoryName) || word.categoryId;
-          }
-          wordCards.push(new WordCardResponseDto({
-            cardId: word.id, // Word.id
-            categoryId: mappedCategoryId,
-            categoryName: wordCategoryName,
-            partOfSpeech: word.partOfSpeech,
-            word: word.word,
-            imageUrl: word.imageUrl,
-            isDefault: true,
-            isFavorite: false,
-            displayOrder: index // 기본 낱말은 0, 1, 2...
-          }));
-        }
-      });
-    }
-
-    // 3. UserWord를 WordCardResponseDto로 변환 (isDeleted=false인 것만)
-    userWords.forEach(uw => {
-      // isDeleted=true인 경우 제외
-      if (uw.isDeleted) {
-        return;
-      }
-
-      // 개인 낱말: customWord가 있으면 사용, 없으면 기본 낱말 참조
-      const displayWord = uw.customWord || (uw.word?.word || '');
-      const displayImageUrl = uw.customImageUrl || (uw.word?.imageUrl || '');
-      
-      // categoryId 결정: userCategoryId 우선, 없으면 categoryId (게스트는 categoryNameToCategoryIdMap에서 매핑)
-      let cardCategoryId, cardCategoryName;
-      if (uw.userCategoryId) {
-        cardCategoryId = uw.userCategoryId;
-        cardCategoryName = uw.userCategory?.categoryName;
-      } else if (uw.categoryId) {
-        cardCategoryName = uw.category?.categoryName;
-        // 게스트라면 categoryNameToCategoryIdMap에서 매핑
-        if (!hasUserCategories && cardCategoryName) {
-          cardCategoryId = categoryNameToCategoryIdMap.get(cardCategoryName) || uw.categoryId;
-        } else {
-          cardCategoryId = uw.categoryId;
-        }
-      }
-
-      wordCards.push(new WordCardResponseDto({
-        cardId: uw.id, // UserWord.id
-        categoryId: cardCategoryId,
-        categoryName: cardCategoryName,
-        partOfSpeech: uw.partOfSpeech,
-        word: displayWord,
-        imageUrl: displayImageUrl,
-        isDefault: uw.wordId !== null, // wordId가 있으면 기본 낱말 참조
-        isFavorite: uw.isFavorite,
-        displayOrder: uw.displayOrder // UserWord는 그대로 사용
-      }));
-    });
-
-    // 4. displayOrder 기준 정렬
-    wordCards.sort((a, b) => a.displayOrder - b.displayOrder);
-
-    // categoryId가 있으면 category 정보 포함, 없으면 words만 반환
-    if (categoryId) {
-      return {
-        category: categoryName,
-        words: wordCards
-      };
-    } else {
-      return {
-        words: wordCards
-      };
-    }
+    return {
+      category: categoryName,
+      words: filteredWords
+    };
   }
 
   /**
