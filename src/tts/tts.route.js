@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { tts } from "./tts.controller.js";
+import { optionalAuthenticate } from "../auth/middlewares/optionalAuth.middleware.js";
 
 const router = Router();
 
@@ -12,7 +13,12 @@ const router = Router();
  *     summary: TTS 음성 생성
  *     description: |
  *       입력한 텍스트를 음성(MP3)으로 변환해 **binary(audio/mpeg)** 로 응답합니다.
- *       - `voiceKey`가 없으면 `ADULT_FEMALE_DEFAULT`를 기본값으로 사용합니다.
+ *
+ *       ### voiceKey 적용 정책 (옵션2)
+ *       - 요청에 `voiceKey`가 **명시되면** 해당 값이 **최우선**으로 적용됩니다.
+ *       - 요청에 `voiceKey`가 **없고**, Authorization(Access Token)이 **유효하면**
+ *         저장된 사용자 음성 설정(`tts-settings`)의 `voiceKey`가 **자동 적용**됩니다.
+ *       - Authorization이 **없으면(비로그인)** 기본 `voiceKey`(`ADULT_FEMALE_DEFAULT`)로 재생합니다.
  *
  *       ### Notes (테스트/정책)
  *       - **CORS 정책**: 브라우저(Swagger UI/HTML 테스트)에서 호출 시, 서버의 CORS 허용 Origin이 아니면 요청이 차단되어 `Failed to fetch`가 발생할 수 있습니다.
@@ -33,7 +39,10 @@ const router = Router();
  *                 example: "어제 라면을 먹고 잤더니 부었어요"
  *               voiceKey:
  *                 type: string
- *                 description: 보이스 키 (선택, 기본값 ADULT_FEMALE_DEFAULT)
+ *                 description: |
+ *                   보이스 키 (선택)
+ *                   - 명시하면 해당 값 우선 적용
+ *                   - 생략하면 (로그인 시) 저장된 설정값 자동 적용, (비로그인 시) 기본값 적용
  *                 enum:
  *                   - KID_MALE
  *                   - KID_FEMALE
@@ -99,6 +108,18 @@ const router = Router();
  *                     message: "요청 값이 올바르지 않습니다"
  *                     detail:
  *                       field: "speed"
+ *       401:
+ *        description: 인증 실패 (AUTH001) - Authorization 헤더가 존재하지만 토큰이 유효하지 않은 경우
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: "#/components/schemas/ErrorResponse"
+ *            example:
+ *              success: false
+ *              error:
+ *                code: "AUTH001"
+ *                message: "Access token required"
+ *                detail: null
  *       408:
  *         description: AI 응답 시간 초과 (AI001)
  *         content:
@@ -137,6 +158,6 @@ const router = Router();
  */
 
 // POST /api/ai/tts
-router.post("/", tts);
+router.post("/", optionalAuthenticate, tts);
 
 export default router;

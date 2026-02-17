@@ -6,6 +6,8 @@ import { dirname, join } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+const s3BaseUrl = process.env.S3_BASE_URL;
+
 const prisma = new PrismaClient();
 
 async function main() {
@@ -48,7 +50,8 @@ async function main() {
         word: wordData.word,
         categoryId: category.id,
         partOfSpeech: wordData.partOfSpeech || "NOUN", // 빈 문자열 처리
-        imageUrl: wordData.imageUrl,
+        // 환경변수와 상대경로 결합
+        imageUrl: `${s3BaseUrl}/${wordData.imageUrl}`,
         isDefault: true,
       };
 

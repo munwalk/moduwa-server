@@ -20,13 +20,26 @@ const transformStyleController = async (req, res, next) => {
     console.log('🟣 AI Style 요청 받음:', req.body);
 
     // 검증된 데이터 추출 (미들웨어에서 이미 검증 완료)
-    const { words, endingCards, refresh = false } = req.body;
+    const { words, endingCards, tone, refresh = false } = req.body;
     const userId = req.user?.userId; // 인증된 사용자 ID (학습 데이터 가중치 적용용)
 
+    // tone 우선 + endingCards 합성 정규화
+    let normalizedEndingCards = Array.isArray(endingCards) ? [...endingCards] : [];
+
+    if (tone) {
+      // endingCards 안에 존댓말/반말이 들어와도 tone이 우선이므로 제거
+      normalizedEndingCards = normalizedEndingCards.filter(
+        (card) => card !== '존댓말' && card !== '반말'
+      );
+
+      const toneCard = tone === 'HONORIFIC' ? '존댓말' : '반말';
+      normalizedEndingCards.unshift(toneCard);
+    }
+
     // 캐시 조회 (refresh가 false일 때만)
-    if (!refresh && words.length > 0 && endingCards.length > 0) {
+    if (!refresh && words.length > 0 && normalizedEndingCards.length > 0) {
       const cacheContext = { previousMessages: [] };
-      const cacheKey = generateCacheKey(words, cacheContext, 'styles', endingCards);
+      const cacheKey = generateCacheKey(words, cacheContext, 'styles', normalizedEndingCards);
       const cached = await getFromCache(cacheKey);
 
       if (cached?.sentences) {
@@ -54,12 +67,12 @@ const transformStyleController = async (req, res, next) => {
 
     // AI 문장 추천 호출 (userId 전달하여 학습 데이터 가중치 적용)
     console.log('🤖 FastAPI 호출:', { words, endingCards, refresh, userId });
-    const result = await transformSentenceStyle(words, endingCards, refresh, userId);
+    const result = await transformSentenceStyle(words, normalizedEndingCards, refresh, userId);
 
     // 캐시 저장 (원본 sentences만 저장, 사용자별 가중치 미적용)
-    if (words.length > 0 && endingCards.length > 0) {
+    if (words.length > 0 && normalizedEndingCards.length > 0) {
       const cacheContext = { previousMessages: [] };
-      const cacheKey = generateCacheKey(words, cacheContext, 'styles', endingCards);
+      const cacheKey = generateCacheKey(words, cacheContext, 'styles', normalizedEndingCards);
       await saveToCache(cacheKey, {
         words: result.words,
         endingCards: result.endingCards,

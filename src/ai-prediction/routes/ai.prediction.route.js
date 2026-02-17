@@ -297,7 +297,7 @@ router.get('/contexts', authenticate, contextController);
  * /api/ai/styles:
  *   post:
  *     summary: 문장 스타일 변환
- *     description: 낱말 카드 + 어미 카드를 조합하여 특정 스타일의 문장을 생성합니다. predictions와 동일한 Cache-First 전략을 사용합니다.
+ *     description: 낱말 카드 + 어미 카드를 조합하여 특정 스타일의 문장을 생성합니다. predictions와 동일한 Cache-First 전략을 사용합니다. `endingCards`, `tone` 중 `tone`이 우선 적용됩니다.
  *     tags: [AI]
  *     security:
  *       - bearerAuth: []
