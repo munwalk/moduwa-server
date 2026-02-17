@@ -105,6 +105,7 @@ services:
       REDIS_URL: redis://redis:6379
       KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
       KAKAO_REDIRECT_URI: ${KAKAO_REDIRECT_URI}
+      GOOGLE_APPLICATION_CREDENTIALS: /app/google-tts-credentials.json
       FASTAPI_URL: http://fastapi:8000
       NODE_ENV: ${NODE_ENV:-development}
       PORT: ${PORT:-3000}
@@ -114,6 +115,7 @@ services:
     volumes:
       - ./src:/app/src
       - ./prisma:/app/prisma
+      - ./google-tts-credentials.json:/app/google-tts-credentials.json:ro
       - /app/node_modules
     depends_on:
       mysql:
