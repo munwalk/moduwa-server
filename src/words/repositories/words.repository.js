@@ -131,10 +131,7 @@ export class WordsRepository {
     }
 
     if (categoryId) {
-      where.OR = [
-        { categoryId: categoryId },
-        { userCategoryId: categoryId }
-      ];
+      where.userCategoryId = categoryId;
     }
 
     if (onlyFavorite) {
