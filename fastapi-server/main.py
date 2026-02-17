@@ -73,6 +73,7 @@ class PartOfSpeech(str, Enum):
     VERB = "VERB"
     ADJECTIVE = "ADJECTIVE"
     MODIFIER = "MODIFIER"
+    ENDING = "ENDING"
     NONE = "NONE"
 
 # ============================================

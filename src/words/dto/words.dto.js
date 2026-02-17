@@ -11,6 +11,7 @@ export const PartOfSpeech = {
   ADJECTIVE: 'ADJECTIVE',
   MODIFIER: 'MODIFIER',
   EMOTION: 'EMOTION',
+  ENDING: 'ENDING',
   NONE: 'NONE'
 };
 
