@@ -688,7 +688,9 @@ def map_pos_to_category(pos_tag: str) -> PartOfSpeech:
         return PartOfSpeech.VERB
     elif pos_tag.startswith('Adj'):
         return PartOfSpeech.ADJECTIVE
-    elif pos_tag in ['Adv', 'Determiner', 'Eomi']:
+    elif pos_tag == 'Eomi':
+        return PartOfSpeech.ENDING
+    elif pos_tag in ['Adv', 'Determiner']:
         return PartOfSpeech.MODIFIER
     elif pos_tag == 'Josa':
         return PartOfSpeech.MODIFIER
