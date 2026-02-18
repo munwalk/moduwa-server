@@ -101,7 +101,7 @@ const rankByLearningData = async (predictions, userId) => {
  * @param {string} userId - 사용자 ID (학습 데이터 가중치 적용용)
  * @returns {Promise<Array>} 추천 문장 3개 (빈도수 가중치 적용 후 정렬)
  */
-const predictSentences = async (words = [], typedText = '', context = {}, refresh = false, userId = null, tone = null) => {
+const predictSentences = async (words = [], typedText = '', context = {}, refresh = false, userId = null) => {
   const { currentTime, previousMessages = [] } = context;
 
   // FastAPI 요청 페이로드 생성
@@ -111,8 +111,7 @@ const predictSentences = async (words = [], typedText = '', context = {}, refres
       currentTime: currentTime,
       previousMessages: previousMessages.slice(-3) // 최근 3개만 전달
     },
-    refresh,
-    ...(tone && { tone }) // tone이 있을 때만 포함
+    refresh // 새로고침 파라미터 추가
   };
 
   // AbortController로 타임아웃 처리 (10초)
