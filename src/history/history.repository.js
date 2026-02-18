@@ -59,7 +59,7 @@ export const findFrequentWords = async (userId, frequentLimit = 80) => {
   // 1. 즐겨찾기 데이터 전체 조회 (개수 제한 없음)
   const favorites = await prisma.userWord.findMany({
     where: { userId, isFavorite: true, isDeleted: false },
-    include: { category: true, word: true }
+    include: { userCategory: true }
   });
 
   // 2. 최근 3개월 대화 이력 조회

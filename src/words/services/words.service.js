@@ -44,32 +44,24 @@ export class WordsService {
         });
       }
 
-      // 기본 낱말(Word) 조회
-      if (!onlyFavorite) {
+      // 소셜 로그인(유저가 존재) 시에는 기본 Word를 반환하지 않고 UserWord만 반환
+      // 게스트(유저 없음)일 때만 기본 Word 반환
+      if (!onlyFavorite && !userId) {
         const words = await wordsRepository.findWords(null, userId);
         words.forEach((word, index) => {
-          const userWord = userWordMap.get(word.id);
-          if (userWord && !userWord.isDeleted) return;
-          if (!deletedWordIds.has(word.id)) {
-            const wordCategoryName = word.category?.categoryName;
-            let mappedCategoryId;
-            if (hasUserCategories) {
-              mappedCategoryId = categoryNameToUserCategoryIdMap.get(wordCategoryName);
-            } else {
-              mappedCategoryId = categoryNameToCategoryIdMap.get(wordCategoryName) || word.categoryId;
-            }
-            wordCards.push(new WordCardResponseDto({
-              cardId: word.id,
-              categoryId: mappedCategoryId,
-              categoryName: wordCategoryName,
-              partOfSpeech: word.partOfSpeech,
-              word: word.word,
-              imageUrl: word.imageUrl,
-              isDefault: true,
-              isFavorite: false,
-              displayOrder: index
-            }));
-          }
+          const wordCategoryName = word.category?.categoryName;
+          let mappedCategoryId = categoryNameToCategoryIdMap.get(wordCategoryName) || word.categoryId;
+          wordCards.push(new WordCardResponseDto({
+            cardId: word.id,
+            categoryId: mappedCategoryId,
+            categoryName: wordCategoryName,
+            partOfSpeech: word.partOfSpeech,
+            word: word.word,
+            imageUrl: word.imageUrl,
+            isDefault: true,
+            isFavorite: false,
+            displayOrder: index
+          }));
         });
       }
 
@@ -211,53 +203,17 @@ export class WordsService {
    * @returns {Promise<Object>} { cardId, isFavorite }
    */
   async updateFavorite(userId, cardId, isFavorite) {
-    // 1. cardId가 UserWord인지 Word인지 확인
-    let userWord = await wordsRepository.findUserWordById(cardId);
-    
-    if (userWord) {
-      // UserWord가 존재하는 경우
-      if (isFavorite) {
-        // 즐겨찾기 설정: isFavorite 업데이트
-        await wordsRepository.updateUserWordFavorite(cardId, true);
-        return { cardId, isFavorite: true };
-      } else {
-        // 즐겨찾기 해제
-        if (userWord.customWord || userWord.customImageUrl) {
-          // customWord가 있으면: isFavorite만 false로 업데이트
-          await wordsRepository.updateUserWordFavorite(cardId, false);
-          return { cardId, isFavorite: false };
-        } else {
-          // customWord가 없으면(기본 낱말만 참조): UserWord 삭제, Word.id 반환
-          const wordId = userWord.wordId;
-          await wordsRepository.deleteUserWord(cardId);
-          return { cardId: wordId, isFavorite: false };
-        }
-      }
+    // 무조건 UserWord만 즐겨찾기/해제 가능: Word 기반 로직 제거
+    const userWord = await wordsRepository.findUserWordById(cardId);
+    if (!userWord) {
+      throw new Error('존재하지 않는 UserWord입니다');
+    }
+    if (isFavorite) {
+      await wordsRepository.updateUserWordFavorite(cardId, true);
+      return { cardId, isFavorite: true };
     } else {
-      // Word인 경우
-      const word = await wordsRepository.findWordById(cardId);
-      if (!word) {
-        throw new Error('존재하지 않는 낱말입니다');
-      }
-
-      if (isFavorite) {
-        // 즐겨찾기 설정: UserWord 생성
-        // 기본 낱말의 displayOrder(카테고리 내 인덱스)를 UserWord의 displayOrder로 사용
-        // 같은 카테고리의 모든 Word를 가져와서 현재 Word의 인덱스를 찾음
-        const allWords = await wordsRepository.findWords(word.categoryId, null);
-        const wordIndex = allWords.findIndex(w => w.id === cardId);
-        const newDisplayOrder = wordIndex >= 0 ? wordIndex : await this.getNextDisplayOrder(userId, word.categoryId);
-
-        const newUserWord = await wordsRepository.createUserWordForFavorite(
-          userId,
-          cardId,
-          newDisplayOrder
-        );
-        return { cardId: newUserWord.id, isFavorite: true };
-      } else {
-        // 즐겨찾기 해제: Word는 기본적으로 즐겨찾기가 아니므로 아무것도 안함
-        return { cardId, isFavorite: false };
-      }
+      await wordsRepository.updateUserWordFavorite(cardId, false);
+      return { cardId, isFavorite: false };
     }
   }
 
@@ -271,64 +227,23 @@ export class WordsService {
    * @returns {Promise<WordCardResponseDto>}
    */
   async updateWord(userId, cardId, word, imageUrl, categoryId) {
-    // 1. cardId가 UserWord인지 Word인지 확인
-    let userWord = await wordsRepository.findUserWordById(cardId);
-    
-    if (userWord) {
-      // UserWord가 존재하는 경우: customWord/customImageUrl/categoryId 업데이트
-      const updatedUserWord = await wordsRepository.updateUserWord(cardId, word, imageUrl, categoryId);
-      
-      const displayWord = updatedUserWord.customWord || (updatedUserWord.word?.word || '');
-      const displayImageUrl = updatedUserWord.customImageUrl || (updatedUserWord.word?.imageUrl || '');
-      
-      return new WordCardResponseDto({
-        cardId: updatedUserWord.id,
-        categoryId: updatedUserWord.userCategoryId || updatedUserWord.categoryId,
-        categoryName: updatedUserWord.userCategory?.categoryName || updatedUserWord.category?.categoryName,
-        partOfSpeech: updatedUserWord.partOfSpeech,
-        word: displayWord,
-        imageUrl: displayImageUrl,
-        isDefault: updatedUserWord.wordId !== null,
-        isFavorite: updatedUserWord.isFavorite,
-        displayOrder: updatedUserWord.displayOrder
-      });
-    } else {
-      // Word인 경우: UserWord 생성
-      const baseWord = await wordsRepository.findWordById(cardId);
-      if (!baseWord) {
-        throw new Error('존재하지 않는 낱말입니다');
-      }
-
-      // 카테고리 결정: categoryId 파라미터가 있으면 사용, 아니면 baseWord.categoryId
-      const targetCategoryId = categoryId || baseWord.categoryId;
-
-      // displayOrder 계산
-      const newDisplayOrder = await this.getNextDisplayOrder(userId, targetCategoryId);
-
-      const newUserWord = await wordsRepository.createUserWordForEdit(
-        userId,
-        cardId,
-        word || null,
-        imageUrl || null,
-        newDisplayOrder,
-        targetCategoryId
-      );
-
-      const displayWord = newUserWord.customWord || newUserWord.word.word;
-      const displayImageUrl = newUserWord.customImageUrl || newUserWord.word.imageUrl;
-
-      return new WordCardResponseDto({
-        cardId: newUserWord.id,
-        categoryId: newUserWord.categoryId,
-        categoryName: newUserWord.category?.categoryName,
-        partOfSpeech: newUserWord.partOfSpeech,
-        word: displayWord,
-        imageUrl: displayImageUrl,
-        isDefault: true,
-        isFavorite: newUserWord.isFavorite,
-        displayOrder: newUserWord.displayOrder
-      });
+    // 무조건 UserWord만 수정: 기본 Word 복사/생성 로직 제거
+    const userWord = await wordsRepository.findUserWordById(cardId);
+    if (!userWord) {
+      throw new Error('존재하지 않는 UserWord입니다');
     }
+    const updatedUserWord = await wordsRepository.updateUserWord(cardId, word, imageUrl, categoryId);
+    return new WordCardResponseDto({
+      cardId: updatedUserWord.id,
+      categoryId: updatedUserWord.userCategoryId,
+      categoryName: updatedUserWord.userCategory?.categoryName,
+      partOfSpeech: updatedUserWord.partOfSpeech,
+      word: updatedUserWord.customWord,
+      imageUrl: updatedUserWord.customImageUrl,
+      isDefault: false,
+      isFavorite: updatedUserWord.isFavorite,
+      displayOrder: updatedUserWord.displayOrder
+    });
   }
 
   /**
@@ -338,26 +253,12 @@ export class WordsService {
    * @returns {Promise<void>}
    */
   async deleteWord(userId, cardId) {
-    // 1. cardId가 UserWord인지 확인
-    let userWord = await wordsRepository.findUserWordById(cardId);
-    
-    if (userWord) {
-      // UserWord인 경우: 실제 삭제 (DELETE)
-      await wordsRepository.deleteUserWord(cardId);
-    } else {
-      // Word인 경우: UserWord 레이어 생성 후 isDeleted=true 처리
-      const baseWord = await wordsRepository.findWordById(cardId);
-      
-      if (!baseWord) {
-        throw new Error('존재하지 않는 낱말입니다');
-      }
-
-      // displayOrder 계산
-      const newDisplayOrder = await this.getNextDisplayOrder(userId, baseWord.categoryId);
-
-      // isDeleted=true로 UserWord 생성
-      await wordsRepository.createUserWordForDelete(userId, cardId, newDisplayOrder);
+    // 무조건 UserWord만 삭제: Word 기반 복사/숨김 로직 제거
+    const userWord = await wordsRepository.findUserWordById(cardId);
+    if (!userWord) {
+      throw new Error('존재하지 않는 UserWord입니다');
     }
+    await wordsRepository.deleteUserWord(cardId);
   }
 
   /**
@@ -368,54 +269,9 @@ export class WordsService {
    * @returns {Promise<Array>} 변경된 낱말 목록
    */
   async reorderWords(userId, categoryId, orderedCardIds) {
-    // 1. orderedCardIds 중 UserWord인 것과 Word인 것을 구분
-    const userWordIds = [];
-    const baseWordIds = [];
-
-    for (const cardId of orderedCardIds) {
-      const userWord = await wordsRepository.findUserWordById(cardId);
-      if (userWord) {
-        userWordIds.push(cardId);
-      } else {
-        baseWordIds.push(cardId);
-      }
-    }
-
-    // 2. 기본 Word 참조가 있으면 스냅샷 생성 (아직 생성되지 않은 것만)
-    let createdUserWords = [];
-    if (baseWordIds.length > 0) {
-      const snapshotCount = await wordsRepository.countUserWordReferences(userId, categoryId);
-      if (snapshotCount === 0) {
-        // 스냅샷이 없으면 생성
-        createdUserWords = await wordsRepository.createSnapshotFromWords(userId, categoryId);
-      }
-    }
-
-    // 3. Word.id를 UserWord.id로 매핑 (스냅샷이 생성된 경우)
-    const wordIdToUserWordIdMap = new Map();
-    if (createdUserWords.length > 0) {
-      createdUserWords.forEach(uw => {
-        if (uw.wordId) {
-          wordIdToUserWordIdMap.set(uw.wordId, uw.id);
-        }
-      });
-    }
-
-    // 4. orderedCardIds를 UserWord.id로 변환
-    const finalOrderedCardIds = orderedCardIds.map(cardId => {
-      // 이미 UserWord.id면 그대로, Word.id면 변환된 UserWord.id 사용
-      return wordIdToUserWordIdMap.get(cardId) || cardId;
-    });
-
-    // 5. 업데이트할 displayOrder 목록 작성
-    const updates = finalOrderedCardIds.map((userWordId, index) => {
-      return { userWordId, displayOrder: index };
-    });
-
-    // 6. 대량 업데이트
+    // 무조건 UserWord만 순서변경: Word 기반 스냅샷/매핑 로직 제거
+    const updates = orderedCardIds.map((userWordId, index) => ({ userWordId, displayOrder: index }));
     await wordsRepository.bulkUpdateDisplayOrders(updates);
-
-    // 7. 변경된 낱말 목록 반환
     const reorderedWords = await this.getWords(userId, categoryId, false);
     return reorderedWords.words;
   }

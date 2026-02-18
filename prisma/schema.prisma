@@ -144,7 +144,7 @@ model Category {
 
   // Relations
   words     Word[]
-  userWords UserWord[]
+  // userWords relation 제거: UserWord에서 categoryId 삭제됨
 
   @@map("Category")
 }
@@ -164,7 +164,7 @@ model Word {
 
   // Relations
   category  Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  userWords UserWord[]
+  // userWords relation 제거: UserWord에서 wordId 삭제됨
 
   @@index([categoryId])
   @@index([word])
@@ -204,8 +204,8 @@ model UserCategory {
 model UserWord {
   id             String       @id @default(uuid()) @db.Char(36)
   userId         String       @map("user_id") @db.Char(36)
-  wordId         String?      @map("word_id") @db.Char(36)
-  categoryId     String?      @map("category_id") @db.Char(36)
+  // wordId 필드 제거: 이제 사용자 낱말만 관리
+  // categoryId 필드 제거: 이제 사용자 카테고리만 사용
   userCategoryId String?      @map("user_category_id") @db.Char(36)
   partOfSpeech   PartOfSpeech @map("part_of_speech")
   customWord     String?      @map("custom_word") @db.VarChar(100)
@@ -218,14 +218,14 @@ model UserWord {
 
   // Relations
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  word         Word?         @relation(fields: [wordId], references: [id], onDelete: SetNull)
-  category     Category?     @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  // word relation 제거
+    // category relation 제거
   userCategory UserCategory? @relation(fields: [userCategoryId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([userId, isFavorite])
   @@index([userId, isDeleted]) // 삭제된 항목 필터링용
-  @@index([userCategoryId, displayOrder])
+    // categoryId 인덱스 제거
   @@map("UserWord")
 }
 
