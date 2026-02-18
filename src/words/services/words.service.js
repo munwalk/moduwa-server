@@ -34,7 +34,7 @@ export class WordsService {
       let userWords = [];
       const userWordMap = new Map();
       const deletedWordIds = new Set();
-      if (userId && accountType !== 'GUEST') {
+      if (userId) {
         userWords = await wordsRepository.findUserWords(userId, null, onlyFavorite, true);
         userWords.forEach(uw => {
           if (uw.wordId) userWordMap.set(uw.wordId, uw);
@@ -44,17 +44,14 @@ export class WordsService {
         });
       }
 
-      // 소셜 로그인(유저가 존재) 시에는 기본 Word를 반환하지 않고 UserWord만 반환
-      // 게스트(유저 없음 또는 accountType이 GUEST)일 때 기본 Word 반환
-      if (!onlyFavorite && (!userId || accountType === 'GUEST')) {
-        const words = await wordsRepository.findWords(null, userId);
+      // 소셜/게스트 로그인(유저가 존재) 시에는 UserWord 기반, 비회원(토큰 없음)만 기본 Word 반환
+      if (!onlyFavorite && !userId && !accountType) {
+        const words = await wordsRepository.findWords();
         words.forEach((word, index) => {
-          const wordCategoryName = word.category?.categoryName;
-          let mappedCategoryId = categoryNameToCategoryIdMap.get(wordCategoryName) || word.categoryId;
           wordCards.push(new WordCardResponseDto({
             cardId: word.id,
-            categoryId: mappedCategoryId,
-            categoryName: wordCategoryName,
+            categoryId: word.categoryId,
+            categoryName: word.category?.categoryName,
             partOfSpeech: word.partOfSpeech,
             word: word.word,
             imageUrl: word.imageUrl,
