@@ -19,7 +19,7 @@ import redisClient from '../config/redis.config.js';
  * generateCacheKey(['밥', '먹다'], { previousMessages: [] }, 'styles', ['질문', '부드럽게'])
  * // Returns: 'aac:styles:e5f6g7h8...'
  */
-export function generateCacheKey(words, context, endpoint = 'predictions', endingCards = null, tone = null) {
+export function generateCacheKey(words, context, endpoint = 'predictions', endingCards = null) {
   const cacheData = {
     words: [...words].sort(), // 순서 무관하게 정렬 (FastAPI와 동일)
     context: {
@@ -31,11 +31,6 @@ export function generateCacheKey(words, context, endpoint = 'predictions', endin
   // styles 엔드포인트인 경우 endingCards 추가
   if (endpoint === 'styles' && endingCards && endingCards.length > 0) {
     cacheData.endingCards = [...endingCards].sort(); // 순서 무관하게 정렬
-  }
-
-  // tone이 있으면 캐시 키에 포함 (반말/존댓말별로 캐시 분리)
-  if (tone) {
-    cacheData.tone = tone;
   }
 
   // 키를 정렬하여 JSON 문자열로 변환 (Python의 sort_keys=True 효과)

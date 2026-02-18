@@ -8,7 +8,7 @@ import { ValidationError } from '../../errors/app.error.js';
 export const validatePredictRequest = (req, res, next) => {
   const { error, value } = predictRequestSchema.validate(req.body);
 
-  const { words = [], tone } = error ? req.body : value;
+  const { words = [] } = error ? req.body : value;
 
   // 1. 낱말 카드 없으면 에러
   if (!words || words.length === 0) {
@@ -20,15 +20,7 @@ export const validatePredictRequest = (req, res, next) => {
     return next(new ValidationError('낱말 카드는 최소 1개, 최대 10개까지 선택 가능합니다'));
   }
 
-  // 3. tone 검증 (있을 때만)
-  if (tone !== undefined && tone !== null) {
-    const validTones = ['HONORIFIC', 'INFORMAL'];
-    if (!validTones.includes(tone)) {
-      return next(new ValidationError('tone은 HONORIFIC 또는 INFORMAL만 가능합니다'));
-    }
-  }
-
-  // 4. Joi 검증 에러 처리
+  // 3. Joi 검증 에러 처리
   if (error) {
     return next(new ValidationError(error.details[0].message));
   }

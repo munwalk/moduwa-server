@@ -11,8 +11,9 @@ import { generateCacheKey, getFromCache, saveToCache } from '../../utils/cache.u
  * 예: ["질문"] 카드 → 3개 문장 모두 의문문
  * 예: ["질문", "부드럽게"] 카드 → 3개 문장 모두 부드러운 의문문 (다중 합성)
  *
- * - 어미 카드는 최대 5개 (tone과 별개)
- * - tone은 독립 파라미터로 FastAPI에 직접 전달 (endingCards에 포함 X)
+ * - 어미 카드는 15개 제한에 포함되지 않음 (별도로 1~5개 제한)
+ * - LLM이 커스텀 어미 카드도 유연하게 해석 (기본 5개에 고정 X)
+ * - 다중 어미 카드 합성: 1~5개 카드를 동시에 선택 가능
  */
 const transformStyleController = async (req, res, next) => {
   try {
@@ -22,13 +23,23 @@ const transformStyleController = async (req, res, next) => {
     const { words, endingCards, tone, refresh = false } = req.body;
     const userId = req.user?.userId; // 인증된 사용자 ID (학습 데이터 가중치 적용용)
 
-    // endingCards 정규화 (tone은 별도 파라미터로 FastAPI에 직접 전달)
-    const normalizedEndingCards = Array.isArray(endingCards) ? [...endingCards] : [];
+    // tone 우선 + endingCards 합성 정규화
+    let normalizedEndingCards = Array.isArray(endingCards) ? [...endingCards] : [];
+
+    if (tone) {
+      // endingCards 안에 존댓말/반말이 들어와도 tone이 우선이므로 제거
+      normalizedEndingCards = normalizedEndingCards.filter(
+        (card) => card !== '존댓말' && card !== '반말'
+      );
+
+      const toneCard = tone === 'HONORIFIC' ? '존댓말' : '반말';
+      normalizedEndingCards.unshift(toneCard);
+    }
 
     // 캐시 조회 (refresh가 false일 때만)
-    if (!refresh && words.length > 0 && (normalizedEndingCards.length > 0 || tone)) {
+    if (!refresh && words.length > 0 && normalizedEndingCards.length > 0) {
       const cacheContext = { previousMessages: [] };
-      const cacheKey = generateCacheKey(words, cacheContext, 'styles', normalizedEndingCards, tone);
+      const cacheKey = generateCacheKey(words, cacheContext, 'styles', normalizedEndingCards);
       const cached = await getFromCache(cacheKey);
 
       if (cached?.sentences) {
@@ -46,7 +57,6 @@ const transformStyleController = async (req, res, next) => {
           {
             words: cached.words,
             endingCards: cached.endingCards,
-            tone: tone || null,
             sentences: finalSentences,
             fromCache: true
           },
@@ -55,14 +65,14 @@ const transformStyleController = async (req, res, next) => {
       }
     }
 
-    // AI 문장 추천 호출 (userId, tone 전달)
-    console.log('🤖 FastAPI 호출:', { words, endingCards: normalizedEndingCards, tone, refresh, userId });
-    const result = await transformSentenceStyle(words, normalizedEndingCards, refresh, userId, tone);
+    // AI 문장 추천 호출 (userId 전달하여 학습 데이터 가중치 적용)
+    console.log('🤖 FastAPI 호출:', { words, endingCards, refresh, userId });
+    const result = await transformSentenceStyle(words, normalizedEndingCards, refresh, userId);
 
     // 캐시 저장 (원본 sentences만 저장, 사용자별 가중치 미적용)
-    if (words.length > 0 && (normalizedEndingCards.length > 0 || tone)) {
+    if (words.length > 0 && normalizedEndingCards.length > 0) {
       const cacheContext = { previousMessages: [] };
-      const cacheKey = generateCacheKey(words, cacheContext, 'styles', normalizedEndingCards, tone);
+      const cacheKey = generateCacheKey(words, cacheContext, 'styles', normalizedEndingCards);
       await saveToCache(cacheKey, {
         words: result.words,
         endingCards: result.endingCards,
@@ -74,7 +84,6 @@ const transformStyleController = async (req, res, next) => {
       {
         words: result.words,
         endingCards: result.endingCards,
-        tone: tone || null,
         sentences: result.sentences, // 가중치 적용된 sentences (문자열 배열)
         fromCache: false
       },
