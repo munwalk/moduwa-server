@@ -9,13 +9,13 @@ export class WordsService {
     /**
      * 내부용: 전체 낱말 카드 목록 생성 (categoryId 없이)
      */
-    async _getAllWordCards(userId, onlyFavorite = false) {
+    async _getAllWordCards(userId, accountType, onlyFavorite = false) {
       const wordCards = [];
       let categoryNameToUserCategoryIdMap = new Map();
       let categoryNameToCategoryIdMap = new Map();
       let hasUserCategories = false;
 
-      if (userId) {
+      if (userId && accountType !== 'GUEST') {
         const userCategories = await wordsRepository.findAllUserCategories(userId);
         if (userCategories.length > 0) {
           hasUserCategories = true;
@@ -34,7 +34,7 @@ export class WordsService {
       let userWords = [];
       const userWordMap = new Map();
       const deletedWordIds = new Set();
-      if (userId) {
+      if (userId && accountType !== 'GUEST') {
         userWords = await wordsRepository.findUserWords(userId, null, onlyFavorite, true);
         userWords.forEach(uw => {
           if (uw.wordId) userWordMap.set(uw.wordId, uw);
@@ -45,8 +45,8 @@ export class WordsService {
       }
 
       // 소셜 로그인(유저가 존재) 시에는 기본 Word를 반환하지 않고 UserWord만 반환
-      // 게스트(유저 없음)일 때만 기본 Word 반환
-      if (!onlyFavorite && !userId) {
+      // 게스트(유저 없음 또는 accountType이 GUEST)일 때 기본 Word 반환
+      if (!onlyFavorite && (!userId || accountType === 'GUEST')) {
         const words = await wordsRepository.findWords(null, userId);
         words.forEach((word, index) => {
           const wordCategoryName = word.category?.categoryName;
@@ -101,20 +101,20 @@ export class WordsService {
   /**
    * 다음 displayOrder 계산 (기본 Word + UserWord 모두 고려)
    * @param {string} userId
+   * @param {string} accountType
    * @param {string} categoryId
    * @returns {Promise<number>}
    */
-  async getNextDisplayOrder(userId, categoryId) {
+  async getNextDisplayOrder(userId, accountType, categoryId) {
     // 1. UserWord 조회 (삭제된 것 제외)
-    const userWords = await wordsRepository.findUserWords(userId, categoryId, false, false);
-    
-    // 2. UserWord가 있으면 최대값 + 1 반환
-    if (userWords.length > 0) {
-      const maxOrder = Math.max(...userWords.map(w => w.displayOrder));
-      return maxOrder + 1;
+    if (accountType !== 'GUEST') {
+      const userWords = await wordsRepository.findUserWords(userId, categoryId, false, false);
+      if (userWords.length > 0) {
+        const maxOrder = Math.max(...userWords.map(w => w.displayOrder));
+        return maxOrder + 1;
+      }
     }
-    
-    // 3. UserWord가 없으면 기본 Word 개수 반환
+    // 게스트이거나 UserWord가 없으면 기본 Word 개수 반환
     const words = await wordsRepository.findWords(categoryId, userId);
     return words.length;
   }
@@ -124,13 +124,14 @@ export class WordsService {
    * 기본 낱말(Word) + 개인 낱말(UserWord) 통합 반환
    * 
    * @param {string} userId
+   * @param {string} accountType
    * @param {string|null} categoryId - Category.id 또는 UserCategory.id
    * @param {boolean} onlyFavorite
    * @returns {Promise<Object>} { category, words }
    */
-  async getWords(userId, categoryId = null, onlyFavorite = false) {
+  async getWords(userId, accountType, categoryId = null, onlyFavorite = false) {
     // 1. 전체 낱말 목록 생성 (categoryId 없이)
-    const allWords = await this._getAllWordCards(userId, onlyFavorite);
+    const allWords = await this._getAllWordCards(userId, accountType, onlyFavorite);
 
     // 2. categoryId가 없으면 전체 반환
     if (!categoryId) {
