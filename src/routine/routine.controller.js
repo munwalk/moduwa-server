@@ -162,21 +162,30 @@ const getLastDayOfMonth = (date) => {
 };
 
 // 루틴이 "지금(오늘/현재시간)" 실행 대상인지 판단
+
 const isDueNow = (routine, now) => {
   if (!routine.isActive) return false;
 
-  // dismissedUntil이 미래면 오늘은 안뜸
+  // 오늘 끄기 상태면 차단
   if (routine.dismissedUntil && new Date(routine.dismissedUntil) > now)
     return false;
 
-  // snoozedUntil이 미래면 아직 스누즈 유지
-  if (routine.snoozedUntil && new Date(routine.snoozedUntil) > now)
-    return false;
+  const snoozedUntil = routine.snoozedUntil
+    ? new Date(routine.snoozedUntil)
+    : null;
 
-  // 시간 매칭 (HH:MM)
+  // 스누즈 우선 처리
+  if (snoozedUntil) {
+    if (now < snoozedUntil) return false;
+    // snoozedUntil이 지났으면 즉시 노출
+    return true;
+  }
+
+  // 정규 스케줄 시간 비교 (HH:MM)
   const hh = String(now.getHours()).padStart(2, "0");
   const mm = String(now.getMinutes()).padStart(2, "0");
   const current = `${hh}:${mm}`;
+
   if (routine.scheduledTime !== current) return false;
 
   const rt = routine.repeatType ?? "WEEKLY";
