@@ -14,12 +14,13 @@ const router = express.Router();
  * @swagger
  * /api/words:
  *   get:
+ *     security:
+ *       - bearerAuth: []
  *     summary: 낱말 카드 조회
  *     description: |
 *       낱말 카드 목록을 조회합니다.
 *       토큰이 있으면 게스트/소셜 계정 모두 사용자별 낱말(즐겨찾기/개인화 포함)을 조회합니다.
 *       토큰이 없으면 기본 낱말만 반환합니다.
-*       categoryId가 있으면 data.category(카테고리 이름)도 함께 반환됩니다.
  *     tags: [Words]
  *     parameters:
  *       - in: query
@@ -74,6 +75,8 @@ router.get('/', optionalAuthenticate, wordsController.getWords.bind(wordsControl
  * @swagger
  * /api/words:
  *   post:
+ *     security:
+ *       - bearerAuth: []
  *     summary: 개인 낱말 카드 추가
  *     description: 사용자가 직접 낱말 카드를 추가합니다. NLP로 품사를 자동 분석합니다.
  *     tags: [Words]
