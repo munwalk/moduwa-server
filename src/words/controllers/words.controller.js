@@ -11,6 +11,7 @@ export class WordsController {
   async getWords(req, res, next) {
     try {
       const userId = req.user?.userId;
+      const accountType = req.user?.accountType;
 
       const queryDto = new GetWordsQueryDto({
         categoryId: req.query.categoryId,
@@ -19,6 +20,7 @@ export class WordsController {
 
       const result = await wordsService.getWords(
         userId,
+        accountType,
         queryDto.categoryId,
         queryDto.onlyFavorite
       );

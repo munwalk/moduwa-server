@@ -16,9 +16,10 @@ const router = express.Router();
  *   get:
  *     summary: 낱말 카드 조회
  *     description: |
- *       낱말 카드 목록을 조회합니다.
- *       토큰이 있으면 사용자별 낱말(즐겨찾기/개인화 포함), 없으면 기본 낱말만 반환합니다.
- *       categoryId가 있으면 data.category(카테고리 이름)도 함께 반환됩니다.
+*       낱말 카드 목록을 조회합니다.
+*       토큰이 있으면 게스트/소셜 계정 모두 사용자별 낱말(즐겨찾기/개인화 포함)을 조회합니다.
+*       토큰이 없으면 기본 낱말만 반환합니다.
+*       categoryId가 있으면 data.category(카테고리 이름)도 함께 반환됩니다.
  *     tags: [Words]
  *     parameters:
  *       - in: query
