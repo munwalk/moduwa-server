@@ -94,6 +94,11 @@ app.use(responseHelper);
 // +) 라우터 등록
 // Swagger UI: 개발/스테이징에서만 활성화 (프로덕션에서는 보안을 위해 비활성화)
 if (process.env.NODE_ENV !== 'production') {
+  // 브라우저 캐싱 방지 — spec 변경 시 즉시 반영
+  app.use('/api-docs', (req, res, next) => {
+    res.setHeader('Cache-Control', 'no-store');
+    next();
+  });
   app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
     swaggerOptions: {
       persistAuthorization: true,

@@ -13,13 +13,13 @@ const predictController = async (req, res, next) => {
     console.log('🔵 AI predictions 요청 받음:', req.body);
 
     // 검증된 데이터 추출 (미들웨어에서 이미 검증 완료)
-    const { words, context, refresh = false } = req.body;
+    const { words, context, refresh = false, tone } = req.body;
     const userId = req.user?.userId; // 인증된 사용자 ID (학습 데이터 가중치 적용용)
 
     // 캐시 조회 (refresh가 false이면 맥락 유무와 상관없이 조회)
     if (!refresh && words.length > 0) {
       const cacheContext = { previousMessages: context?.previousMessages || [] };
-      const cacheKey = generateCacheKey(words, cacheContext, 'predictions');  
+      const cacheKey = generateCacheKey(words, cacheContext, 'predictions', null, tone);
       const cachedData = await getFromCache(cacheKey);
 
       if (cachedData?.predictions) {
@@ -30,20 +30,20 @@ const predictController = async (req, res, next) => {
         const finalPredictions = rankedCached.map(pred => pred.sentence);
 
         return res.status(200).success(
-          { predictions: finalPredictions, fromCache: true },
+          { predictions: finalPredictions, tone: tone || null, fromCache: true },
           '문장 추천 성공 (캐시)'
         );
       }
     }
 
-    // GPT 호출 (userId 전달하여 학습 데이터 가중치 적용)
-    console.log('🤖 GPT API 호출:', { words, context, refresh, userId });
-    const result = await predictSentences(words, null, context, refresh, userId);
+    // GPT 호출 (userId, tone 전달)
+    console.log('🤖 GPT API 호출:', { words, context, refresh, userId, tone });
+    const result = await predictSentences(words, null, context, refresh, userId, tone);
 
     // 캐시 저장 (모든 상황에서 원본 predictions 저장, 24시간 유지)
     if (words.length > 0) {
       const cacheContext = { previousMessages: context?.previousMessages || [] };
-      const cacheKey = generateCacheKey(words, cacheContext, 'predictions');
+      const cacheKey = generateCacheKey(words, cacheContext, 'predictions', null, tone);
       await saveToCache(cacheKey, { predictions: result.rawPredictions }, 86400);
     }
 
@@ -54,7 +54,7 @@ const predictController = async (req, res, next) => {
       size: JSON.stringify(finalPredictions).length
     });
     return res.status(200).success(
-      { predictions: finalPredictions, fromCache: false },
+      { predictions: finalPredictions, tone: tone || null, fromCache: false },
       '문장 추천 성공'
     );
 
