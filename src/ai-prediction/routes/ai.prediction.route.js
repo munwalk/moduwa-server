@@ -21,7 +21,12 @@ const router = express.Router();
  * /api/ai/predictions:
  *   post:
  *     summary: 문장 추천 (기본 3가지)
- *     description: 낱말 카드를 조합하여 자연스러운 문장 3개를 추천합니다. 캐시가 있으면 즉시 반환하고, 없으면 AI 호출 후 캐시에 저장합니다.
+ *     description: |
+ *       낱말 카드를 조합하여 자연스러운 문장 3개를 추천합니다. 캐시가 있으면 즉시 반환하고, 없으면 AI 호출 후 캐시에 저장합니다.
+ *
+ *       **`tone`** — 반말/존댓말 토글 (기기 내 설정값 반영)
+ *
+ *       > 토글 OFF → `HONORIFIC` (존댓말, 기본값) / 토글 ON → `INFORMAL` (반말)
  *     tags: [AI]
  *     security:
  *       - bearerAuth: []
@@ -56,6 +61,10 @@ const router = express.Router();
  *                       type: string
  *                     description: 최근 대화 기록 (최대 10분 이내)
  *                     example: ["약 먹어야 해", "오늘 기분 좋아"]
+ *               tone:
+ *                 type: string
+ *                 enum: [HONORIFIC, INFORMAL]
+ *                 description: "tone — 반말/존댓말 토글 (기기 내 설정값 반영)\n\n토글 OFF → HONORIFIC (존댓말, 기본값) / 토글 ON → INFORMAL (반말)"
  *               refresh:
  *                 type: boolean
  *                 default: false
@@ -81,6 +90,12 @@ const router = express.Router();
  *                       items:
  *                         type: string
  *                       example: ["물 좀 주세요", "물 주실래요?", "물 한 잔 주시겠어요?"]
+ *                     tone:
+ *                       type: string
+ *                       nullable: true
+ *                       enum: [HONORIFIC, INFORMAL]
+ *                       description: 요청한 tone 값 (미전달 시 null)
+ *                       example: "HONORIFIC"
  *                     fromCache:
  *                       type: boolean
  *                       description: 캐시에서 반환되었는지 여부
@@ -110,6 +125,14 @@ const router = express.Router();
  *                   error:
  *                     code: "VALIDATION001"
  *                     message: "낱말 카드는 최소 1개, 최대 10개까지 선택 가능합니다"
+ *                     detail: null
+ *               invalidTone:
+ *                 summary: tone 값 오류
+ *                 value:
+ *                   success: false
+ *                   error:
+ *                     code: "VALIDATION001"
+ *                     message: "tone은 HONORIFIC 또는 INFORMAL만 가능합니다"
  *                     detail: null
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
@@ -301,11 +324,13 @@ router.get('/contexts', authenticate, contextController);
  *       낱말 카드 + 어미 카드를 조합하여 특정 스타일의 문장을 생성합니다. predictions와 동일한 Cache-First 전략을 사용합니다.
  *
  *       **`tone`** — 반말/존댓말 토글 (기기 내 설정값 반영)
- *       토글 OFF → `HONORIFIC` (존댓말, 기본값) / 토글 ON → `INFORMAL` (반말)
+ *
+ *       > 토글 OFF → `HONORIFIC` (존댓말, 기본값) / 토글 ON → `INFORMAL` (반말)
  *
  *       **`endingCards`** — 어미 선택 카드 (문장 스타일 지정)
- *       `하고 싶어요` / `하기 싫어요` / `질문` / `해주세요` / `합시다` 및 사용자 커스텀 어미 가능.
- *       LLM이 어미의 의미를 해석하여 자연스러운 문장으로 변환합니다.
+ *
+ *       > `하고 싶어요` / `하기 싫어요` / `질문` / `해주세요` / `합시다` 및 사용자 커스텀 어미 가능.
+ *       > LLM이 어미의 의미를 해석하여 자연스러운 문장으로 변환합니다.
  *
  *       두 파라미터는 **독립적이며 동시에 사용 가능**합니다. `tone`은 반말/존댓말만 제어하고, `endingCards`는 문장의 의도/어미를 제어합니다.
  *     tags: [AI]
@@ -339,11 +364,11 @@ router.get('/contexts', authenticate, contextController);
  *                   type: string
  *                 minItems: 1
  *                 maxItems: 5
- *                 description: "선택한 어미 카드 배열 (1~5개). tone 없이 사용 시 필수. 기본 카드: 하고 싶어요, 하기 싫어요, 질문, 해주세요, 합시다"
+ *                 description: "선택한 어미 카드 배열 (최대 5개). tone 없이 사용 시 필수. 기본 카드: 하고 싶어요, 하기 싫어요, 질문, 해주세요, 합시다. tone과 독립적으로 동시 사용 가능."
  *               tone:
  *                 type: string
  *                 enum: [HONORIFIC, INFORMAL]
- *                 description: "반말/존댓말 모드. HONORIFIC(존댓말) 또는 INFORMAL(반말). endingCards 없이 단독 사용 가능. 있을 경우 endingCards 앞에 반말/존댓말 카드로 변환되어 우선 적용됨."
+ *                 description: "tone — 반말/존댓말 토글 (기기 내 설정값 반영)\n\n토글 OFF → HONORIFIC (존댓말, 기본값) / 토글 ON → INFORMAL (반말)"
  *               refresh:
  *                 type: boolean
  *                 default: false
@@ -372,11 +397,17 @@ router.get('/contexts', authenticate, contextController);
  *                       type: array
  *                       items:
  *                         type: string
- *                       description: "실제 적용된 어미 카드 배열. tone 사용 시 맨 앞에 반말/존댓말 카드가 추가됨. 예: tone=INFORMAL → [\"반말\", \"질문\"]"
- *                       example: ["반말", "질문"]
+ *                       description: "입력한 어미 카드 배열 (tone 카드 미포함)"
+ *                       example: ["질문"]
+ *                     tone:
+ *                       type: string
+ *                       nullable: true
+ *                       enum: [HONORIFIC, INFORMAL]
+ *                       description: 요청한 tone 값 (미전달 시 null)
+ *                       example: "INFORMAL"
  *                     sentences:
  *                       type: array
- *                       description: 스타일 변환된 문장 3개 (사용자별 가중치 적용 후 정렬, 문자열 배열)
+ *                       description: "스타일 변환된 문장 3개 (tone + endingCards 동시 적용, 사용자별 가중치 정렬)"
  *                       items:
  *                         type: string
  *                       example: ["밥 먹을래?", "밥 먹어?", "밥 먹을 거야?"]
@@ -425,6 +456,22 @@ router.get('/contexts', authenticate, contextController);
  *                   error:
  *                     code: "VALIDATION001"
  *                     message: "어미 선택 카드는 최대 5개까지 선택 가능합니다"
+ *                     detail: null
+ *               noToneOrEndings:
+ *                 summary: tone과 어미 카드 모두 없음
+ *                 value:
+ *                   success: false
+ *                   error:
+ *                     code: "VALIDATION001"
+ *                     message: "어미 선택 카드 또는 tone 중 하나는 반드시 제공해야 합니다"
+ *                     detail: null
+ *               invalidTone:
+ *                 summary: tone 값 오류
+ *                 value:
+ *                   success: false
+ *                   error:
+ *                     code: "VALIDATION001"
+ *                     message: "tone은 HONORIFIC 또는 INFORMAL만 가능합니다"
  *                     detail: null
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
