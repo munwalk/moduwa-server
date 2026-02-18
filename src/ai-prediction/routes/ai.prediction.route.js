@@ -297,7 +297,17 @@ router.get('/contexts', authenticate, contextController);
  * /api/ai/styles:
  *   post:
  *     summary: 문장 스타일 변환
- *     description: 낱말 카드 + 어미 카드를 조합하여 특정 스타일의 문장을 생성합니다. predictions와 동일한 Cache-First 전략을 사용합니다. `endingCards`, `tone` 중 `tone`이 우선 적용됩니다.
+ *     description: |
+ *       낱말 카드 + 어미 카드를 조합하여 특정 스타일의 문장을 생성합니다. predictions와 동일한 Cache-First 전략을 사용합니다.
+ *
+ *       **`tone`** — 반말/존댓말 토글 (기기 내 설정값 반영)
+ *       토글 OFF → `HONORIFIC` (존댓말, 기본값) / 토글 ON → `INFORMAL` (반말)
+ *
+ *       **`endingCards`** — 어미 선택 카드 (문장 스타일 지정)
+ *       `하고 싶어요` / `하기 싫어요` / `질문` / `해주세요` / `합시다` 및 사용자 커스텀 어미 가능.
+ *       LLM이 어미의 의미를 해석하여 자연스러운 문장으로 변환합니다.
+ *
+ *       두 파라미터는 **독립적이며 동시에 사용 가능**합니다. `tone`은 반말/존댓말만 제어하고, `endingCards`는 문장의 의도/어미를 제어합니다.
  *     tags: [AI]
  *     security:
  *       - bearerAuth: []
@@ -309,7 +319,12 @@ router.get('/contexts', authenticate, contextController);
  *             type: object
  *             required:
  *               - words
- *               - endingCards
+ *             description: "`tone`과 `endingCards`는 독립적인 파라미터입니다. `tone`은 반말/존댓말만 제어하고, `endingCards`는 문장의 의도와 어미 스타일을 제어합니다. 둘 다 없으면 에러입니다."
+ *             example:
+ *               words: ["밥", "먹다"]
+ *               endingCards: ["질문"]
+ *               tone: "INFORMAL"
+ *               refresh: false
  *             properties:
  *               words:
  *                 type: array
@@ -318,20 +333,21 @@ router.get('/contexts', authenticate, contextController);
  *                 minItems: 1
  *                 maxItems: 10
  *                 description: 선택한 낱말 카드 배열 (1~10개)
- *                 example: ["밥", "먹다"]
  *               endingCards:
  *                 type: array
  *                 items:
  *                   type: string
  *                 minItems: 1
  *                 maxItems: 5
- *                 description: 선택한 어미 카드 배열 (1~5개)
- *                 example: ["질문", "부드럽게"]
+ *                 description: "선택한 어미 카드 배열 (1~5개). tone 없이 사용 시 필수. 기본 카드: 하고 싶어요, 하기 싫어요, 질문, 해주세요, 합시다"
+ *               tone:
+ *                 type: string
+ *                 enum: [HONORIFIC, INFORMAL]
+ *                 description: "반말/존댓말 모드. HONORIFIC(존댓말) 또는 INFORMAL(반말). endingCards 없이 단독 사용 가능. 있을 경우 endingCards 앞에 반말/존댓말 카드로 변환되어 우선 적용됨."
  *               refresh:
  *                 type: boolean
  *                 default: false
  *                 description: 캐시 무시하고 새로 생성 여부 (기본값 false)
- *                 example: false
  *     responses:
  *       200:
  *         description: 문장 추천 성공
@@ -356,14 +372,14 @@ router.get('/contexts', authenticate, contextController);
  *                       type: array
  *                       items:
  *                         type: string
- *                       description: 입력한 어미 카드 배열
- *                       example: ["질문", "부드럽게"]
+ *                       description: "실제 적용된 어미 카드 배열. tone 사용 시 맨 앞에 반말/존댓말 카드가 추가됨. 예: tone=INFORMAL → [\"반말\", \"질문\"]"
+ *                       example: ["반말", "질문"]
  *                     sentences:
  *                       type: array
  *                       description: 스타일 변환된 문장 3개 (사용자별 가중치 적용 후 정렬, 문자열 배열)
  *                       items:
  *                         type: string
- *                       example: ["밥 드실래요?", "밥 좀 드시겠어요?", "밥 같이 드실까요?"]
+ *                       example: ["밥 먹을래?", "밥 먹어?", "밥 먹을 거야?"]
  *                     fromCache:
  *                       type: boolean
  *                       description: 캐시에서 반환되었는지 여부
