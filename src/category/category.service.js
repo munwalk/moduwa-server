@@ -77,6 +77,22 @@ export const getCategoryListService = async ({ userId }) => {
     categories = await listUserCategories({ userId });
   }
 
+    // 기본 UserCategory 생성 후, 각 카테고리별 Word를 UserWord로 복사
+    const wordsRepo = (await import("../words/repositories/words.repository.js")).default;
+    for (const userCategory of categories.filter(c => c.isDefault)) {
+      // 기본 카테고리 이름으로 Category 찾기
+      const category = await prisma.category.findFirst({
+        where: {
+          categoryName: userCategory.categoryName,
+          isDefault: true
+        }
+      });
+      if (category) {
+        // 해당 Category의 Word를 UserWord로 복사
+        await wordsRepo.createSnapshotFromWords(userId, userCategory.id);
+      }
+    }
+
   return Promise.all(
     categories.map(async (c) => {
       let wordCount = 0;

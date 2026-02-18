@@ -141,8 +141,6 @@ export class WordsRepository {
     return await prisma.userWord.findMany({
       where,
       include: {
-        word: true,
-        category: true,
         userCategory: true
       },
       orderBy: { displayOrder: 'asc' }
@@ -186,7 +184,6 @@ export class WordsRepository {
     return await prisma.userWord.create({
       data: {
         userId,
-        categoryId: isUserCategory ? null : categoryId,
         userCategoryId: isUserCategory ? categoryId : null,
         partOfSpeech: partOfSpeech, // NLP 서비스에서 받은 품사
         customWord: word,
@@ -219,8 +216,6 @@ export class WordsRepository {
     return await prisma.userWord.findUnique({
       where: { id: userWordId },
       include: {
-        word: true,
-        category: true,
         userCategory: true
       }
     });
@@ -323,8 +318,6 @@ export class WordsRepository {
       where: { id: userWordId },
       data,
       include: {
-        word: true,
-        category: true,
         userCategory: true
       }
     });
@@ -382,16 +375,16 @@ export class WordsRepository {
     });
     const isUserCategory = !!userCategory;
 
-    // 3. 각 Word를 참조하는 UserWord 생성 (필드 분기)
+    // 3. 각 Word를 UserWord로 복사 (wordId, categoryId 제거)
     const createPromises = words.map((word, index) =>
       prisma.userWord.create({
         data: {
           userId,
-          wordId: word.id,
-          categoryId: isUserCategory ? null : word.categoryId,
           userCategoryId: isUserCategory ? categoryId : null,
           partOfSpeech: word.partOfSpeech,
-          displayOrder: index, // 생성 순서대로 0, 1, 2...
+          customWord: word.word,
+          customImageUrl: word.imageUrl,
+          displayOrder: index,
           isFavorite: false,
           isDeleted: false
         }
