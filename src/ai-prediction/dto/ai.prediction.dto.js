@@ -19,7 +19,8 @@ const predictRequestSchema = Joi.object({
     previousMessages: Joi.array().items(Joi.string()).optional()
   }).optional(),
   // refresh 필드를 허용하고 기본값을 false로 설정
-  refresh: Joi.boolean().default(false) 
+  refresh: Joi.boolean().default(false),
+  tone: Joi.string().valid('HONORIFIC', 'INFORMAL').optional()
 }).options({ stripUnknown: true });
 
 export { predictRequestSchema };

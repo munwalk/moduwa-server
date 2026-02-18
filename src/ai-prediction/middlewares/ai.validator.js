@@ -8,7 +8,7 @@ import { ValidationError } from '../../errors/app.error.js';
 export const validatePredictRequest = (req, res, next) => {
   const { error, value } = predictRequestSchema.validate(req.body);
 
-  const { words = [] } = error ? req.body : value;
+  const { words = [], tone } = error ? req.body : value;
 
   // 1. 낱말 카드 없으면 에러
   if (!words || words.length === 0) {
@@ -20,7 +20,15 @@ export const validatePredictRequest = (req, res, next) => {
     return next(new ValidationError('낱말 카드는 최소 1개, 최대 10개까지 선택 가능합니다'));
   }
 
-  // 3. Joi 검증 에러 처리
+  // 3. tone 검증 (있을 때만)
+  if (tone !== undefined && tone !== null) {
+    const validTones = ['HONORIFIC', 'INFORMAL'];
+    if (!validTones.includes(tone)) {
+      return next(new ValidationError('tone은 HONORIFIC 또는 INFORMAL만 가능합니다'));
+    }
+  }
+
+  // 4. Joi 검증 에러 처리
   if (error) {
     return next(new ValidationError(error.details[0].message));
   }
@@ -47,30 +55,20 @@ export const validateStyleRequest = (req, res, next) => {
     return next(new ValidationError('낱말 카드는 최대 10개까지 선택 가능합니다'));
   }
 
-  const hasTone = typeof tone === 'string' && tone.length > 0;
-  const hasEndingCards = Array.isArray(endingCards);
+  // endingCards 필수 검증
+  if (!Array.isArray(endingCards) || endingCards.length === 0) {
+    return next(new ValidationError('어미 선택 카드를 최소 1개 이상 선택해주세요'));
+  }
 
-  // tone도 endingCards도 없으면 에러
-  if (!hasTone && !hasEndingCards) {
-    return next(new ValidationError('어미 선택 카드 또는 tone 중 하나는 반드시 제공해야 합니다'));
+  if (endingCards.length > 5) {
+    return next(new ValidationError('어미 선택 카드는 최대 5개까지 선택 가능합니다'));
   }
 
   // tone 값 검증 (있을 때만)
-  if (hasTone) {
+  if (tone !== undefined && tone !== null) {
     const validTones = ['HONORIFIC', 'INFORMAL'];
     if (!validTones.includes(tone)) {
       return next(new ValidationError('tone은 HONORIFIC 또는 INFORMAL만 가능합니다'));
-    }
-  }
-
-  // endingCards 검증 (있을 때만)
-  if (hasEndingCards) {
-    if (endingCards.length === 0) {
-      return next(new ValidationError('어미 선택 카드를 최소 1개 이상 선택해주세요'));
-    }
-
-    if (endingCards.length > 5) {
-      return next(new ValidationError('어미 선택 카드는 최대 5개까지 선택 가능합니다'));
     }
   }
 

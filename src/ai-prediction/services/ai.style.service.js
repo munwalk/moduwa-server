@@ -15,7 +15,7 @@ const FASTAPI_URL = process.env.FASTAPI_URL || 'http://fastapi:8000';
  * @param {string} userId - 사용자 ID (학습 데이터 가중치 적용용)
  * @returns {Promise<Object>} 추천 문장 3개 (빈도수 가중치 적용 후 정렬) + rawSentences
  */
-const transformSentenceStyle = async (words, endingCards, refresh = false, userId = null) => {
+const transformSentenceStyle = async (words, endingCards, refresh = false, userId = null, tone = null) => {
   // 타임아웃 처리 (10초)
   const timeoutPromise = new Promise((_, reject) => {
     setTimeout(() => {
@@ -31,8 +31,9 @@ const transformSentenceStyle = async (words, endingCards, refresh = false, userI
     },
     body: JSON.stringify({
       words,
-      endingCards, // 배열로 전달 (1~5개)
-      refresh // 새로고침 파라미터
+      endingCards,
+      ...(tone && { tone }), // tone이 있을 때만 포함
+      refresh
     })
   }).then(async (response) => {
     if (!response.ok) {
