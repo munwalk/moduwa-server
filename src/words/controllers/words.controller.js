@@ -97,7 +97,7 @@ export class WordsController {
       const updateDto = new UpdateWordDto({
         word: req.body.word,
         imageUrl: req.body.imageUrl,
-        categoryId: req.body.categoryId
+        userCategoryId: req.body.categoryId
       });
 
       // 유효성 검증
@@ -108,7 +108,7 @@ export class WordsController {
         cardId,
         updateDto.word,
         updateDto.imageUrl,
-        updateDto.categoryId
+        updateDto.userCategoryId
       );
 
       return res.success({ word: updatedWord }, '낱말 카드 수정 성공');

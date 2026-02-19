@@ -301,18 +301,20 @@ export class WordsRepository {
   }
 
   /**
-   * UserWord 업데이트 (customWord, customImageUrl, categoryId)
-   * @param {string} userWordId - UserWord.id
-   * @param {string|null} customWord
-   * @param {string|null} customImageUrl
-   * @param {string|null} categoryId
-   * @returns {Promise<Object>}
-   */
-  async updateUserWord(userWordId, customWord, customImageUrl, categoryId) {
+  * UserWord 업데이트 (customWord, customImageUrl, userCategoryId, displayOrder)
+  * @param {string} userWordId - UserWord.id
+  * @param {string|null} customWord
+  * @param {string|null} customImageUrl
+  * @param {string|null} userCategoryId
+  * @param {number|undefined} displayOrder
+  * @returns {Promise<Object>}
+  */
+  async updateUserWord(userWordId, customWord, customImageUrl, userCategoryId, displayOrder) {
     const data = {};
     if (customWord !== undefined) data.customWord = customWord;
     if (customImageUrl !== undefined) data.customImageUrl = customImageUrl;
-    if (categoryId !== undefined && categoryId !== null) data.categoryId = categoryId;
+    if (userCategoryId !== undefined && userCategoryId !== null) data.userCategoryId = userCategoryId;
+    if (displayOrder !== undefined) data.displayOrder = displayOrder;
 
     return await prisma.userWord.update({
       where: { id: userWordId },

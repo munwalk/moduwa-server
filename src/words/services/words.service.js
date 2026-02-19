@@ -224,13 +224,31 @@ export class WordsService {
    * @param {string|undefined} categoryId - 변경할 카테고리 ID
    * @returns {Promise<WordCardResponseDto>}
    */
-  async updateWord(userId, cardId, word, imageUrl, categoryId) {
+  async updateWord(userId, cardId, word, imageUrl, userCategoryId) {
     // 무조건 UserWord만 수정: 기본 Word 복사/생성 로직 제거
     const userWord = await wordsRepository.findUserWordById(cardId);
     if (!userWord) {
       throw new Error('존재하지 않는 UserWord입니다');
     }
-    const updatedUserWord = await wordsRepository.updateUserWord(cardId, word, imageUrl, categoryId);
+
+    let displayOrder = undefined;
+    // 카테고리 변경 시 displayOrder 맨 뒤로 이동 및 기존 카테고리 재정렬
+    if (userCategoryId && userWord.userCategoryId !== userCategoryId) {
+      // 1. 이동될 카테고리 맨 뒤로
+      displayOrder = await this.getNextDisplayOrder(userId, null, userCategoryId);
+
+      // 2. 기존 카테고리 displayOrder 재정렬
+      const prevCategoryId = userWord.userCategoryId;
+      if (prevCategoryId) {
+        const prevWords = await wordsRepository.findUserWords(userId, prevCategoryId, false, false);
+        // 이동된 단어 제외
+        const filtered = prevWords.filter(w => w.id !== cardId);
+        const updates = filtered.map((w, idx) => ({ userWordId: w.id, displayOrder: idx }));
+        await wordsRepository.bulkUpdateDisplayOrders(updates);
+      }
+    }
+
+    const updatedUserWord = await wordsRepository.updateUserWord(cardId, word, imageUrl, userCategoryId, displayOrder);
     return new WordCardResponseDto({
       cardId: updatedUserWord.id,
       categoryId: updatedUserWord.userCategoryId,
