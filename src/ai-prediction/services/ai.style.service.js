@@ -15,7 +15,7 @@ const FASTAPI_URL = process.env.FASTAPI_URL || 'http://fastapi:8000';
  * @param {string} userId - 사용자 ID (학습 데이터 가중치 적용용)
  * @returns {Promise<Object>} 추천 문장 3개 (빈도수 가중치 적용 후 정렬) + rawSentences
  */
-const transformSentenceStyle = async (words, endingCards, refresh = false, userId = null, tone = null) => {
+const transformSentenceStyle = async (words, endingCards, refresh = false, userId = null, tone = null, context = {}) => {
   // 타임아웃 처리 (10초)
   const timeoutPromise = new Promise((_, reject) => {
     setTimeout(() => {
@@ -32,6 +32,10 @@ const transformSentenceStyle = async (words, endingCards, refresh = false, userI
     body: JSON.stringify({
       words,
       endingCards,
+      context: {
+        currentTime: context?.currentTime,
+        previousMessages: (context?.previousMessages || []).slice(-3)
+      },
       ...(tone && { tone }), // tone이 있을 때만 포함
       refresh
     })
@@ -52,9 +56,11 @@ const transformSentenceStyle = async (words, endingCards, refresh = false, userI
   }
 
   // 1단계: 응답 정규화 (confidence 값 추가)
-  const normalizedSentences = result.sentences.slice(0, 3).map(sentence => ({
+  // FastAPI 응답 순서를 순위로 활용 (AI-01과 동일 방식)
+  const rankScores = [0.6, 0.5, 0.4];
+  const normalizedSentences = result.sentences.slice(0, 3).map((sentence, index) => ({
     sentence,
-    confidence: 0.5 // Style API는 confidence 값이 없으므로 기본값 사용
+    confidence: rankScores[index] ?? 0.4
   }));
 
   // 2단계: 학습 데이터 가중치 적용 및 재정렬
@@ -66,7 +72,7 @@ const transformSentenceStyle = async (words, endingCards, refresh = false, userI
     words,
     endingCards,
     sentences: rankedSentences.map(pred => pred.sentence), // 가중치 적용된 문장
-    rawSentences: normalizedSentences.map(pred => pred.sentence), // 캐싱용 원본
+    rawSentences: normalizedSentences, // 캐싱용 원본 (confidence 포함, AI-01과 동일)
     fromCache: result.fromCache || false
   };
 };
