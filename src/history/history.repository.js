@@ -101,14 +101,14 @@ export const findFrequentWords = async (userId, frequentLimit = 80) => {
 
   // (1) 즐겨찾기 단어들을 먼저 Map에 담기 (isFavorite: true)
   favorites.forEach(fav => {
-    const key = fav.wordId || fav.customWord;
+    const key = fav.customWord;
     detailMap.set(key, {
-      wordId: fav.wordId || null,
-      word: fav.customWord || fav.word?.word,
-      imageUrl: fav.customImageUrl || fav.word?.imageUrl,
-      categoryId: fav.category?.id || null,
-      categoryName: fav.category?.categoryName,
-      isFavorite: true, // 즐겨찾기 여부 명시
+      wordId: null,
+      word: fav.customWord,
+      imageUrl: fav.customImageUrl,
+      categoryId: fav.userCategory?.id || null,
+      categoryName: fav.userCategory?.categoryName,
+      isFavorite: true,
       usageCount: wordFrequency.get(key)?.count || 0,
       lastUsedAt: wordFrequency.get(key)?.lastUsedAt || null
     });
@@ -120,39 +120,35 @@ export const findFrequentWords = async (userId, frequentLimit = 80) => {
 
   const [dbWords, dbUserWords, dbWordsByText] = await Promise.all([
     prisma.word.findMany({ where: { id: { in: wordIds } }, include: { category: true } }),
-    // ID 기반 조회와 더불어, 텍스트(customWord) 기반 조회도 추가하여 누락 방지
-    prisma.userWord.findMany({ 
-      where: { 
+    prisma.userWord.findMany({
+      where: {
         userId,
-        OR: [
-          { wordId: { in: wordIds } },
-          { customWord: { in: wordTexts } }
-        ],
-        isDeleted: false 
-      }, 
-      include: { category: true, word: true } 
+        customWord: { in: wordTexts },
+        isDeleted: false
+      },
+      include: { userCategory: true }
     }),
     prisma.word.findMany({ where: { word: { in: wordTexts } }, include: { category: true } })
   ]);
 
-  // 병합 로직에서 wordId뿐만 아니라 customWord(텍스트)도 키값으로 활용하도록 보완
+  // customWord 기반 UserWord 병합
   dbUserWords.forEach(uw => {
-    const key = uw.wordId || uw.customWord;
+    const key = uw.customWord;
     if (!detailMap.has(key)) {
       detailMap.set(key, {
-        wordId: uw.wordId || null,
-        word: uw.customWord || uw.word?.word,
-        imageUrl: uw.customImageUrl || uw.word?.imageUrl,
-        categoryId: uw.category?.id || null,
-        categoryName: uw.category?.categoryName,
-        isFavorite: uw.isFavorite, // DB 상태 반영
+        wordId: null,
+        word: uw.customWord,
+        imageUrl: uw.customImageUrl,
+        categoryId: uw.userCategory?.id || null,
+        categoryName: uw.userCategory?.categoryName,
+        isFavorite: uw.isFavorite,
         usageCount: wordFrequency.get(key)?.count || 0,
         lastUsedAt: wordFrequency.get(key)?.lastUsedAt || null
       });
     }
   });
 
-  // 중복 제거하며 Map 채우기 (이미 즐겨찾기로 들어간 건 건너뜀)
+  // wordId 기반 Word 병합 (기존 대화 이력에 wordId가 저장된 경우)
   dbWords.forEach(w => {
     if (!detailMap.has(w.id)) {
       detailMap.set(w.id, {
@@ -168,17 +164,18 @@ export const findFrequentWords = async (userId, frequentLimit = 80) => {
     }
   });
 
-  dbUserWords.forEach(uw => {
-    if (!detailMap.has(uw.wordId)) {
-      detailMap.set(uw.wordId, {
-        wordId: uw.wordId || null,
-        word: uw.customWord || uw.word?.word,
-        imageUrl: uw.customImageUrl || uw.word?.imageUrl,
-        categoryId: uw.category?.id || null,
-        categoryName: uw.category?.categoryName,
+  // 텍스트 기반 Word 병합
+  dbWordsByText.forEach(w => {
+    if (!detailMap.has(w.word)) {
+      detailMap.set(w.word, {
+        wordId: w.id,
+        word: w.word,
+        imageUrl: w.imageUrl,
+        categoryId: w.category?.id || null,
+        categoryName: w.category?.categoryName,
         isFavorite: false,
-        usageCount: wordFrequency.get(uw.wordId)?.count || 0,
-        lastUsedAt: wordFrequency.get(uw.wordId)?.lastUsedAt || null
+        usageCount: wordFrequency.get(w.word)?.count || 0,
+        lastUsedAt: wordFrequency.get(w.word)?.lastUsedAt || null
       });
     }
   });
