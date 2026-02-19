@@ -80,8 +80,6 @@ router.get('/', optionalAuthenticate, wordsController.getWords.bind(wordsControl
  *     summary: 개인 낱말 카드 추가
  *     description: 사용자가 직접 낱말 카드를 추가합니다. NLP로 품사를 자동 분석합니다.
  *     tags: [Words]
- *     security:
- *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
