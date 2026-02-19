@@ -19,7 +19,7 @@ const transformStyleController = async (req, res, next) => {
     console.log('🟣 AI Style 요청 받음:', req.body);
 
     // 검증된 데이터 추출 (미들웨어에서 이미 검증 완료)
-    const { words, endingCards, tone, refresh = false } = req.body;
+    const { words, endingCards, tone, context, refresh = false } = req.body;
     const userId = req.user?.userId; // 인증된 사용자 ID (학습 데이터 가중치 적용용)
 
     // endingCards 정규화 (tone은 별도 파라미터로 FastAPI에 직접 전달)
@@ -27,7 +27,7 @@ const transformStyleController = async (req, res, next) => {
 
     // 캐시 조회 (refresh가 false일 때만)
     if (!refresh && words.length > 0 && (normalizedEndingCards.length > 0 || tone)) {
-      const cacheContext = { previousMessages: [] };
+      const cacheContext = { previousMessages: context?.previousMessages || [] };
       const cacheKey = generateCacheKey(words, cacheContext, 'styles', normalizedEndingCards, tone);
       const cached = await getFromCache(cacheKey);
 
@@ -35,11 +35,8 @@ const transformStyleController = async (req, res, next) => {
         console.log('💾 캐시에서 반환');
 
         // 캐시된 결과에도 사용자별 학습 데이터 가중치 적용
-        const cachedWithConfidence = cached.sentences.map(sentence => ({
-          sentence,
-          confidence: 0.5 // 캐시된 데이터는 기본 confidence 값 사용
-        }));
-        const rankedCached = await rankByLearningData(cachedWithConfidence, userId);
+        // cached.sentences는 {sentence, confidence}[] 형태로 저장됨 (AI-01과 동일)
+        const rankedCached = await rankByLearningData(cached.sentences, userId);
         const finalSentences = rankedCached.map(pred => pred.sentence);
 
         return res.status(200).success(
@@ -55,13 +52,13 @@ const transformStyleController = async (req, res, next) => {
       }
     }
 
-    // AI 문장 추천 호출 (userId, tone 전달)
-    console.log('🤖 FastAPI 호출:', { words, endingCards: normalizedEndingCards, tone, refresh, userId });
-    const result = await transformSentenceStyle(words, normalizedEndingCards, refresh, userId, tone);
+    // AI 문장 추천 호출 (userId, tone, context 전달)
+    console.log('🤖 FastAPI 호출:', { words, endingCards: normalizedEndingCards, tone, context, refresh, userId });
+    const result = await transformSentenceStyle(words, normalizedEndingCards, refresh, userId, tone, context);
 
     // 캐시 저장 (원본 sentences만 저장, 사용자별 가중치 미적용)
     if (words.length > 0 && normalizedEndingCards.length > 0) {
-      const cacheContext = { previousMessages: [] };
+      const cacheContext = { previousMessages: context?.previousMessages || [] };
       const cacheKey = generateCacheKey(words, cacheContext, 'styles', normalizedEndingCards, tone);
       await saveToCache(cacheKey, {
         words: result.words,

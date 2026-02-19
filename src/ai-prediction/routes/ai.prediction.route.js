@@ -321,18 +321,20 @@ router.get('/contexts', authenticate, contextController);
  *   post:
  *     summary: 문장 스타일 변환
  *     description: |
- *       낱말 카드 + 어미 카드를 조합하여 특정 스타일의 문장을 생성합니다. predictions와 동일한 Cache-First 전략을 사용합니다.
+ *       낱말 카드 + 어미 카드를 조합하여 특정 스타일의 문장을 생성합니다. AI-01(`predictions`)과 동일한 Cache-First 전략 및 순위 기반 가중치 적용.
  *
- *       **`tone`** — 반말/존댓말 토글 (기기 내 설정값 반영)
- *
- *       > 토글 OFF → `HONORIFIC` (존댓말, 기본값) / 토글 ON → `INFORMAL` (반말)
- *
- *       **`endingCards`** — 어미 선택 카드 (문장 스타일 지정)
+ *       **`endingCards`** — 어미 선택 카드 (문장 스타일 지정). **필수**
  *
  *       > `하고 싶어요` / `하기 싫어요` / `질문` / `해주세요` / `합시다` 및 사용자 커스텀 어미 가능.
  *       > LLM이 어미의 의미를 해석하여 자연스러운 문장으로 변환합니다.
  *
+ *       **`tone`** — 반말/존댓말 토글 (기기 내 설정값 반영). 선택사항
+ *
+ *       > 토글 OFF → `HONORIFIC` (존댓말, 기본값) / 토글 ON → `INFORMAL` (반말)
+ *
  *       두 파라미터는 **독립적이며 동시에 사용 가능**합니다. `tone`은 반말/존댓말만 제어하고, `endingCards`는 문장의 의도/어미를 제어합니다.
+ *
+ *       **`context`** — 대화 맥락 정보 (선택사항). AI-01과 동일하게 `previousMessages`가 캐시 키에 포함됩니다.
  *     tags: [AI]
  *     security:
  *       - bearerAuth: []
@@ -344,11 +346,15 @@ router.get('/contexts', authenticate, contextController);
  *             type: object
  *             required:
  *               - words
- *             description: "`tone`과 `endingCards`는 독립적인 파라미터입니다. `tone`은 반말/존댓말만 제어하고, `endingCards`는 문장의 의도와 어미 스타일을 제어합니다. 둘 다 없으면 에러입니다."
+ *               - endingCards
+ *             description: "`tone`과 `endingCards`는 독립적인 파라미터입니다. `tone`은 반말/존댓말만 제어하고, `endingCards`는 문장의 의도와 어미 스타일을 제어합니다."
  *             example:
  *               words: ["밥", "먹다"]
  *               endingCards: ["질문"]
  *               tone: "INFORMAL"
+ *               context:
+ *                 currentTime: "2026년 1월 28일 (화) 14:30"
+ *                 previousMessages: ["약 먹어야 해", "오늘 기분 좋아"]
  *               refresh: false
  *             properties:
  *               words:
@@ -364,7 +370,21 @@ router.get('/contexts', authenticate, contextController);
  *                   type: string
  *                 minItems: 1
  *                 maxItems: 5
- *                 description: "선택한 어미 카드 배열 (최대 5개). tone 없이 사용 시 필수. 기본 카드: 하고 싶어요, 하기 싫어요, 질문, 해주세요, 합시다. tone과 독립적으로 동시 사용 가능."
+ *                 description: "선택한 어미 카드 배열 (필수, 최대 5개). 기본 카드: 하고 싶어요, 하기 싫어요, 질문, 해주세요, 합시다. tone과 독립적으로 동시 사용 가능."
+ *               context:
+ *                 type: object
+ *                 description: 대화 맥락 정보 (선택사항). AI-01과 동일하게 캐시 키에 포함됩니다.
+ *                 properties:
+ *                   currentTime:
+ *                     type: string
+ *                     description: 현재 시각 (한국 시각 형식)
+ *                     example: "2026년 1월 28일 (화) 14:30"
+ *                   previousMessages:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                     description: 최근 대화 기록 (최대 10분 이내)
+ *                     example: ["약 먹어야 해", "오늘 기분 좋아"]
  *               tone:
  *                 type: string
  *                 enum: [HONORIFIC, INFORMAL]
