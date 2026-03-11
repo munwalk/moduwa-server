@@ -9,7 +9,7 @@ const swaggerDefinition = {
   },
   servers: [
     { url: "http://localhost:3000", description: "Local" },
-    { url: "http://52.78.164.88:3000", description: "Development Server" }
+    { url: "http://52.79.142.223:3000", description: "Development Server" }
   ],
 
   tags: [
